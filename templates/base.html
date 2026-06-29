@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{% block title %}HM System{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    
+    <!-- ✅ FULL STITCH TAILWIND CONFIG - KEEPING EVERYTHING -->
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#ffffff",
+                        "primary": "#004ac6",
+                        "primary-container": "#2563eb",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-primary-container": "#eeefff",
+                        "error": "#ba1a1a",
+                        "outline-variant": "#c3c6d7",
+                        "secondary-fixed": "#6ffbbe",
+                        "tertiary-fixed": "#ffddb8",
+                        "background": "#f7f9fb",
+                        "on-background": "#191c1e",
+                        "secondary": "#006c49",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-primary": "#ffffff",
+                        "secondary-fixed-dim": "#4edea3",
+                        "inverse-on-surface": "#eff1f3",
+                        "surface-container": "#eceef0",
+                        "surface-container-high": "#e6e8ea",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#996100",
+                        "on-error-container": "#93000a",
+                        "on-secondary-fixed-variant": "#005236",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary-fixed": "#002113",
+                        "error-container": "#ffdad6",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed": "#dbe1ff",
+                        "on-surface": "#191c1e",
+                        "surface-variant": "#e0e3e5",
+                        "surface-tint": "#0053db",
+                        "inverse-surface": "#2d3133",
+                        "on-surface-variant": "#434655",
+                        "outline": "#737686",
+                        "surface": "#f7f9fb",
+                        "tertiary": "#784b00",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-tertiary-container": "#ffeedd",
+                        "surface-container-low": "#f2f4f6",
+                        "secondary-container": "#6cf8bb",
+                        "surface-dim": "#d8dadc",
+                        "on-secondary-container": "#00714d",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "inverse-primary": "#b4c5ff",
+                        "surface-bright": "#f7f9fb",
+                        "on-primary-fixed": "#00174b",
+                        "primary-fixed-dim": "#b4c5ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "12px",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "base": "4px",
+                        "xs": "4px",
+                        "lg": "24px",
+                        "xxl": "48px",
+                        "sm": "8px",
+                        "container-max": "1280px",
+                        "xl": "32px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <!-- Custom CSS -->
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7f9fb;
+            color: #191c1e;
+        }
+        .custom-shadow {
+            box-shadow: 0px 1px 2px 0px rgba(15, 23, 42, 0.05);
+        }
+        .custom-shadow-hover:hover {
+            box-shadow: 0px 4px 6px -1px rgba(15, 23, 42, 0.1);
+        }
+        .login-card-shadow {
+            box-shadow: 0px 1px 2px 0px rgba(15, 23, 42, 0.05);
+        }
+        .login-card-shadow:hover {
+            box-shadow: 0px 4px 6px -1px rgba(15, 23, 42, 0.1);
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body class="bg-background text-on-background flex flex-col min-h-screen">
+    
+    <!-- NAVBAR -->
+    <header class="bg-surface-container-lowest sticky top-0 z-50 border-b border-outline-variant shadow-sm">
+        <nav class="flex justify-between items-center w-full px-lg md:px-xxl py-md max-w-container-max mx-auto">
+            <div class="font-headline-md text-headline-md font-bold text-primary">HM System</div>
+            
+            <div class="hidden md:flex items-center gap-xl">
+                <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="/">Home</a>
+                <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">About Us</a>
+                <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Services</a>
+                <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Contact</a>
+            </div>
+            
+            <div class="flex items-center gap-md">
+                <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all duration-200" href="/login/">Login</a>
+                <a class="bg-primary text-white px-md py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-all duration-200" href="/register/">Register</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-surface-container border-t border-outline-variant">
+        <div class="w-full px-lg md:px-xxl py-xl flex flex-col md:flex-row justify-between items-center gap-md max-w-container-max mx-auto">
+            <div class="flex flex-col gap-xs items-center md:items-start">
+                <div class="font-headline-sm text-headline-sm font-bold text-on-surface">HM System</div>
+                <p class="font-body-sm text-body-sm text-on-surface-variant">© 2024 HM System. All rights reserved.</p>
+            </div>
+            <div class="flex gap-lg items-center">
+                <a class="font-label-sm text-label-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Privacy Policy</a>
+                <a class="font-label-sm text-label-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Terms of Service</a>
+                <a class="font-label-sm text-label-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">FAQ</a>
+                <a class="font-label-sm text-label-sm text-on-surface-variant hover:underline hover:text-primary transition-all duration-200" href="#">Support</a>
+            </div>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

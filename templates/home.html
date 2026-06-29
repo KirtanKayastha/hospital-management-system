@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}HM System - Streamlined Hospital Management{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="relative overflow-hidden bg-surface-container-lowest px-lg md:px-xxl py-xxl md:py-32">
+    <div class="max-w-container-max mx-auto grid grid-cols-1 lg:grid-cols-2 gap-xl items-center relative z-10">
+        <div class="space-y-lg">
+            <h1 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg leading-tight text-on-surface">
+                Hospital Management System
+            </h1>
+            <p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl">
+                Streamline your clinical operations, automate scheduling, and enhance patient care through our secure, integrated healthcare ecosystem designed for modern institutions.
+            </p>
+            <div class="flex flex-wrap gap-md pt-md">
+                <a href="/register/" class="bg-primary text-white px-xl py-md rounded-lg font-bold text-body-md hover:bg-primary-container transition-all duration-200 shadow-sm">
+                    Get Started
+                </a>
+                <a href="/login/" class="bg-transparent border border-outline-variant text-on-surface px-xl py-md rounded-lg font-bold text-body-md hover:bg-surface-container transition-all duration-200">
+                    Login
+                </a>
+            </div>
+        </div>
+        <div class="relative mt-md lg:mt-0">
+            <div class="aspect-video bg-surface-container-high rounded-xl overflow-hidden custom-shadow">
+                <img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXCne897GsZ1YlqyN-8mGTbh4C_G4HfwTQoY_7z0EPeOJqIfdUY6E9syclG0NIWOsWEiKDDqGo6SKXo90QERlyp0x_6VqSvCeweHgelIzOyNkVWWxeh_Cun3KqkZ9ExGaHQaauEhtXdcFYSz9-hNq-Yy2SuFskd7L5fn0qPYh2WIy7yNzVnD2vaB-1fFXHS0NTM8zgHeLe9VFDq5KKZm-0qF7dOYu7PnS38kPzBBJeiYEEKyzNlH1qchA5RHIWJZoS9h7up7gYyA" alt="Modern medical facility"/>
+            </div>
+            <div class="absolute -bottom-md -left-md bg-white p-lg rounded-xl custom-shadow border border-outline-variant hidden md:block">
+                <div class="flex items-center gap-md">
+                    <span class="material-symbols-outlined text-primary text-3xl">groups</span>
+                    <div>
+                        <div class="font-headline-sm text-headline-sm text-primary">12,000+</div>
+                        <div class="font-label-sm text-label-sm text-on-surface-variant">Active Patients</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="bg-background px-lg md:px-xxl py-xxl">
+    <div class="max-w-container-max mx-auto">
+        <div class="text-center mb-xxl">
+            <h2 class="font-headline-md text-headline-md text-on-surface mb-md">Comprehensive Clinical Tools</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant max-w-2xl mx-auto">
+                Everything you need to manage your healthcare facility in one secure cloud platform.
+            </p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+            <div class="bg-white p-lg rounded-xl border border-outline-variant custom-shadow custom-shadow-hover transition-all duration-300">
+                <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-lg">
+                    <span class="material-symbols-outlined text-primary">patient_list</span>
+                </div>
+                <h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm">Patient Management</h3>
+                <p class="font-body-sm text-body-sm text-on-surface-variant">
+                    Centralized electronic health records (EHR) with full history tracking, allergic data, and medication mapping for accurate patient profiles.
+                </p>
+            </div>
+            <div class="bg-white p-lg rounded-xl border border-outline-variant custom-shadow custom-shadow-hover transition-all duration-300">
+                <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-lg">
+                    <span class="material-symbols-outlined text-primary">calendar_month</span>
+                </div>
+                <h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm">Appointment Booking</h3>
+                <p class="font-body-sm text-body-sm text-on-surface-variant">
+                    Automated scheduling system that syncs with doctor availability, reduces no-shows with smart reminders, and allows patient self-service booking.
+                </p>
+            </div>
+            <div class="bg-white p-lg rounded-xl border border-outline-variant custom-shadow custom-shadow-hover transition-all duration-300">
+                <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-lg">
+                    <span class="material-symbols-outlined text-primary">dashboard</span>
+                </div>
+                <h3 class="font-headline-sm text-headline-sm text-on-surface mb-sm">Admin Dashboard</h3>
+                <p class="font-body-sm text-body-sm text-on-surface-variant">
+                    Real-time analytics for revenue, bed occupancy, and staff performance. Comprehensive reporting tools for informed institutional decision-making.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="bg-surface-container-lowest px-lg md:px-xxl py-xxl">
+    <div class="max-w-container-max mx-auto">
+        <h2 class="font-headline-md text-headline-md text-on-surface text-center mb-xxl">Streamlined Implementation</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-xl">
+            <div class="flex flex-col items-center text-center">
+                <div class="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center font-headline-sm mb-lg shadow-sm">1</div>
+                <h4 class="font-headline-sm text-headline-sm text-on-surface mb-sm">Register</h4>
+                <p class="font-body-md text-body-md text-on-surface-variant px-md">
+                    Onboard your medical facility and staff members into our secure, encrypted environment.
+                </p>
+            </div>
+            <div class="flex flex-col items-center text-center">
+                <div class="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center font-headline-sm mb-lg shadow-sm">2</div>
+                <h4 class="font-headline-sm text-headline-sm text-on-surface mb-sm">Book &amp; Manage</h4>
+                <p class="font-body-md text-body-md text-on-surface-variant px-md">
+                    Start scheduling consultations and managing resources through the intuitive admin interface.
+                </p>
+            </div>
+            <div class="flex flex-col items-center text-center">
+                <div class="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center font-headline-sm mb-lg shadow-sm">3</div>
+                <h4 class="font-headline-sm text-headline-sm text-on-surface mb-sm">Access Records</h4>
+                <p class="font-body-md text-body-md text-on-surface-variant px-md">
+                    Generate real-time reports and access patient medical records securely from any authorized device.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="px-lg md:px-xxl py-xxl bg-primary-container text-white overflow-hidden relative">
+    <div class="absolute inset-0 opacity-10 pointer-events-none">
+        <svg fill="none" height="100%" width="100%" xmlns="http://www.w3.org/2000/svg">
+            <pattern height="40" id="grid" patternunits="userSpaceOnUse" width="40">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" stroke-width="1"></path>
+            </pattern>
+            <rect fill="url(#grid)" height="100%" width="100%"></rect>
+        </svg>
+    </div>
+    <div class="max-w-container-max mx-auto text-center relative z-10">
+        <h2 class="font-headline-lg text-headline-lg-mobile md:text-headline-lg mb-lg">Ready to Modernize Your Operations?</h2>
+        <p class="font-body-lg text-body-lg mb-xl max-w-2xl mx-auto opacity-90">
+            Join over 500+ clinics and hospitals that have transitioned to a digital-first patient experience.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-md justify-center">
+            <a href="/register/" class="bg-white text-primary px-xl py-md rounded-lg font-bold text-body-md hover:bg-surface-container-lowest transition-all duration-200">
+                Get Started Today
+            </a>
+            <a href="#" class="bg-transparent border border-white/40 text-white px-xl py-md rounded-lg font-bold text-body-md hover:bg-white/10 transition-all duration-200">
+                Request a Demo
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
