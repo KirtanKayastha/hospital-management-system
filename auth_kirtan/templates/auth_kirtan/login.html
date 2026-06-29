@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Login | HM System{% endblock %}
+
+{% block content %}
+<main class="min-h-screen flex items-center justify-center pt-xxl pb-xxl px-md">
+    <div class="w-full max-w-[440px] bg-surface-container-lowest rounded-lg login-card-shadow p-xl md:p-xxl flex flex-col items-center">
+        <div class="text-center mb-xl w-full">
+            <h1 class="font-headline-lg text-headline-lg text-on-surface mb-xs">Welcome Back</h1>
+            <p class="font-body-md text-body-md text-on-surface-variant">Sign in to your account</p>
+        </div>
+
+        <form class="w-full space-y-lg" action="/login/" method="POST">
+            {% csrf_token %}
+            <div class="space-y-xs">
+                <label class="font-label-md text-label-md text-on-surface-variant block" for="email">Email Address</label>
+                <div class="relative group">
+                    <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors duration-200">mail</span>
+                    <input class="w-full pl-[48px] pr-md py-md bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary transition-all duration-200" id="email" name="email" placeholder="name@company.com" type="email"/>
+                </div>
+            </div>
+
+            <div class="space-y-xs">
+                <div class="flex justify-between items-center">
+                    <label class="font-label-md text-label-md text-on-surface-variant block" for="password">Password</label>
+                    <a class="font-label-sm text-label-sm text-primary hover:underline transition-all" href="/forgot-password/">Forgot Password?</a>
+                </div>
+                <div class="relative group">
+                    <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors duration-200">lock</span>
+                    <input class="w-full pl-[48px] pr-md py-md bg-surface-container-lowest border border-outline-variant rounded-lg font-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary transition-all duration-200" id="password" name="password" placeholder="••••••••" type="password"/>
+                </div>
+            </div>
+
+            <button class="w-full bg-primary hover:bg-primary-container text-white py-md rounded-lg font-label-md text-label-md shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-sm active:scale-[0.98]" type="submit">
+                Login
+                <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </button>
+
+            <div class="flex items-center gap-md py-md">
+                <div class="h-[1px] flex-grow bg-outline-variant"></div>
+                <span class="font-label-sm text-label-sm text-on-surface-variant">or</span>
+                <div class="h-[1px] flex-grow bg-outline-variant"></div>
+            </div>
+
+            <div class="text-center">
+                <p class="font-body-sm text-body-sm text-on-surface-variant">
+                    Don't have an account? 
+                    <a class="text-primary font-bold hover:underline transition-all duration-200" href="/register/">Register</a>
+                </p>
+            </div>
+        </form>
+    </div>
+</main>
+{% endblock %}
