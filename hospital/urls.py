@@ -13,4 +13,7 @@ urlpatterns = [
     
     # Admin routes (Nishan)
     path('admin-panel/', include('admin_nishan.urls')),
+
+    # Doctor routes (Siddhartha)
+    path('doctor/', include('doctor_siddhartha.urls')),
 ]
