@@ -1,12 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
+# from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 
 # TODO: import models once created
 # from .models import Appointment, MedicalRecord, LabReport, PatientProfile
 
 
-@login_required
+# @login_required
 def dashboard(request):
     """
     Patient dashboard — shows stats, recent appointments, prescriptions.
@@ -26,7 +26,7 @@ def dashboard(request):
     return render(request, 'patient_roshan/dashboard.html', context)
 
 
-@login_required
+# @login_required
 def book_appointment(request):
     """
     Book a new appointment — shows doctor list + calendar + time slots.
@@ -52,7 +52,7 @@ def book_appointment(request):
     return render(request, 'patient_roshan/book_appointment.html', context)
 
 
-@login_required
+# @login_required
 def find_doctor(request):
     """
     Browse and search all available doctors by department and availability.
@@ -76,7 +76,7 @@ def find_doctor(request):
     return render(request, 'patient_roshan/find_doctor.html', context)
 
 
-@login_required
+# @login_required
 def my_appointments(request):
     """
     View all appointments with filter by status and search by doctor name.
@@ -114,7 +114,7 @@ def my_appointments(request):
     return render(request, 'patient_roshan/my_appointments.html', context)
 
 
-@login_required
+# @login_required
 def cancel_appointment(request, appointment_id):
     """
     Cancel a specific appointment by ID.
@@ -127,7 +127,7 @@ def cancel_appointment(request, appointment_id):
     return redirect('patient_roshan:my_appointments')
 
 
-@login_required
+# @login_required
 def reschedule_appointment(request, appointment_id):
     """
     Reschedule a specific appointment — redirects to booking page with prefilled data.
@@ -136,7 +136,7 @@ def reschedule_appointment(request, appointment_id):
     return redirect('patient_roshan:book_appointment')
 
 
-@login_required
+# @login_required
 def appointment_detail(request, appointment_id):
     """
     View details of a single appointment.
@@ -150,7 +150,7 @@ def appointment_detail(request, appointment_id):
     return render(request, 'patient_roshan/appointment_detail.html', context)
 
 
-@login_required
+# @login_required
 def medical_records(request):
     """
     View medical records — supports list and timeline view toggle.
@@ -163,7 +163,7 @@ def medical_records(request):
     return render(request, 'patient_roshan/medical_records.html', context)
 
 
-@login_required
+# @login_required
 def lab_reports(request):
     """
     View lab reports ordered by doctors.
@@ -175,7 +175,7 @@ def lab_reports(request):
     return render(request, 'patient_roshan/lab_reports.html', context)
 
 
-@login_required
+# @login_required
 def profile(request):
     """
     View and update patient profile information.
@@ -199,7 +199,7 @@ def profile(request):
     return render(request, 'patient_roshan/profile.html', context)
 
 
-@login_required
+# @login_required
 def update_emergency_contact(request):
     """
     Update emergency contact details.
@@ -210,7 +210,7 @@ def update_emergency_contact(request):
     return redirect('patient_roshan:profile')
 
 
-@login_required
+# @login_required
 def change_password(request):
     """
     Change patient account password.
