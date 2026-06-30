@@ -196,9 +196,11 @@
                     <p class="font-body-sm text-body-sm text-on-surface-variant truncate">Patient ID: #HM-2024-089</p>
                 </div>
             </div>
-            <a href="{% url 'logout' %}" class="flex items-center gap-md w-full px-md py-sm text-error font-label-md text-label-md hover:bg-error-container/10 rounded-lg transition-all mt-sm">
-                <span class="material-symbols-outlined">logout</span>Logout
-            </a>
+            {% comment %}
+<a href="{% url 'logout' %}" class="flex items-center gap-md w-full px-md py-sm text-error font-label-md text-label-md hover:bg-error-container/10 rounded-lg transition-all mt-sm">
+    <span class="material-symbols-outlined">logout</span>Logout
+</a>
+{% endcomment %}
         </div>
     </aside>
 

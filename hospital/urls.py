@@ -16,4 +16,7 @@ urlpatterns = [
 
     # Doctor routes (Siddhartha)
     path('doctor/', include('doctor_siddhartha.urls')),
+
+    # Patient routes (Roshan)
+    path('patient/', include('patient_roshan.urls')),
 ]
