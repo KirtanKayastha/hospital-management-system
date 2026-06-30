@@ -1,5 +1,7 @@
 from django.apps import AppConfig
 
-class PatientsConfig(AppConfig):  # Or whatever class name you have
+
+class PatientRoshanConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'patient_roshan'  # ✅ Must match the folder name, NOT 'patients'
+    name = 'patient_roshan'
+    verbose_name = 'Patient Dashboard'
