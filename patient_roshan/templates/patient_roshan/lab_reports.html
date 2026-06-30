@@ -1,0 +1,72 @@
+{% extends 'patient_roshan/base.html' %}
+{% block title %}Lab Reports{% endblock %}
+{% block page_title %}Lab Reports{% endblock %}
+
+{% block content %}
+{% with active_page='labreports' %}
+
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-lg">
+    <div>
+        <h1 class="font-headline-lg text-headline-lg text-on-surface">Lab Reports</h1>
+        <p class="font-body-md text-on-surface-variant mt-xs">Test results ordered by your doctors.</p>
+    </div>
+</div>
+
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-surface-container-low border-b border-outline-variant">
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Date</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Test</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Ordered By</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Status</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant text-right">Report</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-outline-variant">
+                {% for report in lab_reports %}
+                <tr class="hover:bg-surface-bright transition-colors">
+                    <td class="px-lg py-md">
+                        <p class="font-label-md text-on-surface">{{ report.date }}</p>
+                        <p class="text-xs text-on-surface-variant">{{ report.lab_name }}</p>
+                    </td>
+                    <td class="px-lg py-md font-body-md font-semibold text-on-surface">{{ report.test_name }}</td>
+                    <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ report.ordered_by }}</td>
+                    <td class="px-lg py-md">
+                        {% if report.status == 'Ready' %}
+                            <span class="inline-flex items-center gap-xs px-sm py-xs bg-green-100 text-green-700 rounded-lg font-label-sm">
+                                <span class="w-2 h-2 rounded-full bg-green-500"></span>Ready
+                            </span>
+                        {% elif report.status == 'Pending' %}
+                            <span class="inline-flex items-center gap-xs px-sm py-xs bg-yellow-100 text-yellow-700 rounded-lg font-label-sm">
+                                <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>Pending
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center gap-xs px-sm py-xs bg-surface-container text-on-surface-variant rounded-lg font-label-sm">
+                                {{ report.status }}
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-lg py-md text-right">
+                        {% if report.status == 'Ready' %}
+                            <a href="{{ report.file_url }}" class="px-md py-xs border border-outline-variant rounded-lg font-label-sm hover:bg-surface-container text-on-surface-variant transition-colors" download>
+                                Download
+                            </a>
+                        {% else %}
+                            <span class="font-body-sm text-on-surface-variant">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-lg py-xl text-center font-body-sm text-on-surface-variant">No lab reports available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endwith %}
+{% endblock %}
