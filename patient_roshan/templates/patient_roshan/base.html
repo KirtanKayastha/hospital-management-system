@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>{% block title %}Patient Portal{% endblock %} | HM System</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-high": "#e6e8ea",
+                        "on-background": "#191c1e",
+                        "primary-container": "#2563eb",
+                        "on-secondary-container": "#00714d",
+                        "surface-bright": "#f7f9fb",
+                        "secondary": "#006c49",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#e0e3e5",
+                        "secondary-container": "#6cf8bb",
+                        "error-container": "#ffdad6",
+                        "outline": "#737686",
+                        "on-surface": "#191c1e",
+                        "surface-container": "#eceef0",
+                        "primary": "#004ac6",
+                        "error": "#ba1a1a",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary": "#784b00",
+                        "surface-variant": "#e0e3e5",
+                        "on-error": "#ffffff",
+                        "background": "#f7f9fb",
+                        "on-primary-container": "#eeefff",
+                        "on-primary": "#ffffff",
+                        "outline-variant": "#c3c6d7",
+                        "on-surface-variant": "#434655",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-dim": "#d8dadc",
+                        "surface": "#f7f9fb",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-primary-fixed": "#00174b",
+                        "secondary-fixed-dim": "#4edea3",
+                        "on-secondary-fixed": "#002113",
+                        "tertiary-fixed": "#ffddb8",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#2d3133",
+                        "inverse-on-surface": "#eff1f3",
+                        "tertiary-container": "#996100",
+                        "primary-fixed": "#dbe1ff",
+                        "on-secondary-fixed-variant": "#005236"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"
+                    },
+                    spacing: {
+                        "lg": "24px", "container-max": "1280px", "md": "16px", "xs": "4px",
+                        "xl": "32px", "sm": "8px", "base": "4px", "xxl": "48px", "gutter": "24px"
+                    },
+                    fontFamily: {
+                        "headline-sm": ["Inter"], "label-sm": ["Inter"], "headline-md": ["Inter"],
+                        "label-md": ["Inter"], "body-md": ["Inter"], "body-sm": ["Inter"],
+                        "body-lg": ["Inter"], "headline-lg": ["Inter"]
+                    },
+                    fontSize: {
+                        "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+                        "label-sm":    ["12px", { lineHeight: "16px", fontWeight: "500" }],
+                        "headline-md": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "600" }],
+                        "label-md":    ["14px", { lineHeight: "20px", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "body-md":     ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "body-sm":     ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                        "body-lg":     ["18px", { lineHeight: "28px", fontWeight: "400" }],
+                        "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .shadow-sm { box-shadow: 0px 1px 2px 0px rgba(15, 23, 42, 0.05); }
+        .shadow-md { box-shadow: 0px 4px 6px -1px rgba(15, 23, 42, 0.1); }
+        .slot-selected {
+            background-color: #2563EB !important;
+            color: white !important;
+            border-color: #2563EB !important;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+        .timeline-line::before {
+            content: '';
+            position: absolute;
+            left: 11px;
+            top: 24px;
+            bottom: -24px;
+            width: 2px;
+            background: #e2e8f0;
+        }
+        .timeline-item:last-child .timeline-line::before { display: none; }
+    </style>
+
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="bg-surface text-on-surface flex min-h-screen">
+
+    <!-- ========== SIDEBAR ========== -->
+    <aside class="w-64 bg-surface-container-lowest border-r border-outline-variant flex-col hidden md:flex sticky top-0 h-screen flex-shrink-0">
+        <div class="px-lg py-xl">
+            <span class="font-headline-md text-headline-md font-bold text-primary">HM System</span>
+            <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Patient Portal</p>
+        </div>
+
+        <nav class="flex-1 px-md space-y-xs overflow-y-auto pb-md">
+            <!-- MAIN -->
+            <p class="px-md pt-md pb-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Main</p>
+            <a href="{% url 'patient_roshan:dashboard' %}"
+               class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
+                      {% if active_page == 'dashboard' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                <span class="material-symbols-outlined">dashboard</span>Dashboard
+            </a>
+            <a href="{% url 'patient_roshan:book_appointment' %}"
+               class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
+                      {% if active_page == 'book' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                <span class="material-symbols-outlined">calendar_month</span>Book Appointment
+            </a>
+            <a href="{% url 'patient_roshan:find_doctor' %}"
+               class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
+                      {% if active_page == 'finddoctor' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                <span class="material-symbols-outlined">person_search</span>Find Doctor
+            </a>
+            <a href="{% url 'patient_roshan:my_appointments' %}"
+               class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
+                      {% if active_page == 'appointments' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                <span class="material-symbols-outlined">calendar_today</span>My Appointments
+            </a>
+
+            <!-- HEALTH -->
+            <p class="px-md pt-md pb-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Health</p>
+            <a href="{% url 'patient_roshan:medical_records' %}"
+               class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
+                      {% if active_page == 'records' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                <span class="material-symbols-outlined">medical_services</span>Medical Records
+            </a>
+            <div class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md">
+                <span class="material-symbols-outlined">prescriptions</span>Prescriptions
+            </div>
+            <a href="{% url 'patient_roshan:lab_reports' %}"
+               class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
+                      {% if active_page == 'labreports' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                <span class="material-symbols-outlined">science</span>Lab Reports
+            </a>
+
+            <!-- ACCOUNT -->
+            <p class="px-md pt-md pb-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Account</p>
+            <div class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md">
+                <span class="material-symbols-outlined">receipt_long</span>Billing &amp; Payments
+            </div>
+            <div class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md">
+                <span class="material-symbols-outlined">mail</span>Messages
+            </div>
+            <div class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md">
+                <span class="material-symbols-outlined">notifications</span>Notifications
+            </div>
+            <a href="{% url 'patient_roshan:profile' %}"
+               class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
+                      {% if active_page == 'profile' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                <span class="material-symbols-outlined">person</span>Profile
+            </a>
+            <div class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md">
+                <span class="material-symbols-outlined">settings</span>Settings
+            </div>
+        </nav>
+
+        <div class="p-lg border-t border-outline-variant">
+            <div class="flex items-center gap-md p-sm hover:bg-surface-container rounded-xl cursor-pointer transition-colors">
+                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">
+                    {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+                </div>
+                <div class="overflow-hidden">
+                    <p class="font-label-md text-label-md truncate">{{ request.user.get_full_name }}</p>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant truncate">Patient ID: #HM-2024-089</p>
+                </div>
+            </div>
+            <a href="{% url 'logout' %}" class="flex items-center gap-md w-full px-md py-sm text-error font-label-md text-label-md hover:bg-error-container/10 rounded-lg transition-all mt-sm">
+                <span class="material-symbols-outlined">logout</span>Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- ========== MAIN ========== -->
+    <main class="flex-1 flex flex-col min-w-0">
+
+        <!-- Topbar -->
+        <header class="bg-surface-container-lowest border-b border-outline-variant px-lg md:px-xxl py-md flex items-center justify-between sticky top-0 z-10">
+            <h1 class="font-headline-md text-headline-md text-on-surface">{% block page_title %}Dashboard{% endblock %}</h1>
+            <div class="flex items-center gap-lg">
+                <button class="p-xs text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors relative">
+                    <span class="material-symbols-outlined">notifications</span>
+                    <span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full border border-surface-container-lowest"></span>
+                </button>
+                <div class="flex items-center gap-md border-l border-outline-variant pl-lg">
+                    <div class="text-right hidden sm:block">
+                        <p class="font-label-md text-label-md text-on-surface">{{ request.user.get_full_name }}</p>
+                        <p class="font-body-sm text-body-sm text-on-surface-variant">Patient ID: #HM-2024-089</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-full border-2 border-primary bg-primary flex items-center justify-center text-white font-bold text-sm">
+                        {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="flex-1 overflow-y-auto">
+            <div class="p-lg md:p-xxl max-w-container-max mx-auto w-full">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="bg-surface-container border-t border-outline-variant">
+            <div class="w-full px-lg md:px-xxl py-xl flex flex-col md:flex-row justify-between items-center gap-md max-w-container-max mx-auto">
+                <div class="flex flex-col items-center md:items-start">
+                    <span class="font-headline-sm text-headline-sm font-bold text-on-surface">HM System</span>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">© 2025 HM System. All rights reserved.</p>
+                </div>
+                <div class="flex gap-xl">
+                    <a class="font-label-sm text-label-sm text-on-surface-variant hover:underline hover:text-primary transition-all" href="#">Privacy Policy</a>
+                    <a class="font-label-sm text-label-sm text-on-surface-variant hover:underline hover:text-primary transition-all" href="#">Terms of Service</a>
+                    <a class="font-label-sm text-label-sm text-on-surface-variant hover:underline hover:text-primary transition-all" href="#">FAQ</a>
+                    <a class="font-label-sm text-label-sm text-on-surface-variant hover:underline hover:text-primary transition-all" href="#">Support</a>
+                </div>
+            </div>
+        </footer>
+    </main>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
