@@ -14,13 +14,19 @@
                 Streamline your clinical operations, automate scheduling, and enhance patient care through our secure, integrated healthcare ecosystem designed for modern institutions.
             </p>
             <div class="flex flex-wrap gap-md pt-md">
-                <a href="/register/" class="bg-primary text-white px-xl py-md rounded-lg font-bold text-body-md hover:bg-primary-container transition-all duration-200 shadow-sm">
-                    Get Started
-                </a>
-                <a href="/login/" class="bg-transparent border border-outline-variant text-on-surface px-xl py-md rounded-lg font-bold text-body-md hover:bg-surface-container transition-all duration-200">
-                    Login
-                </a>
-            </div>
+               {% if user.is_authenticated %}
+                 <a href="/patient/" class="bg-primary text-white px-xl py-md rounded-lg font-bold text-body-md hover:bg-primary-container transition-all duration-200 shadow-sm">
+                      Go to Dashboard
+                 </a>
+                       {% else %}
+                 <a href="/register/" class="bg-primary text-white px-xl py-md rounded-lg font-bold text-body-md hover:bg-primary-container transition-all duration-200 shadow-sm">
+                       Get Started
+                  </a>
+                   <a href="/login/" class="bg-transparent border border-outline-variant text-on-surface px-xl py-md rounded-lg font-bold text-body-md hover:bg-surface-container transition-all duration-200">
+                      Login
+                   </a>
+                         {% endif %}
+              </div>
         </div>
         <div class="relative mt-md lg:mt-0">
             <div class="aspect-video bg-surface-container-high rounded-xl overflow-hidden custom-shadow">
