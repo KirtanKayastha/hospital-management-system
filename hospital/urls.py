@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.views.generic import TemplateView
 
 urlpatterns = [
@@ -8,4 +8,5 @@ urlpatterns = [
     path('login/', TemplateView.as_view(template_name='auth_kirtan/login.html'), name='login'),
     path('register/', TemplateView.as_view(template_name='auth_kirtan/register.html'), name='register'),
     path('forgot-password/', TemplateView.as_view(template_name='auth_kirtan/forgot_password.html'), name='forgot_password'),  # ✅ Added auth_kirtan/ prefix
+    path('doctor/', include('doctor_siddhartha.urls')),
 ]
