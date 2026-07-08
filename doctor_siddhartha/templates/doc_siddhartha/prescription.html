@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<<<<<<< HEAD
 
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
@@ -441,3 +442,134 @@
         });
     </script>
 </body></html>
+=======
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Prescription Management | MedCore Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = { theme: { extend: {
+  colors: {"surface-container-low":"#f2f4f6","surface-container-lowest":"#ffffff","secondary":"#006c49","on-surface":"#191c1e","on-surface-variant":"#434655","primary":"#004ac6","on-primary":"#ffffff","outline-variant":"#c3c6d7","outline":"#737686","error":"#ba1a1a","secondary-container":"#6cf8bb","on-secondary-container":"#00714d","surface":"#f7f9fb","background":"#f8fafc"},
+  spacing: {"base":"4px","xxl":"48px","lg":"24px","xl":"32px","sm":"8px","xs":"4px","md":"16px"}
+}}}
+</script>
+<style>
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; vertical-align: middle; }
+.shadow-sm { box-shadow: 0px 1px 2px 0px rgba(15,23,42,0.05); }
+</style>
+</head>
+<body class="flex overflow-hidden bg-background text-on-surface">
+<aside class="hidden lg:flex flex-col h-screen w-64 border-r border-outline-variant bg-surface-container-lowest sticky top-0 left-0">
+  <div class="p-lg flex flex-col gap-sm">
+    <nav class="flex flex-col gap-xs">
+      <a href="{% url 'doctor:dashboard' %}" class="flex items-center gap-md p-md rounded-lg {% if request.resolver_match.url_name == 'dashboard' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+      <a href="{% url 'doctor:schedule' %}" class="flex items-center gap-md p-md rounded-lg {% if request.resolver_match.url_name == 'schedule' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">calendar_month</span> Schedule</a>
+      <a href="{% url 'doctor:patients_list' %}" class="flex items-center gap-md p-md rounded-lg {% if request.resolver_match.url_name == 'patients_list' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">group</span> Patients</a>
+      <a href="{% url 'doctor:prescriptions' %}" class="flex items-center gap-md p-md rounded-lg {% if request.resolver_match.url_name == 'prescriptions' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">medication</span> Prescriptions</a>
+    </nav>
+  </div>
+</aside>
+
+<main class="flex-1 h-screen overflow-y-auto">
+  <header class="flex justify-between items-center px-lg h-16 sticky top-0 z-40 bg-surface/95 backdrop-blur-sm border-b border-outline-variant">
+    <h1 class="text-xl font-extrabold text-primary">MedCore Portal</h1>
+  </header>
+
+  <div class="p-lg max-w-5xl mx-auto space-y-lg pb-xxl">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="bg-secondary text-white px-lg py-md rounded-xl">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    {% if not patient %}
+      <div class="bg-white rounded-xl shadow-sm border border-outline-variant p-lg">
+        <p class="text-on-surface-variant">No patient selected. Go to <a href="{% url 'doctor:patients_list' %}" class="text-primary font-bold hover:underline">Patients</a> and choose "New Prescription" from a patient's profile.</p>
+      </div>
+    {% else %}
+      <section class="bg-white rounded-xl p-lg shadow-sm border border-outline-variant flex flex-col gap-md">
+        <div class="flex flex-wrap gap-xl">
+          <div><span class="text-xs text-outline uppercase block">Patient</span><span class="font-semibold">{{ patient.full_name }}</span></div>
+          <div><span class="text-xs text-outline uppercase block">Patient ID</span><span class="font-semibold">{{ patient.patient_id }}</span></div>
+          <div><span class="text-xs text-outline uppercase block">Age / Gender</span><span class="font-semibold">{{ patient.age }} / {{ patient.get_gender_display }}</span></div>
+          <div><span class="text-xs text-outline uppercase block">Blood Type</span><span class="font-semibold text-error">{{ patient.blood_group|default:"—" }}</span></div>
+        </div>
+      </section>
+
+      <form method="post" class="bg-white rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+        {% csrf_token %}
+        <div class="p-lg border-b border-outline-variant flex justify-between items-center">
+          <h2 class="text-lg font-bold">New Prescription</h2>
+          <span class="text-sm text-outline">Date: {{ "now"|date:"M d, Y" }}</span>
+        </div>
+        <div class="p-lg space-y-lg">
+          <div class="flex flex-col gap-sm">
+            <label class="text-sm font-bold text-on-surface-variant">Diagnosis &amp; Clinical Notes</label>
+            {{ form.diagnosis }}
+          </div>
+
+          <div class="flex flex-col gap-sm">
+            <label class="text-sm font-bold text-on-surface-variant">Prescribed Medicines</label>
+            {{ formset.management_form }}
+            <div class="overflow-x-auto rounded-lg border border-outline-variant">
+              <table class="w-full text-left border-collapse">
+                <thead>
+                  <tr class="bg-surface-container-low text-on-surface-variant text-sm">
+                    <th class="p-md">Medicine Name</th><th class="p-md">Dosage</th><th class="p-md">Frequency</th><th class="p-md">Duration</th><th class="p-md w-16">Remove</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for item_form in formset %}
+                  <tr class="border-b border-outline-variant">
+                    <td class="p-md">{{ item_form.id }}{{ item_form.medicine_name }}</td>
+                    <td class="p-md">{{ item_form.dosage }}</td>
+                    <td class="p-md">{{ item_form.frequency }}</td>
+                    <td class="p-md">{{ item_form.duration }}</td>
+                    <td class="p-md text-center">{% if item_form.DELETE %}{{ item_form.DELETE }}{% endif %}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-sm">
+            <label class="text-sm font-bold text-on-surface-variant">Additional Notes / Warnings</label>
+            {{ form.additional_notes }}
+          </div>
+        </div>
+        <div class="p-lg bg-surface-container-low border-t border-outline-variant flex justify-end gap-md">
+          <button type="submit" class="px-xl py-md rounded-lg bg-primary text-white font-bold flex items-center gap-sm">
+            <span class="material-symbols-outlined">save</span> Save Prescription
+          </button>
+        </div>
+      </form>
+
+      <section class="space-y-md">
+        <h2 class="text-lg font-bold">Past Prescriptions</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+          {% for rx in past_prescriptions %}
+          <div class="bg-white rounded-xl shadow-sm border border-outline-variant p-lg">
+            <div class="flex justify-between items-start mb-md">
+              <span class="material-symbols-outlined text-primary">description</span>
+              <span class="text-xs text-outline">{{ rx.date_issued|date:"M d, Y" }}</span>
+            </div>
+            <h4 class="text-lg font-bold mb-xs">{{ rx.diagnosis|truncatechars:40 }}</h4>
+            <p class="text-sm text-on-surface-variant">
+              {% for item in rx.items.all %}{{ item.medicine_name }} ({{ item.dosage }}){% if not forloop.last %}, {% endif %}{% endfor %}
+            </p>
+          </div>
+          {% empty %}
+          <p class="text-on-surface-variant italic">No past prescriptions for this patient.</p>
+          {% endfor %}
+        </div>
+      </section>
+    {% endif %}
+  </div>
+</main>
+</body>
+</html>
+>>>>>>> 2463cc4 (Update doctor dashboard and schedule)

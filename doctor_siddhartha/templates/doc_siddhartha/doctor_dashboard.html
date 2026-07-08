@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+<<<<<<< HEAD
 
 <html class="light" lang="en"><head>
 <meta charset="utf-8"/>
@@ -461,3 +462,173 @@
         updateTime();
     </script>
 </body></html>
+=======
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MedCore Portal - Doctor Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = { theme: { extend: {
+  colors: {"surface-container-low":"#f2f4f6","primary-fixed":"#dbe1ff","surface-container-lowest":"#ffffff","secondary":"#006c49","tertiary-container":"#996100","on-surface":"#191c1e","on-surface-variant":"#434655","primary":"#004ac6","surface-container-highest":"#e0e3e5","surface-bright":"#f7f9fb","on-primary":"#ffffff","error-container":"#ffdad6","surface-container":"#eceef0","outline-variant":"#c3c6d7","outline":"#737686","error":"#ba1a1a","primary-container":"#2563eb","surface-variant":"#e0e3e5","surface-container-high":"#e6e8ea","surface":"#f7f9fb","background":"#f7f9fb","secondary-container":"#6cf8bb","tertiary":"#784b00"},
+  spacing: {"base":"4px","xxl":"48px","lg":"24px","xl":"32px","sm":"8px","xs":"4px","md":"16px"}
+}}}
+</script>
+<style>
+body { font-family: 'Inter', sans-serif; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; vertical-align: middle; }
+.card-shadow { box-shadow: 0px 1px 2px 0px rgba(15,23,42,0.05); }
+.timeline-line::before { content:''; position:absolute; left:23px; top:0; bottom:0; width:2px; background:#E2E8F0; }
+</style>
+</head>
+<body class="text-on-surface bg-background">
+<div class="flex min-h-screen">
+
+<!-- SideNavBar -->
+<aside class="hidden lg:flex flex-col h-screen w-64 border-r border-outline-variant bg-surface-container-lowest sticky top-0 left-0 z-40">
+  <div class="p-lg flex flex-col items-center border-b border-outline-variant mb-md">
+    <div class="w-16 h-16 rounded-full overflow-hidden mb-sm ring-2 ring-primary ring-offset-2 bg-surface-container-low flex items-center justify-center">
+      {% if doctor.photo %}
+        <img class="w-full h-full object-cover" src="{{ doctor.photo.url }}" alt="{{ doctor.user.get_full_name }}"/>
+      {% else %}
+        <span class="material-symbols-outlined text-3xl text-primary">account_circle</span>
+      {% endif %}
+    </div>
+    <h2 class="text-lg font-bold text-primary">Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h2>
+    <p class="text-sm text-on-surface-variant">{{ doctor.specialization }}</p>
+  </div>
+  <nav class="flex-1 px-md space-y-1">
+    <a href="{% url 'doctor:dashboard' %}" class="flex items-center px-md py-sm rounded-lg transition-all duration-150 {% if request.resolver_match.url_name == 'dashboard' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-container-low{% endif %}">
+      <span class="material-symbols-outlined mr-md">dashboard</span> Dashboard
+    </a>
+    <a href="{% url 'doctor:schedule' %}" class="flex items-center px-md py-sm rounded-lg transition-all duration-150 {% if request.resolver_match.url_name == 'schedule' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-container-low{% endif %}">
+      <span class="material-symbols-outlined mr-md">calendar_month</span> Schedule
+    </a>
+    <a href="{% url 'doctor:patients_list' %}" class="flex items-center px-md py-sm rounded-lg transition-all duration-150 {% if request.resolver_match.url_name == 'patients_list' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-container-low{% endif %}">
+      <span class="material-symbols-outlined mr-md">group</span> Patients
+    </a>
+    <a href="{% url 'doctor:prescriptions' %}" class="flex items-center px-md py-sm rounded-lg transition-all duration-150 {% if request.resolver_match.url_name == 'prescriptions' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-container-low{% endif %}">
+      <span class="material-symbols-outlined mr-md">medication</span> Prescriptions
+    </a>
+  </nav>
+  <div class="p-md mt-auto border-t border-outline-variant">
+    <button type="button" onclick="if(confirm('Send an emergency alert to on-call staff?')){alert('Emergency alert sent.');}" class="w-full py-md px-lg bg-error text-white font-bold rounded-lg flex items-center justify-center gap-2 active:scale-95 duration-150">
+      <span class="material-symbols-outlined">emergency_home</span><span>Emergency Alert</span>
+    </button>
+  </div>
+</aside>
+
+<!-- Main Canvas -->
+<main class="flex-1 flex flex-col min-w-0">
+  <header class="flex justify-between items-center px-lg w-full h-16 sticky top-0 z-30 bg-surface/95 backdrop-blur-sm border-b border-outline-variant">
+    <div class="flex items-center gap-lg">
+      <h1 class="text-xl font-extrabold text-primary">MedCore Portal</h1>
+      <form method="get" action="{% url 'doctor:patients_list' %}" class="hidden md:flex items-center bg-surface-container px-md py-xs rounded-full border border-outline-variant">
+        <span class="material-symbols-outlined text-outline">search</span>
+        <input name="q" class="bg-transparent border-none focus:ring-0 text-sm w-64" placeholder="Search patients..." type="text"/>
+      </form>
+    </div>
+    <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs">
+      {{ doctor.user.first_name|slice:":1" }}{{ doctor.user.last_name|slice:":1"|default:"DR" }}
+    </div>
+  </header>
+
+  <div class="p-lg max-w-7xl mx-auto w-full space-y-lg">
+    <section class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+      <div>
+        <h2 class="text-3xl font-bold text-on-surface">Doctor Dashboard</h2>
+        <p class="text-on-surface-variant">Welcome back, Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}. Here's your overview for today.</p>
+      </div>
+      <p class="text-primary font-bold uppercase tracking-wider text-sm">{{ today|date:"l, F j" }}</p>
+    </section>
+
+    <!-- Stat Cards -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+      <a href="{% url 'doctor:patients_list' %}" class="bg-surface-container-lowest p-lg rounded-xl card-shadow border border-outline-variant flex items-start gap-md hover:border-primary transition-colors">
+        <div class="p-md bg-primary-container/10 rounded-lg"><span class="material-symbols-outlined text-primary text-3xl">group</span></div>
+        <div>
+          <p class="text-xs text-on-surface-variant uppercase">Total Patients</p>
+          <h3 class="text-2xl font-bold">{{ total_patients }}</h3>
+        </div>
+      </a>
+      <a href="{% url 'doctor:schedule' %}" class="bg-surface-container-lowest p-lg rounded-xl card-shadow border border-outline-variant flex items-start gap-md hover:border-primary transition-colors">
+        <div class="p-md bg-secondary-container/10 rounded-lg"><span class="material-symbols-outlined text-secondary text-3xl">calendar_today</span></div>
+        <div>
+          <p class="text-xs text-on-surface-variant uppercase">Today's Appointments</p>
+          <h3 class="text-2xl font-bold">{{ appointments_count }}</h3>
+          <p class="text-xs text-on-surface-variant mt-1">{{ completed_count }} completed</p>
+        </div>
+      </a>
+      <a href="{% url 'doctor:prescriptions' %}" class="bg-surface-container-lowest p-lg rounded-xl card-shadow border border-outline-variant flex items-start gap-md hover:border-primary transition-colors">
+        <div class="p-md bg-tertiary-container/10 rounded-lg"><span class="material-symbols-outlined text-tertiary text-3xl">pending_actions</span></div>
+        <div>
+          <p class="text-xs text-on-surface-variant uppercase">Pending Prescriptions</p>
+          <h3 class="text-2xl font-bold">{{ pending_prescriptions_count }}</h3>
+        </div>
+      </a>
+    </section>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
+      <!-- Today's Schedule -->
+      <section class="lg:col-span-7 bg-surface-container-lowest rounded-xl border border-outline-variant card-shadow flex flex-col">
+        <div class="p-lg border-b border-outline-variant flex justify-between items-center">
+          <h4 class="text-lg font-bold">Today's Schedule</h4>
+          <a href="{% url 'doctor:schedule' %}" class="text-primary font-bold text-sm hover:underline">View All</a>
+        </div>
+        <div class="p-lg relative timeline-line flex-1 overflow-y-auto max-h-[600px] space-y-lg">
+          {% for appt in todays_appointments %}
+          <div class="relative flex items-start gap-xl pl-12">
+            <div class="absolute left-0 w-12 text-right"><span class="text-xs text-outline">{{ appt.start_time|time:"g:i A" }}</span></div>
+            <div class="absolute left-[19px] top-1.5 w-2.5 h-2.5 rounded-full bg-primary border-4 border-surface-container-lowest ring-1 ring-primary"></div>
+            <div class="flex-1 bg-surface-container-low p-md rounded-lg border border-transparent hover:border-primary/20">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="font-bold">{{ appt.patient.full_name }}</p>
+                  <p class="text-sm text-on-surface-variant">{{ appt.get_appointment_type_display }}{% if appt.notes %}: {{ appt.notes }}{% endif %}</p>
+                </div>
+                <span class="px-sm py-1 rounded text-[10px] font-bold uppercase {% if appt.appointment_type == 'urgent' %}bg-error-container text-error{% else %}bg-primary/10 text-primary{% endif %}">{{ appt.get_status_display }}</span>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <p class="text-on-surface-variant italic">No appointments scheduled for today.</p>
+          {% endfor %}
+        </div>
+      </section>
+
+      <!-- Recent Patients -->
+      <section class="lg:col-span-5 bg-surface-container-lowest rounded-xl border border-outline-variant card-shadow flex flex-col">
+        <div class="p-lg border-b border-outline-variant"><h4 class="text-lg font-bold">Recent Patients</h4></div>
+        <table class="w-full text-left">
+          <thead class="bg-surface-container-low border-b border-outline-variant">
+            <tr><th class="px-lg py-sm text-xs text-outline uppercase">Patient</th><th class="px-lg py-sm text-xs text-outline uppercase">Next Appt.</th><th></th></tr>
+          </thead>
+          <tbody class="divide-y divide-outline-variant">
+            {% for patient in recent_patients %}
+            <tr class="hover:bg-surface transition-colors group">
+              <td class="px-lg py-md">
+                <div class="flex items-center gap-md">
+                  <div class="w-8 h-8 rounded-full bg-primary-fixed/30 flex items-center justify-center font-bold text-primary text-xs">{{ patient.full_name|slice:":1" }}</div>
+                  <p class="font-semibold">{{ patient.full_name }}</p>
+                </div>
+              </td>
+              <td class="px-lg py-md text-sm">{{ patient.next_appointment.date|date:"M d, Y"|default:"Pending" }}</td>
+              <td class="px-lg py-md text-right">
+                <a href="{% url 'doctor:patients_list' %}?patient={{ patient.id }}" class="px-md py-1.5 border border-outline-variant font-bold text-sm rounded-lg group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all">View</a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td class="px-lg py-md text-on-surface-variant italic" colspan="3">No patients assigned yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </div>
+</main>
+</div>
+</body>
+</html>
+>>>>>>> 2463cc4 (Update doctor dashboard and schedule)
