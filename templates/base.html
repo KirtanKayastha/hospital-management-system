@@ -154,8 +154,17 @@
             </div>
             
             <div class="flex items-center gap-md">
-                <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all duration-200" href="/login/">Login</a>
-                <a class="bg-primary text-white px-md py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-all duration-200" href="/register/">Register</a>
+          {% if user.is_authenticated %}
+            <!-- Show when logged in -->
+           <span class="font-label-md text-label-md text-on-surface-variant">
+            Welcome, {{ user.username }}!
+           </span>
+              <a class="bg-error text-white px-md py-sm rounded-lg font-label-md text-label-md hover:opacity-80 transition-all duration-200" href="/logout/">Logout</a>
+               {% else %}
+                   <!-- Show when logged out -->
+                  <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all duration-200" href="/login/">Login</a>
+                 <a class="bg-primary text-white px-md py-sm rounded-lg font-label-md text-label-md hover:bg-primary-container transition-all duration-200" href="/register/">Register</a>
+                    {% endif %}
             </div>
         </nav>
     </header>
