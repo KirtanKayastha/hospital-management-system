@@ -8,30 +8,55 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script>
 tailwind.config = { theme: { extend: {
-  colors: {"surface-container-low":"#f2f4f6","surface-container-lowest":"#ffffff","secondary":"#006c49","on-surface":"#191c1e","on-surface-variant":"#434655","primary":"#004ac6","on-primary":"#ffffff","outline-variant":"#c3c6d7","outline":"#737686","error":"#ba1a1a","secondary-container":"#6cf8bb","on-secondary-container":"#00714d","surface":"#f7f9fb","background":"#f8fafc"},
-  spacing: {"base":"4px","xxl":"48px","lg":"24px","xl":"32px","sm":"8px","xs":"4px","md":"16px"}
+  colors: {
+    primary:"#004ac6", "primary-container":"#2563eb", "primary-fixed":"#dbe1ff", "on-primary":"#ffffff",
+    "surface-container-lowest":"#ffffff", surface:"#f7f9fb", background:"#f8fafc",
+    "surface-container-low":"#f2f4f6", "surface-container":"#eceef0", "surface-container-high":"#e6e8ea",
+    "on-surface":"#191c1e", "on-surface-variant":"#434655", outline:"#737686", "outline-variant":"#c3c6d7",
+    error:"#ba1a1a", "error-container":"#ffdad6", "on-error":"#ffffff",
+    secondary:"#006c49", "secondary-container":"#6cf8bb",
+    tertiary:"#784b00", "tertiary-container":"#996100", "tertiary-fixed":"#ffddb8"
+  },
+  fontFamily: { sans: ['Inter','sans-serif'] },
+  fontSize: {
+    'headline-lg': ['32px', { lineHeight:'40px', fontWeight:'700' }],
+    'headline-md': ['24px', { lineHeight:'32px', fontWeight:'600' }],
+    'headline-sm': ['20px', { lineHeight:'28px', fontWeight:'600' }],
+    'body-lg': ['18px', { lineHeight:'28px' }],
+    'body-md': ['16px', { lineHeight:'24px' }],
+    'body-sm': ['14px', { lineHeight:'20px' }],
+    'label-lg': ['14px', { lineHeight:'20px', fontWeight:'600' }],
+    'label-sm': ['12px', { lineHeight:'16px', fontWeight:'500' }],
+  },
+  spacing: {"base":"4px","xxl":"48px","lg":"24px","xl":"32px","sm":"8px","xs":"4px","md":"16px","gutter":"24px"},
+  borderRadius: { DEFAULT:'4px', lg:'8px', xl:'12px', full:'9999px' },
+  boxShadow: {
+    card:'0px 1px 2px 0px rgba(15,23,42,0.05)',
+    'card-hover':'0px 4px 6px -1px rgba(15,23,42,0.1)',
+    modal:'0px 10px 30px rgba(0,0,0,0.1)'
+  }
 }}}
 </script>
 <style>
+body { font-family: 'Inter', sans-serif; }
 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; vertical-align: middle; }
-.shadow-sm { box-shadow: 0px 1px 2px 0px rgba(15,23,42,0.05); }
 </style>
 </head>
 <body class="flex overflow-hidden bg-background text-on-surface">
 <aside class="hidden lg:flex flex-col h-screen w-64 border-r border-outline-variant bg-surface-container-lowest sticky top-0 left-0">
   <div class="p-lg flex flex-col gap-sm">
     <nav class="flex flex-col gap-xs">
-      <a href="{% url 'doctor:dashboard' %}" class="flex items-center gap-md p-md rounded-lg {% if request.resolver_match.url_name == 'dashboard' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
-      <a href="{% url 'doctor:schedule' %}" class="flex items-center gap-md p-md rounded-lg {% if request.resolver_match.url_name == 'schedule' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">calendar_month</span> Schedule</a>
-      <a href="{% url 'doctor:patients_list' %}" class="flex items-center gap-md p-md rounded-lg {% if request.resolver_match.url_name == 'patients_list' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">group</span> Patients</a>
-      <a href="{% url 'doctor:prescriptions' %}" class="flex items-center gap-md p-md rounded-lg {% if request.resolver_match.url_name == 'prescriptions' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">medication</span> Prescriptions</a>
+      <a href="{% url 'doctor:dashboard' %}" class="flex items-center gap-md p-md rounded-lg text-label-lg {% if request.resolver_match.url_name == 'dashboard' %}text-primary border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+      <a href="{% url 'doctor:schedule' %}" class="flex items-center gap-md p-md rounded-lg text-label-lg {% if request.resolver_match.url_name == 'schedule' %}text-primary border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">calendar_month</span> Schedule</a>
+      <a href="{% url 'doctor:patients_list' %}" class="flex items-center gap-md p-md rounded-lg text-label-lg {% if request.resolver_match.url_name == 'patients_list' %}text-primary border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">group</span> Patients</a>
+      <a href="{% url 'doctor:prescriptions' %}" class="flex items-center gap-md p-md rounded-lg text-label-lg {% if request.resolver_match.url_name == 'prescriptions' %}text-primary border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">medication</span> Prescriptions</a>
     </nav>
   </div>
 </aside>
 
 <main class="flex-1 h-screen overflow-y-auto">
-  <header class="flex justify-between items-center px-lg h-16 sticky top-0 z-40 bg-surface/95 backdrop-blur-sm border-b border-outline-variant">
-    <h1 class="text-xl font-extrabold text-primary">MedCore Portal</h1>
+  <header class="flex justify-between items-center px-lg h-16 sticky top-0 z-40 bg-surface-container-lowest/95 backdrop-blur-sm border-b border-outline-variant shadow-card">
+    <h1 class="text-headline-sm text-primary">MedCore Portal</h1>
   </header>
 
   <div class="p-lg max-w-5xl mx-auto space-y-lg pb-xxl">
@@ -42,39 +67,39 @@ tailwind.config = { theme: { extend: {
     {% endif %}
 
     {% if not patient %}
-      <div class="bg-white rounded-xl shadow-sm border border-outline-variant p-lg">
-        <p class="text-on-surface-variant">No patient selected. Go to <a href="{% url 'doctor:patients_list' %}" class="text-primary font-bold hover:underline">Patients</a> and choose "New Prescription" from a patient's profile.</p>
+      <div class="bg-surface-container-lowest rounded-xl shadow-card border border-outline-variant p-lg">
+        <p class="text-on-surface-variant text-body-md">No patient selected. Go to <a href="{% url 'doctor:patients_list' %}" class="text-primary text-label-lg hover:underline">Patients</a> and choose "New Prescription" from a patient's profile.</p>
       </div>
     {% else %}
-      <section class="bg-white rounded-xl p-lg shadow-sm border border-outline-variant flex flex-col gap-md">
+      <section class="bg-surface-container-lowest rounded-xl p-lg shadow-card border border-outline-variant flex flex-col gap-md">
         <div class="flex flex-wrap gap-xl">
-          <div><span class="text-xs text-outline uppercase block">Patient</span><span class="font-semibold">{{ patient.full_name }}</span></div>
-          <div><span class="text-xs text-outline uppercase block">Patient ID</span><span class="font-semibold">{{ patient.patient_id }}</span></div>
-          <div><span class="text-xs text-outline uppercase block">Age / Gender</span><span class="font-semibold">{{ patient.age }} / {{ patient.get_gender_display }}</span></div>
-          <div><span class="text-xs text-outline uppercase block">Blood Type</span><span class="font-semibold text-error">{{ patient.blood_group|default:"—" }}</span></div>
+          <div><span class="text-label-sm text-outline uppercase block">Patient</span><span class="text-label-lg">{{ patient.full_name }}</span></div>
+          <div><span class="text-label-sm text-outline uppercase block">Patient ID</span><span class="text-label-lg">{{ patient.patient_id }}</span></div>
+          <div><span class="text-label-sm text-outline uppercase block">Age / Gender</span><span class="text-label-lg">{{ patient.age }} / {{ patient.get_gender_display }}</span></div>
+          <div><span class="text-label-sm text-outline uppercase block">Blood Type</span><span class="text-label-lg text-error">{{ patient.blood_group|default:"—" }}</span></div>
         </div>
       </section>
 
-      <form method="post" class="bg-white rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+      <form method="post" class="bg-surface-container-lowest rounded-xl shadow-card border border-outline-variant overflow-hidden">
         {% csrf_token %}
         <div class="p-lg border-b border-outline-variant flex justify-between items-center">
-          <h2 class="text-lg font-bold">New Prescription</h2>
-          <span class="text-sm text-outline">Date: {{ "now"|date:"M d, Y" }}</span>
+          <h2 class="text-headline-sm">New Prescription</h2>
+          <span class="text-body-sm text-outline">Date: {{ "now"|date:"M d, Y" }}</span>
         </div>
         <div class="p-lg space-y-lg">
           <div class="flex flex-col gap-sm">
-            <label class="text-sm font-bold text-on-surface-variant">Diagnosis &amp; Clinical Notes</label>
+            <label class="text-label-md text-on-surface-variant">Diagnosis &amp; Clinical Notes</label>
             {{ form.diagnosis }}
           </div>
 
           <div class="flex flex-col gap-sm">
-            <label class="text-sm font-bold text-on-surface-variant">Prescribed Medicines</label>
+            <label class="text-label-md text-on-surface-variant">Prescribed Medicines</label>
             {{ formset.management_form }}
             <div class="overflow-x-auto rounded-lg border border-outline-variant">
               <table class="w-full text-left border-collapse">
                 <thead>
-                  <tr class="bg-surface-container-low text-on-surface-variant text-sm">
-                    <th class="p-md">Medicine Name</th><th class="p-md">Dosage</th><th class="p-md">Frequency</th><th class="p-md">Duration</th><th class="p-md w-16">Remove</th>
+                  <tr class="bg-surface-container text-outline text-label-sm">
+                    <th class="p-md uppercase">Medicine Name</th><th class="p-md uppercase">Dosage</th><th class="p-md uppercase">Frequency</th><th class="p-md uppercase">Duration</th><th class="p-md w-16 uppercase">Remove</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -93,37 +118,47 @@ tailwind.config = { theme: { extend: {
           </div>
 
           <div class="flex flex-col gap-sm">
-            <label class="text-sm font-bold text-on-surface-variant">Additional Notes / Warnings</label>
+            <label class="text-label-md text-on-surface-variant">Additional Notes / Warnings</label>
             {{ form.additional_notes }}
           </div>
         </div>
         <div class="p-lg bg-surface-container-low border-t border-outline-variant flex justify-end gap-md">
-          <button type="submit" class="px-xl py-md rounded-lg bg-primary text-white font-bold flex items-center gap-sm">
+          <button type="submit" class="px-xl py-md rounded-lg bg-primary hover:bg-primary-container text-on-primary text-label-lg flex items-center gap-sm transition-colors">
             <span class="material-symbols-outlined">save</span> Save Prescription
           </button>
         </div>
       </form>
-
-      <section class="space-y-md">
-        <h2 class="text-lg font-bold">Past Prescriptions</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
-          {% for rx in past_prescriptions %}
-          <div class="bg-white rounded-xl shadow-sm border border-outline-variant p-lg">
-            <div class="flex justify-between items-start mb-md">
-              <span class="material-symbols-outlined text-primary">description</span>
-              <span class="text-xs text-outline">{{ rx.date_issued|date:"M d, Y" }}</span>
-            </div>
-            <h4 class="text-lg font-bold mb-xs">{{ rx.diagnosis|truncatechars:40 }}</h4>
-            <p class="text-sm text-on-surface-variant">
-              {% for item in rx.items.all %}{{ item.medicine_name }} ({{ item.dosage }}){% if not forloop.last %}, {% endif %}{% endfor %}
-            </p>
-          </div>
-          {% empty %}
-          <p class="text-on-surface-variant italic">No past prescriptions for this patient.</p>
-          {% endfor %}
-        </div>
-      </section>
     {% endif %}
+
+    <section class="space-y-md">
+      <h2 class="text-headline-sm">{% if patient %}Past Prescriptions{% else %}All Recent Prescriptions{% endif %}</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+        {% for rx in past_prescriptions %}
+        <div class="bg-surface-container-lowest rounded-xl shadow-card hover:shadow-card-hover border border-outline-variant p-lg transition-all flex flex-col">
+          <div class="flex justify-between items-start mb-md">
+            <span class="material-symbols-outlined text-primary">description</span>
+            <span class="text-body-sm text-outline">{{ rx.date_issued|date:"M d, Y" }}</span>
+          </div>
+          {% if not patient %}
+          <p class="text-label-sm text-primary mb-1">{{ rx.patient.full_name }}</p>
+          {% endif %}
+          <h4 class="text-label-lg mb-xs">{{ rx.diagnosis|truncatechars:40 }}</h4>
+          <p class="text-body-sm text-on-surface-variant flex-1">
+            {% for item in rx.items.all %}{{ item.medicine_name }} ({{ item.dosage }}){% if not forloop.last %}, {% endif %}{% endfor %}
+          </p>
+          <div class="flex items-center gap-md pt-md mt-md border-t border-outline-variant">
+            <a href="{% url 'doctor:prescription_detail' rx.id %}" class="text-label-sm text-primary hover:underline">View details</a>
+            <form method="post" action="{% url 'doctor:delete_prescription' rx.id %}" onsubmit="return confirm('Delete this prescription? This cannot be undone.');" class="ml-auto">
+              {% csrf_token %}
+              <button type="submit" class="text-label-sm text-error hover:underline">Delete</button>
+            </form>
+          </div>
+        </div>
+        {% empty %}
+        <p class="text-on-surface-variant italic text-body-md">No prescriptions recorded yet.</p>
+        {% endfor %}
+      </div>
+    </section>
   </div>
 </main>
 </body>

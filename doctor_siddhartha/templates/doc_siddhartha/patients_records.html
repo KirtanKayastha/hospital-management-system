@@ -8,27 +8,52 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script>
 tailwind.config = { theme: { extend: {
-  colors: {"surface-container-low":"#f2f4f6","primary-fixed":"#dbe1ff","surface-container-lowest":"#ffffff","secondary":"#006c49","on-surface":"#191c1e","on-surface-variant":"#434655","primary":"#004ac6","surface-container-highest":"#e0e3e5","on-primary":"#ffffff","error-container":"#ffdad6","outline-variant":"#c3c6d7","outline":"#737686","error":"#ba1a1a","primary-container":"#2563eb","secondary-container":"#6cf8bb","surface":"#f7f9fb","background":"#f7f9fb"},
-  spacing: {"base":"4px","xxl":"48px","lg":"24px","xl":"32px","sm":"8px","xs":"4px","md":"16px"}
+  colors: {
+    primary:"#004ac6", "primary-container":"#2563eb", "primary-fixed":"#dbe1ff", "on-primary":"#ffffff",
+    "surface-container-lowest":"#ffffff", surface:"#f7f9fb", background:"#f7f9fb",
+    "surface-container-low":"#f2f4f6", "surface-container":"#eceef0", "surface-container-high":"#e6e8ea",
+    "on-surface":"#191c1e", "on-surface-variant":"#434655", outline:"#737686", "outline-variant":"#c3c6d7",
+    error:"#ba1a1a", "error-container":"#ffdad6", "on-error":"#ffffff",
+    secondary:"#006c49", "secondary-container":"#6cf8bb",
+    tertiary:"#784b00", "tertiary-container":"#996100", "tertiary-fixed":"#ffddb8"
+  },
+  fontFamily: { sans: ['Inter','sans-serif'] },
+  fontSize: {
+    'headline-lg': ['32px', { lineHeight:'40px', fontWeight:'700' }],
+    'headline-md': ['24px', { lineHeight:'32px', fontWeight:'600' }],
+    'headline-sm': ['20px', { lineHeight:'28px', fontWeight:'600' }],
+    'body-lg': ['18px', { lineHeight:'28px' }],
+    'body-md': ['16px', { lineHeight:'24px' }],
+    'body-sm': ['14px', { lineHeight:'20px' }],
+    'label-lg': ['14px', { lineHeight:'20px', fontWeight:'600' }],
+    'label-sm': ['12px', { lineHeight:'16px', fontWeight:'500' }],
+  },
+  spacing: {"base":"4px","xxl":"48px","lg":"24px","xl":"32px","sm":"8px","xs":"4px","md":"16px","gutter":"24px"},
+  borderRadius: { DEFAULT:'4px', lg:'8px', xl:'12px', full:'9999px' },
+  boxShadow: {
+    card:'0px 1px 2px 0px rgba(15,23,42,0.05)',
+    'card-hover':'0px 4px 6px -1px rgba(15,23,42,0.1)',
+    modal:'0px 10px 30px rgba(0,0,0,0.1)'
+  }
 }}}
 </script>
 <style>
+body { font-family: 'Inter', sans-serif; }
 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; vertical-align: middle; }
-.card-shadow { box-shadow: 0px 1px 2px 0px rgba(15,23,42,0.05); }
 </style>
 </head>
 <body class="bg-background text-on-surface min-h-screen flex flex-col">
-<header class="flex justify-between items-center px-lg h-16 border-b border-outline-variant">
-  <span class="text-xl font-extrabold text-primary">MedCore Portal</span>
+<header class="flex justify-between items-center px-lg h-16 border-b border-outline-variant bg-surface-container-lowest shadow-card">
+  <span class="text-headline-sm text-primary">MedCore Portal</span>
 </header>
 
 <div class="flex flex-1 overflow-hidden">
   <aside class="hidden lg:flex flex-col h-full w-64 border-r border-outline-variant bg-surface-container-lowest">
     <nav class="flex-1 px-sm py-md space-y-1">
-      <a href="{% url 'doctor:dashboard' %}" class="flex items-center gap-md px-md py-3 rounded-lg {% if request.resolver_match.url_name == 'dashboard' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
-      <a href="{% url 'doctor:schedule' %}" class="flex items-center gap-md px-md py-3 rounded-lg {% if request.resolver_match.url_name == 'schedule' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">calendar_month</span> Schedule</a>
-      <a href="{% url 'doctor:patients_list' %}" class="flex items-center gap-md px-md py-3 rounded-lg {% if request.resolver_match.url_name == 'patients_list' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">group</span> Patients</a>
-      <a href="{% url 'doctor:prescriptions' %}" class="flex items-center gap-md px-md py-3 rounded-lg {% if request.resolver_match.url_name == 'prescriptions' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">medication</span> Prescriptions</a>
+      <a href="{% url 'doctor:dashboard' %}" class="flex items-center gap-md px-md py-3 rounded-lg text-label-lg {% if request.resolver_match.url_name == 'dashboard' %}text-primary border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+      <a href="{% url 'doctor:schedule' %}" class="flex items-center gap-md px-md py-3 rounded-lg text-label-lg {% if request.resolver_match.url_name == 'schedule' %}text-primary border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">calendar_month</span> Schedule</a>
+      <a href="{% url 'doctor:patients_list' %}" class="flex items-center gap-md px-md py-3 rounded-lg text-label-lg {% if request.resolver_match.url_name == 'patients_list' %}text-primary border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">group</span> Patients</a>
+      <a href="{% url 'doctor:prescriptions' %}" class="flex items-center gap-md px-md py-3 rounded-lg text-label-lg {% if request.resolver_match.url_name == 'prescriptions' %}text-primary border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">medication</span> Prescriptions</a>
     </nav>
   </aside>
 
@@ -36,26 +61,26 @@ tailwind.config = { theme: { extend: {
     <!-- Patient List -->
     <section class="w-full md:w-1/3 lg:w-[400px] flex flex-col gap-md">
       <div>
-        <h1 class="text-2xl font-bold">Patients</h1>
-        <p class="text-sm text-outline">{{ patients|length }} assigned patients</p>
+        <h1 class="text-headline-lg">Patients</h1>
+        <p class="text-body-sm text-outline">{{ patients|length }} assigned patients</p>
       </div>
-      <div class="bg-white rounded-xl card-shadow flex-1 overflow-hidden flex flex-col">
+      <div class="bg-surface-container-lowest rounded-xl shadow-card flex-1 overflow-hidden flex flex-col">
         <form method="get" class="p-md border-b border-outline-variant">
-          <input type="text" name="q" value="{{ query }}" class="w-full bg-surface-container-low px-md py-2 rounded-lg text-sm border-none" placeholder="Filter patient name..." onchange="this.form.submit()"/>
+          <input type="text" name="q" value="{{ query }}" class="w-full bg-surface-container-low px-md py-2 rounded-lg text-body-sm border-none" placeholder="Filter patient name..." onchange="this.form.submit()"/>
         </form>
         <div class="overflow-y-auto flex-1">
           {% for patient in patients %}
           <a href="?patient={{ patient.id }}{% if query %}&q={{ query }}{% endif %}"
-             class="p-lg flex items-center gap-md border-b border-outline-variant text-left transition-all block {% if selected_patient.id == patient.id %}bg-primary-fixed/20{% else %}hover:bg-surface-container-low{% endif %}">
-            <div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-lg">{{ patient.full_name|slice:":2" }}</div>
+             class="p-lg flex items-center gap-md border-b border-outline-variant text-left transition-all block {% if selected_patient.id == patient.id %}bg-primary-fixed/30{% else %}hover:bg-surface-container-low{% endif %}">
+            <div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-label-lg">{{ patient.full_name|slice:":2" }}</div>
             <div class="flex-1">
-              <h3 class="font-bold">{{ patient.full_name }}</h3>
-              <p class="text-sm text-outline">Last: {{ patient.last_visit|date:"d M Y"|default:"No visits yet" }}</p>
-              <p class="text-xs font-medium text-secondary mt-1">Next: {{ patient.next_appointment.date|date:"d M Y"|default:"None scheduled" }}</p>
+              <h3 class="text-label-lg">{{ patient.full_name }}</h3>
+              <p class="text-body-sm text-outline">Last: {{ patient.last_visit|date:"d M Y"|default:"No visits yet" }}</p>
+              <p class="text-label-sm text-secondary mt-1">Next: {{ patient.next_appointment.date|date:"d M Y"|default:"None scheduled" }}</p>
             </div>
           </a>
           {% empty %}
-          <p class="p-lg text-on-surface-variant italic">No patients found.</p>
+          <p class="p-lg text-on-surface-variant italic text-body-sm">No patients found.</p>
           {% endfor %}
         </div>
       </div>
@@ -68,32 +93,32 @@ tailwind.config = { theme: { extend: {
         <div class="flex items-center gap-md">
           <div class="p-3 bg-primary-container text-white rounded-xl"><span class="material-symbols-outlined text-3xl">medical_information</span></div>
           <div>
-            <h2 class="text-xl font-bold">{{ selected_patient.full_name }}</h2>
-            <p class="text-sm text-outline">Patient ID: #{{ selected_patient.patient_id }}</p>
+            <h2 class="text-headline-sm">{{ selected_patient.full_name }}</h2>
+            <p class="text-body-sm text-outline">Patient ID: #{{ selected_patient.patient_id }}</p>
           </div>
         </div>
-        <a href="{% url 'doctor:prescriptions' selected_patient.id %}" class="px-md py-2 bg-primary text-white rounded-lg font-bold card-shadow">New Prescription</a>
+        <a href="{% url 'doctor:prescriptions' selected_patient.id %}" class="px-md py-2 bg-primary hover:bg-primary-container text-on-primary rounded-lg text-label-lg shadow-card transition-colors">New Prescription</a>
       </div>
 
       <div class="flex-1 overflow-y-auto space-y-lg">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
-          <div class="bg-white p-lg rounded-xl card-shadow border-l-4 border-primary">
-            <p class="text-xs text-outline uppercase mb-2">Age / Gender</p>
-            <h4 class="text-lg font-bold">{{ selected_patient.age|default:"—" }} years / {{ selected_patient.get_gender_display }}</h4>
+          <div class="bg-surface-container-lowest p-lg rounded-xl shadow-card border-l-4 border-primary">
+            <p class="text-label-sm text-outline uppercase mb-2">Age / Gender</p>
+            <h4 class="text-headline-sm">{{ selected_patient.age|default:"—" }} years / {{ selected_patient.get_gender_display }}</h4>
           </div>
-          <div class="bg-white p-lg rounded-xl card-shadow border-l-4 border-secondary">
-            <p class="text-xs text-outline uppercase mb-2">Blood Group</p>
-            <h4 class="text-lg font-bold">{{ selected_patient.blood_group|default:"Not recorded" }}</h4>
+          <div class="bg-surface-container-lowest p-lg rounded-xl shadow-card border-l-4 border-secondary">
+            <p class="text-label-sm text-outline uppercase mb-2">Blood Group</p>
+            <h4 class="text-headline-sm">{{ selected_patient.blood_group|default:"Not recorded" }}</h4>
           </div>
-          <div class="bg-white p-lg rounded-xl card-shadow sm:col-span-2">
-            <h3 class="font-bold mb-md border-b border-outline-variant pb-2">Medical History</h3>
-            <p class="text-sm text-on-surface-variant leading-relaxed">{{ selected_patient.medical_history|default:"No medical history recorded." }}</p>
+          <div class="bg-surface-container-lowest p-lg rounded-xl shadow-card sm:col-span-2">
+            <h3 class="text-label-lg mb-md border-b border-outline-variant pb-2">Medical History</h3>
+            <p class="text-body-sm text-on-surface-variant leading-relaxed">{{ selected_patient.medical_history|default:"No medical history recorded." }}</p>
           </div>
         </div>
 
-        <div class="bg-white rounded-xl card-shadow overflow-hidden">
-          <div class="p-lg border-b border-outline-variant"><h3 class="font-bold">Contact</h3></div>
-          <div class="p-lg text-sm space-y-2">
+        <div class="bg-surface-container-lowest rounded-xl shadow-card overflow-hidden">
+          <div class="p-lg border-b border-outline-variant"><h3 class="text-label-lg">Contact</h3></div>
+          <div class="p-lg text-body-sm space-y-2">
             <p><strong>Phone:</strong> {{ selected_patient.contact_number }}</p>
             <p><strong>DOB:</strong> {{ selected_patient.date_of_birth|date:"d M Y"|default:"Not recorded" }}</p>
           </div>
@@ -101,19 +126,19 @@ tailwind.config = { theme: { extend: {
 
         {% with vitals=selected_patient.latest_vitals %}
         {% if vitals %}
-        <div class="bg-primary text-white rounded-xl p-lg card-shadow">
-          <h3 class="font-bold mb-md">Last Recorded Vitals</h3>
-          <div class="space-y-md text-sm">
-            <div class="flex justify-between border-b border-white/20 pb-2"><span>Weight</span><span class="font-bold">{{ vitals.weight_kg|default:"—" }} kg</span></div>
-            <div class="flex justify-between border-b border-white/20 pb-2"><span>Blood Pressure</span><span class="font-bold">{{ vitals.blood_pressure|default:"—" }}</span></div>
-            <div class="flex justify-between"><span>Heart Rate</span><span class="font-bold">{{ vitals.heart_rate|default:"—" }} bpm</span></div>
+        <div class="bg-primary text-white rounded-xl p-lg shadow-card">
+          <h3 class="text-label-lg mb-md">Last Recorded Vitals</h3>
+          <div class="space-y-md text-body-sm">
+            <div class="flex justify-between border-b border-white/20 pb-2"><span>Weight</span><span class="text-label-lg">{{ vitals.weight_kg|default:"—" }} kg</span></div>
+            <div class="flex justify-between border-b border-white/20 pb-2"><span>Blood Pressure</span><span class="text-label-lg">{{ vitals.blood_pressure|default:"—" }}</span></div>
+            <div class="flex justify-between"><span>Heart Rate</span><span class="text-label-lg">{{ vitals.heart_rate|default:"—" }} bpm</span></div>
           </div>
         </div>
         {% endif %}
         {% endwith %}
       </div>
       {% else %}
-      <p class="text-on-surface-variant italic p-lg">Select a patient from the list to view details.</p>
+      <p class="text-on-surface-variant italic p-lg text-body-md">Select a patient from the list to view details.</p>
       {% endif %}
     </section>
   </main>

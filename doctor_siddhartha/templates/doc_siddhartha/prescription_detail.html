@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Prescription Details | MedCore Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script>
+tailwind.config = { theme: { extend: {
+  colors: {
+    primary:"#004ac6", "primary-container":"#2563eb", "primary-fixed":"#dbe1ff", "on-primary":"#ffffff",
+    "surface-container-lowest":"#ffffff", surface:"#f7f9fb", background:"#f8fafc",
+    "surface-container-low":"#f2f4f6", "surface-container":"#eceef0", "surface-container-high":"#e6e8ea",
+    "on-surface":"#191c1e", "on-surface-variant":"#434655", outline:"#737686", "outline-variant":"#c3c6d7",
+    error:"#ba1a1a", "error-container":"#ffdad6", "on-error":"#ffffff",
+    secondary:"#006c49", "secondary-container":"#6cf8bb"
+  },
+  fontFamily: { sans: ['Inter','sans-serif'] },
+  fontSize: {
+    'headline-lg': ['32px', { lineHeight:'40px', fontWeight:'700' }],
+    'headline-sm': ['20px', { lineHeight:'28px', fontWeight:'600' }],
+    'body-md': ['16px', { lineHeight:'24px' }],
+    'body-sm': ['14px', { lineHeight:'20px' }],
+    'label-lg': ['14px', { lineHeight:'20px', fontWeight:'600' }],
+    'label-sm': ['12px', { lineHeight:'16px', fontWeight:'500' }],
+  },
+  spacing: {"base":"4px","xxl":"48px","lg":"24px","xl":"32px","sm":"8px","xs":"4px","md":"16px"},
+  boxShadow: { card:'0px 1px 2px 0px rgba(15,23,42,0.05)' }
+}}}
+</script>
+<style>
+body { font-family: 'Inter', sans-serif; }
+.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; vertical-align: middle; }
+</style>
+</head>
+<body class="bg-background text-on-surface min-h-screen">
+<header class="flex justify-between items-center px-lg h-16 border-b border-outline-variant bg-surface-container-lowest shadow-card">
+  <h1 class="text-headline-sm text-primary">MedCore Portal</h1>
+  <a href="{% url 'doctor:prescriptions' rx.patient.id %}" class="text-label-lg text-primary hover:underline">← Back to Prescriptions</a>
+</header>
+
+<div class="p-lg max-w-3xl mx-auto space-y-lg">
+  {% if messages %}
+    {% for message in messages %}
+      <div class="bg-secondary text-white px-lg py-md rounded-xl">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <section class="bg-surface-container-lowest rounded-xl shadow-card border border-outline-variant p-lg space-y-md">
+    <div class="flex justify-between items-start">
+      <div>
+        <h2 class="text-headline-lg">Prescription</h2>
+        <p class="text-body-sm text-outline">Issued {{ rx.date_issued|date:"F j, Y" }}</p>
+      </div>
+      <form method="post" action="{% url 'doctor:delete_prescription' rx.id %}" onsubmit="return confirm('Delete this prescription? This cannot be undone.');">
+        {% csrf_token %}
+        <button type="submit" class="px-md py-2 border border-error text-error rounded-lg text-label-lg hover:bg-error-container transition-colors">Delete Prescription</button>
+      </form>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-md pt-md border-t border-outline-variant">
+      <div><span class="text-label-sm text-outline uppercase block">Patient</span><span class="text-label-lg">{{ rx.patient.full_name }}</span></div>
+      <div><span class="text-label-sm text-outline uppercase block">Patient ID</span><span class="text-label-lg">{{ rx.patient.patient_id }}</span></div>
+      <div><span class="text-label-sm text-outline uppercase block">Age / Gender</span><span class="text-label-lg">{{ rx.patient.age }} / {{ rx.patient.get_gender_display }}</span></div>
+      <div><span class="text-label-sm text-outline uppercase block">Blood Type</span><span class="text-label-lg text-error">{{ rx.patient.blood_group|default:"—" }}</span></div>
+    </div>
+  </section>
+
+  <section class="bg-surface-container-lowest rounded-xl shadow-card border border-outline-variant p-lg space-y-sm">
+    <h3 class="text-label-lg text-on-surface-variant uppercase">Diagnosis &amp; Clinical Notes</h3>
+    <p class="text-body-md leading-relaxed">{{ rx.diagnosis }}</p>
+  </section>
+
+  <section class="bg-surface-container-lowest rounded-xl shadow-card border border-outline-variant overflow-hidden">
+    <div class="p-lg border-b border-outline-variant"><h3 class="text-label-lg text-on-surface-variant uppercase">Prescribed Medicines</h3></div>
+    <table class="w-full text-left">
+      <thead class="bg-surface-container">
+        <tr>
+          <th class="p-md text-label-sm text-outline uppercase">Medicine</th>
+          <th class="p-md text-label-sm text-outline uppercase">Dosage</th>
+          <th class="p-md text-label-sm text-outline uppercase">Frequency</th>
+          <th class="p-md text-label-sm text-outline uppercase">Duration</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-outline-variant">
+        {% for item in rx.items.all %}
+        <tr>
+          <td class="p-md text-body-md">{{ item.medicine_name }}</td>
+          <td class="p-md text-body-sm">{{ item.dosage }}</td>
+          <td class="p-md text-body-sm">{{ item.frequency }}</td>
+          <td class="p-md text-body-sm">{{ item.duration }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="p-md text-on-surface-variant italic text-body-sm">No medicines listed.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </section>
+
+  {% if rx.additional_notes %}
+  <section class="bg-surface-container-lowest rounded-xl shadow-card border border-outline-variant p-lg space-y-sm">
+    <h3 class="text-label-lg text-on-surface-variant uppercase">Additional Notes / Warnings</h3>
+    <p class="text-body-md leading-relaxed">{{ rx.additional_notes }}</p>
+  </section>
+  {% endif %}
+</div>
+</body>
+</html>

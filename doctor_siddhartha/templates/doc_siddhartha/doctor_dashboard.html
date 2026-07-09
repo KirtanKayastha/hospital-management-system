@@ -8,21 +8,45 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script>
 tailwind.config = { theme: { extend: {
-  colors: {"surface-container-low":"#f2f4f6","primary-fixed":"#dbe1ff","surface-container-lowest":"#ffffff","secondary":"#006c49","tertiary-container":"#996100","on-surface":"#191c1e","on-surface-variant":"#434655","primary":"#004ac6","surface-container-highest":"#e0e3e5","surface-bright":"#f7f9fb","on-primary":"#ffffff","error-container":"#ffdad6","surface-container":"#eceef0","outline-variant":"#c3c6d7","outline":"#737686","error":"#ba1a1a","primary-container":"#2563eb","surface-variant":"#e0e3e5","surface-container-high":"#e6e8ea","surface":"#f7f9fb","background":"#f7f9fb","secondary-container":"#6cf8bb","tertiary":"#784b00"},
-  spacing: {"base":"4px","xxl":"48px","lg":"24px","xl":"32px","sm":"8px","xs":"4px","md":"16px"}
+  colors: {
+    primary:"#004ac6", "primary-container":"#2563eb", "primary-fixed":"#dbe1ff", "on-primary":"#ffffff",
+    "surface-container-lowest":"#ffffff", surface:"#f7f9fb", background:"#f7f9fb",
+    "surface-container-low":"#f2f4f6", "surface-container":"#eceef0", "surface-container-high":"#e6e8ea",
+    "on-surface":"#191c1e", "on-surface-variant":"#434655", outline:"#737686", "outline-variant":"#c3c6d7",
+    error:"#ba1a1a", "error-container":"#ffdad6", "on-error":"#ffffff",
+    secondary:"#006c49", "secondary-container":"#6cf8bb",
+    tertiary:"#784b00", "tertiary-container":"#996100", "tertiary-fixed":"#ffddb8"
+  },
+  fontFamily: { sans: ['Inter','sans-serif'] },
+  fontSize: {
+    'headline-lg': ['32px', { lineHeight:'40px', fontWeight:'700' }],
+    'headline-md': ['24px', { lineHeight:'32px', fontWeight:'600' }],
+    'headline-sm': ['20px', { lineHeight:'28px', fontWeight:'600' }],
+    'body-lg': ['18px', { lineHeight:'28px' }],
+    'body-md': ['16px', { lineHeight:'24px' }],
+    'body-sm': ['14px', { lineHeight:'20px' }],
+    'label-lg': ['14px', { lineHeight:'20px', fontWeight:'600' }],
+    'label-sm': ['12px', { lineHeight:'16px', fontWeight:'500' }],
+  },
+  spacing: {"base":"4px","xxl":"48px","lg":"24px","xl":"32px","sm":"8px","xs":"4px","md":"16px","gutter":"24px"},
+  borderRadius: { DEFAULT:'4px', lg:'8px', xl:'12px', full:'9999px' },
+  boxShadow: {
+    card:'0px 1px 2px 0px rgba(15,23,42,0.05)',
+    'card-hover':'0px 4px 6px -1px rgba(15,23,42,0.1)',
+    modal:'0px 10px 30px rgba(0,0,0,0.1)'
+  }
 }}}
 </script>
 <style>
 body { font-family: 'Inter', sans-serif; }
 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; vertical-align: middle; }
-.card-shadow { box-shadow: 0px 1px 2px 0px rgba(15,23,42,0.05); }
 .timeline-line::before { content:''; position:absolute; left:23px; top:0; bottom:0; width:2px; background:#E2E8F0; }
 </style>
 </head>
 <body class="text-on-surface bg-background">
 <div class="flex min-h-screen">
 
-<!-- SideNavBar -->
+<!-- SideNavBar : width 256px = w-64, per spec section 8 -->
 <aside class="hidden lg:flex flex-col h-screen w-64 border-r border-outline-variant bg-surface-container-lowest sticky top-0 left-0 z-40">
   <div class="p-lg flex flex-col items-center border-b border-outline-variant mb-md">
     <div class="w-16 h-16 rounded-full overflow-hidden mb-sm ring-2 ring-primary ring-offset-2 bg-surface-container-low flex items-center justify-center">
@@ -32,25 +56,25 @@ body { font-family: 'Inter', sans-serif; }
         <span class="material-symbols-outlined text-3xl text-primary">account_circle</span>
       {% endif %}
     </div>
-    <h2 class="text-lg font-bold text-primary">Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h2>
-    <p class="text-sm text-on-surface-variant">{{ doctor.specialization }}</p>
+    <h2 class="headline-sm text-primary">Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h2>
+    <p class="text-body-sm text-on-surface-variant">{{ doctor.specialization }}</p>
   </div>
   <nav class="flex-1 px-md space-y-1">
-    <a href="{% url 'doctor:dashboard' %}" class="flex items-center px-md py-sm rounded-lg transition-all duration-150 {% if request.resolver_match.url_name == 'dashboard' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-container-low{% endif %}">
+    <a href="{% url 'doctor:dashboard' %}" class="flex items-center px-md py-sm rounded-lg text-label-lg transition-all duration-150 {% if request.resolver_match.url_name == 'dashboard' %}text-primary border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-container-low{% endif %}">
       <span class="material-symbols-outlined mr-md">dashboard</span> Dashboard
     </a>
-    <a href="{% url 'doctor:schedule' %}" class="flex items-center px-md py-sm rounded-lg transition-all duration-150 {% if request.resolver_match.url_name == 'schedule' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-container-low{% endif %}">
+    <a href="{% url 'doctor:schedule' %}" class="flex items-center px-md py-sm rounded-lg text-label-lg transition-all duration-150 {% if request.resolver_match.url_name == 'schedule' %}text-primary border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-container-low{% endif %}">
       <span class="material-symbols-outlined mr-md">calendar_month</span> Schedule
     </a>
-    <a href="{% url 'doctor:patients_list' %}" class="flex items-center px-md py-sm rounded-lg transition-all duration-150 {% if request.resolver_match.url_name == 'patients_list' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-container-low{% endif %}">
+    <a href="{% url 'doctor:patients_list' %}" class="flex items-center px-md py-sm rounded-lg text-label-lg transition-all duration-150 {% if request.resolver_match.url_name == 'patients_list' %}text-primary border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-container-low{% endif %}">
       <span class="material-symbols-outlined mr-md">group</span> Patients
     </a>
-    <a href="{% url 'doctor:prescriptions' %}" class="flex items-center px-md py-sm rounded-lg transition-all duration-150 {% if request.resolver_match.url_name == 'prescriptions' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-container-low{% endif %}">
+    <a href="{% url 'doctor:prescriptions' %}" class="flex items-center px-md py-sm rounded-lg text-label-lg transition-all duration-150 {% if request.resolver_match.url_name == 'prescriptions' %}text-primary border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:text-primary hover:bg-surface-container-low{% endif %}">
       <span class="material-symbols-outlined mr-md">medication</span> Prescriptions
     </a>
   </nav>
   <div class="p-md mt-auto border-t border-outline-variant">
-    <button type="button" onclick="if(confirm('Send an emergency alert to on-call staff?')){alert('Emergency alert sent.');}" class="w-full py-md px-lg bg-error text-white font-bold rounded-lg flex items-center justify-center gap-2 active:scale-95 duration-150">
+    <button type="button" onclick="if(confirm('Send an emergency alert to on-call staff?')){alert('Emergency alert sent.');}" class="w-full py-md px-lg bg-error text-on-error text-label-lg rounded-lg flex items-center justify-center gap-2 hover:bg-[#93000a] active:scale-95 duration-150">
       <span class="material-symbols-outlined">emergency_home</span><span>Emergency Alert</span>
     </button>
   </div>
@@ -58,15 +82,16 @@ body { font-family: 'Inter', sans-serif; }
 
 <!-- Main Canvas -->
 <main class="flex-1 flex flex-col min-w-0">
-  <header class="flex justify-between items-center px-lg w-full h-16 sticky top-0 z-30 bg-surface/95 backdrop-blur-sm border-b border-outline-variant">
+  <!-- Navbar: height 64px = h-16, per spec section 9 -->
+  <header class="flex justify-between items-center px-lg w-full h-16 sticky top-0 z-30 bg-surface-container-lowest/95 backdrop-blur-sm border-b border-outline-variant shadow-card">
     <div class="flex items-center gap-lg">
-      <h1 class="text-xl font-extrabold text-primary">MedCore Portal</h1>
+      <h1 class="text-headline-sm text-primary">MedCore Portal</h1>
       <form method="get" action="{% url 'doctor:patients_list' %}" class="hidden md:flex items-center bg-surface-container px-md py-xs rounded-full border border-outline-variant">
         <span class="material-symbols-outlined text-outline">search</span>
-        <input name="q" class="bg-transparent border-none focus:ring-0 text-sm w-64" placeholder="Search patients..." type="text"/>
+        <input name="q" class="bg-transparent border-none focus:ring-0 text-body-sm w-64" placeholder="Search patients..." type="text"/>
       </form>
     </div>
-    <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs">
+    <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary text-label-sm">
       {{ doctor.user.first_name|slice:":1" }}{{ doctor.user.last_name|slice:":1"|default:"DR" }}
     </div>
   </header>
@@ -74,89 +99,95 @@ body { font-family: 'Inter', sans-serif; }
   <div class="p-lg max-w-7xl mx-auto w-full space-y-lg">
     <section class="flex flex-col md:flex-row md:items-end justify-between gap-md">
       <div>
-        <h2 class="text-3xl font-bold text-on-surface">Doctor Dashboard</h2>
-        <p class="text-on-surface-variant">Welcome back, Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}. Here's your overview for today.</p>
+        <h2 class="text-headline-lg text-on-surface">Doctor Dashboard</h2>
+        <p class="text-body-md text-on-surface-variant">Welcome back, Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}. Here's your overview for today.</p>
       </div>
-      <p class="text-primary font-bold uppercase tracking-wider text-sm">{{ today|date:"l, F j" }}</p>
+      <p class="text-primary text-label-lg uppercase tracking-wider">{{ today|date:"l, F j" }}</p>
     </section>
 
     <!-- Stat Cards -->
     <section class="grid grid-cols-1 md:grid-cols-3 gap-lg">
-      <a href="{% url 'doctor:patients_list' %}" class="bg-surface-container-lowest p-lg rounded-xl card-shadow border border-outline-variant flex items-start gap-md hover:border-primary transition-colors">
+      <a href="{% url 'doctor:patients_list' %}" class="bg-surface-container-lowest p-lg rounded-xl shadow-card hover:shadow-card-hover border border-outline-variant flex items-start gap-md hover:border-primary transition-all">
         <div class="p-md bg-primary-container/10 rounded-lg"><span class="material-symbols-outlined text-primary text-3xl">group</span></div>
         <div>
-          <p class="text-xs text-on-surface-variant uppercase">Total Patients</p>
-          <h3 class="text-2xl font-bold">{{ total_patients }}</h3>
+          <p class="text-label-sm text-on-surface-variant uppercase">Total Patients</p>
+          <h3 class="text-headline-md">{{ total_patients }}</h3>
         </div>
       </a>
-      <a href="{% url 'doctor:schedule' %}" class="bg-surface-container-lowest p-lg rounded-xl card-shadow border border-outline-variant flex items-start gap-md hover:border-primary transition-colors">
-        <div class="p-md bg-secondary-container/10 rounded-lg"><span class="material-symbols-outlined text-secondary text-3xl">calendar_today</span></div>
+      <a href="{% url 'doctor:schedule' %}" class="bg-surface-container-lowest p-lg rounded-xl shadow-card hover:shadow-card-hover border border-outline-variant flex items-start gap-md hover:border-primary transition-all">
+        <div class="p-md bg-secondary-container/40 rounded-lg"><span class="material-symbols-outlined text-secondary text-3xl">calendar_today</span></div>
         <div>
-          <p class="text-xs text-on-surface-variant uppercase">Today's Appointments</p>
-          <h3 class="text-2xl font-bold">{{ appointments_count }}</h3>
-          <p class="text-xs text-on-surface-variant mt-1">{{ completed_count }} completed</p>
+          <p class="text-label-sm text-on-surface-variant uppercase">Today's Appointments</p>
+          <h3 class="text-headline-md">{{ appointments_count }}</h3>
+          <p class="text-label-sm text-on-surface-variant mt-1">{{ completed_count }} completed</p>
         </div>
       </a>
-      <a href="{% url 'doctor:prescriptions' %}" class="bg-surface-container-lowest p-lg rounded-xl card-shadow border border-outline-variant flex items-start gap-md hover:border-primary transition-colors">
-        <div class="p-md bg-tertiary-container/10 rounded-lg"><span class="material-symbols-outlined text-tertiary text-3xl">pending_actions</span></div>
+      <a href="{% url 'doctor:prescriptions' %}" class="bg-surface-container-lowest p-lg rounded-xl shadow-card hover:shadow-card-hover border border-outline-variant flex items-start gap-md hover:border-primary transition-all">
+        <div class="p-md bg-tertiary-container/20 rounded-lg"><span class="material-symbols-outlined text-tertiary text-3xl">pending_actions</span></div>
         <div>
-          <p class="text-xs text-on-surface-variant uppercase">Pending Prescriptions</p>
-          <h3 class="text-2xl font-bold">{{ pending_prescriptions_count }}</h3>
+          <p class="text-label-sm text-on-surface-variant uppercase">Pending Prescriptions</p>
+          <h3 class="text-headline-md">{{ pending_prescriptions_count }}</h3>
         </div>
       </a>
     </section>
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-lg items-start">
       <!-- Today's Schedule -->
-      <section class="lg:col-span-7 bg-surface-container-lowest rounded-xl border border-outline-variant card-shadow flex flex-col">
+      <section class="lg:col-span-7 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-card flex flex-col">
         <div class="p-lg border-b border-outline-variant flex justify-between items-center">
-          <h4 class="text-lg font-bold">Today's Schedule</h4>
-          <a href="{% url 'doctor:schedule' %}" class="text-primary font-bold text-sm hover:underline">View All</a>
+          <h4 class="text-headline-sm">Today's Schedule</h4>
+          <a href="{% url 'doctor:schedule' %}" class="text-primary text-label-lg hover:underline">View All</a>
         </div>
         <div class="p-lg relative timeline-line flex-1 overflow-y-auto max-h-[600px] space-y-lg">
           {% for appt in todays_appointments %}
           <div class="relative flex items-start gap-xl pl-12">
-            <div class="absolute left-0 w-12 text-right"><span class="text-xs text-outline">{{ appt.start_time|time:"g:i A" }}</span></div>
+            <div class="absolute left-0 w-12 text-right"><span class="text-label-sm text-outline">{{ appt.start_time|time:"g:i A" }}</span></div>
             <div class="absolute left-[19px] top-1.5 w-2.5 h-2.5 rounded-full bg-primary border-4 border-surface-container-lowest ring-1 ring-primary"></div>
             <div class="flex-1 bg-surface-container-low p-md rounded-lg border border-transparent hover:border-primary/20">
               <div class="flex justify-between items-start">
                 <div>
-                  <p class="font-bold">{{ appt.patient.full_name }}</p>
-                  <p class="text-sm text-on-surface-variant">{{ appt.get_appointment_type_display }}{% if appt.notes %}: {{ appt.notes }}{% endif %}</p>
+                  <p class="text-label-lg">{{ appt.patient.full_name }}</p>
+                  <p class="text-body-sm text-on-surface-variant">{{ appt.get_appointment_type_display }}{% if appt.notes %}: {{ appt.notes }}{% endif %}</p>
                 </div>
-                <span class="px-sm py-1 rounded text-[10px] font-bold uppercase {% if appt.appointment_type == 'urgent' %}bg-error-container text-error{% else %}bg-primary/10 text-primary{% endif %}">{{ appt.get_status_display }}</span>
+                {% if appt.status == 'cancelled' %}
+                  <span class="px-sm py-1 rounded text-label-sm uppercase bg-error-container text-[#93000a]">{{ appt.get_status_display }}</span>
+                {% elif appt.status == 'pending' %}
+                  <span class="px-sm py-1 rounded text-label-sm uppercase bg-tertiary-container text-[#ffeedd]">{{ appt.get_status_display }}</span>
+                {% else %}
+                  <span class="px-sm py-1 rounded text-label-sm uppercase bg-secondary-container text-[#005236]">{{ appt.get_status_display }}</span>
+                {% endif %}
               </div>
             </div>
           </div>
           {% empty %}
-          <p class="text-on-surface-variant italic">No appointments scheduled for today.</p>
+          <p class="text-body-md text-on-surface-variant italic">No appointments scheduled for today.</p>
           {% endfor %}
         </div>
       </section>
 
       <!-- Recent Patients -->
-      <section class="lg:col-span-5 bg-surface-container-lowest rounded-xl border border-outline-variant card-shadow flex flex-col">
-        <div class="p-lg border-b border-outline-variant"><h4 class="text-lg font-bold">Recent Patients</h4></div>
+      <section class="lg:col-span-5 bg-surface-container-lowest rounded-xl border border-outline-variant shadow-card flex flex-col">
+        <div class="p-lg border-b border-outline-variant"><h4 class="text-headline-sm">Recent Patients</h4></div>
         <table class="w-full text-left">
-          <thead class="bg-surface-container-low border-b border-outline-variant">
-            <tr><th class="px-lg py-sm text-xs text-outline uppercase">Patient</th><th class="px-lg py-sm text-xs text-outline uppercase">Next Appt.</th><th></th></tr>
+          <thead class="bg-surface-container border-b border-outline-variant">
+            <tr><th class="p-md text-label-sm text-outline uppercase">Patient</th><th class="p-md text-label-sm text-outline uppercase">Next Appt.</th><th></th></tr>
           </thead>
           <tbody class="divide-y divide-outline-variant">
             {% for patient in recent_patients %}
-            <tr class="hover:bg-surface transition-colors group">
-              <td class="px-lg py-md">
+            <tr class="hover:bg-surface-container-low transition-colors group">
+              <td class="p-md">
                 <div class="flex items-center gap-md">
-                  <div class="w-8 h-8 rounded-full bg-primary-fixed/30 flex items-center justify-center font-bold text-primary text-xs">{{ patient.full_name|slice:":1" }}</div>
-                  <p class="font-semibold">{{ patient.full_name }}</p>
+                  <div class="w-8 h-8 rounded-full bg-primary-fixed/60 flex items-center justify-center text-primary text-label-sm">{{ patient.full_name|slice:":1" }}</div>
+                  <p class="text-label-lg">{{ patient.full_name }}</p>
                 </div>
               </td>
-              <td class="px-lg py-md text-sm">{{ patient.next_appointment.date|date:"M d, Y"|default:"Pending" }}</td>
-              <td class="px-lg py-md text-right">
-                <a href="{% url 'doctor:patients_list' %}?patient={{ patient.id }}" class="px-md py-1.5 border border-outline-variant font-bold text-sm rounded-lg group-hover:bg-primary group-hover:text-white group-hover:border-primary transition-all">View</a>
+              <td class="p-md text-body-sm">{{ patient.next_appointment.date|date:"M d, Y"|default:"Pending" }}</td>
+              <td class="p-md text-right">
+                <a href="{% url 'doctor:patients_list' %}?patient={{ patient.id }}" class="px-md py-1.5 border border-outline-variant text-label-sm rounded-lg group-hover:bg-primary group-hover:text-on-primary group-hover:border-primary transition-all">View</a>
               </td>
             </tr>
             {% empty %}
-            <tr><td class="px-lg py-md text-on-surface-variant italic" colspan="3">No patients assigned yet.</td></tr>
+            <tr><td class="p-md text-on-surface-variant italic text-body-sm" colspan="3">No patients assigned yet.</td></tr>
             {% endfor %}
           </tbody>
         </table>
