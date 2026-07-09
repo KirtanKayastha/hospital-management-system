@@ -8,37 +8,62 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 <script>
 tailwind.config = { theme: { extend: {
-  colors: {"surface-container-low":"#f2f4f6","primary-fixed":"#dbe1ff","surface-container-lowest":"#ffffff","secondary":"#006c49","on-surface":"#191c1e","on-surface-variant":"#434655","primary":"#004ac6","surface-container-highest":"#e0e3e5","surface-bright":"#f7f9fb","on-primary":"#ffffff","surface-container":"#eceef0","outline-variant":"#c3c6d7","outline":"#737686","error":"#ba1a1a","primary-container":"#2563eb","surface-variant":"#e0e3e5","surface-container-high":"#e6e8ea","surface":"#f7f9fb","background":"#f7f9fb"},
-  spacing: {"base":"4px","xxl":"48px","lg":"24px","xl":"32px","sm":"8px","xs":"4px","md":"16px"}
+  colors: {
+    primary:"#004ac6", "primary-container":"#2563eb", "primary-fixed":"#dbe1ff", "on-primary":"#ffffff",
+    "surface-container-lowest":"#ffffff", surface:"#f7f9fb", background:"#f7f9fb",
+    "surface-container-low":"#f2f4f6", "surface-container":"#eceef0", "surface-container-high":"#e6e8ea",
+    "on-surface":"#191c1e", "on-surface-variant":"#434655", outline:"#737686", "outline-variant":"#c3c6d7",
+    error:"#ba1a1a", "error-container":"#ffdad6", "on-error":"#ffffff",
+    secondary:"#006c49", "secondary-container":"#6cf8bb",
+    tertiary:"#784b00", "tertiary-container":"#996100", "tertiary-fixed":"#ffddb8"
+  },
+  fontFamily: { sans: ['Inter','sans-serif'] },
+  fontSize: {
+    'headline-lg': ['32px', { lineHeight:'40px', fontWeight:'700' }],
+    'headline-md': ['24px', { lineHeight:'32px', fontWeight:'600' }],
+    'headline-sm': ['20px', { lineHeight:'28px', fontWeight:'600' }],
+    'body-lg': ['18px', { lineHeight:'28px' }],
+    'body-md': ['16px', { lineHeight:'24px' }],
+    'body-sm': ['14px', { lineHeight:'20px' }],
+    'label-lg': ['14px', { lineHeight:'20px', fontWeight:'600' }],
+    'label-sm': ['12px', { lineHeight:'16px', fontWeight:'500' }],
+  },
+  spacing: {"base":"4px","xxl":"48px","lg":"24px","xl":"32px","sm":"8px","xs":"4px","md":"16px","gutter":"24px"},
+  borderRadius: { DEFAULT:'4px', lg:'8px', xl:'12px', full:'9999px' },
+  boxShadow: {
+    card:'0px 1px 2px 0px rgba(15,23,42,0.05)',
+    'card-hover':'0px 4px 6px -1px rgba(15,23,42,0.1)',
+    modal:'0px 10px 30px rgba(0,0,0,0.1)'
+  }
 }}}
 </script>
 <style>
+body { font-family: 'Inter', sans-serif; }
 .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400; vertical-align: middle; }
-.custom-shadow-sm { box-shadow: 0px 1px 2px 0px rgba(15,23,42,0.05); }
 </style>
 </head>
 <body class="bg-background text-on-surface min-h-screen flex overflow-hidden">
 
 <aside class="hidden lg:flex flex-col h-screen w-64 border-r border-outline-variant bg-surface-container-lowest sticky top-0 left-0">
   <div class="p-lg">
-    <h1 class="text-2xl font-bold text-primary mb-xl">MedCore</h1>
+    <h1 class="text-headline-sm text-primary mb-xl">MedCore</h1>
     <nav class="space-y-2">
-      <a href="{% url 'doctor:dashboard' %}" class="flex items-center gap-md p-md rounded-lg {% if request.resolver_match.url_name == 'dashboard' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
-      <a href="{% url 'doctor:schedule' %}" class="flex items-center gap-md p-md rounded-lg {% if request.resolver_match.url_name == 'schedule' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">calendar_month</span> Schedule</a>
-      <a href="{% url 'doctor:patients_list' %}" class="flex items-center gap-md p-md rounded-lg {% if request.resolver_match.url_name == 'patients_list' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">group</span> Patients</a>
-      <a href="{% url 'doctor:prescriptions' %}" class="flex items-center gap-md p-md rounded-lg {% if request.resolver_match.url_name == 'prescriptions' %}text-primary font-bold border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">medication</span> Prescriptions</a>
+      <a href="{% url 'doctor:dashboard' %}" class="flex items-center gap-md p-md rounded-lg text-label-lg {% if request.resolver_match.url_name == 'dashboard' %}text-primary border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">dashboard</span> Dashboard</a>
+      <a href="{% url 'doctor:schedule' %}" class="flex items-center gap-md p-md rounded-lg text-label-lg {% if request.resolver_match.url_name == 'schedule' %}text-primary border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">calendar_month</span> Schedule</a>
+      <a href="{% url 'doctor:patients_list' %}" class="flex items-center gap-md p-md rounded-lg text-label-lg {% if request.resolver_match.url_name == 'patients_list' %}text-primary border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">group</span> Patients</a>
+      <a href="{% url 'doctor:prescriptions' %}" class="flex items-center gap-md p-md rounded-lg text-label-lg {% if request.resolver_match.url_name == 'prescriptions' %}text-primary border-r-4 border-primary bg-surface-container-low{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}"><span class="material-symbols-outlined">medication</span> Prescriptions</a>
     </nav>
   </div>
   <div class="p-md mt-auto border-t border-outline-variant">
-    <button type="button" onclick="if(confirm('Send an emergency alert to on-call staff?')){alert('Emergency alert sent.');}" class="w-full py-md px-lg bg-error text-white font-bold rounded-lg flex items-center justify-center gap-2 active:scale-95 duration-150">
+    <button type="button" onclick="if(confirm('Send an emergency alert to on-call staff?')){alert('Emergency alert sent.');}" class="w-full py-md px-lg bg-error text-on-error text-label-lg rounded-lg flex items-center justify-center gap-2 hover:bg-[#93000a] active:scale-95 duration-150">
       <span class="material-symbols-outlined">emergency_home</span><span>Emergency Alert</span>
     </button>
   </div>
 </aside>
 
 <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
-  <header class="flex justify-between items-center px-lg h-16 sticky top-0 z-50 bg-surface/95 backdrop-blur-sm border-b border-outline-variant">
-    <span class="text-xl font-extrabold text-primary">MedCore</span>
+  <header class="flex justify-between items-center px-lg h-16 sticky top-0 z-50 bg-surface-container-lowest/95 backdrop-blur-sm border-b border-outline-variant shadow-card">
+    <span class="text-headline-sm text-primary">MedCore</span>
   </header>
 
   <main class="flex-1 overflow-y-auto p-lg">
@@ -46,10 +71,10 @@ tailwind.config = { theme: { extend: {
 
       <div class="flex flex-col md:flex-row md:items-center justify-between gap-md">
         <div>
-          <h2 class="text-3xl font-bold">Schedule Management</h2>
-          <p class="text-on-surface-variant">Configure your availability and manage patient appointments.</p>
+          <h2 class="text-headline-lg">Schedule Management</h2>
+          <p class="text-body-md text-on-surface-variant">Configure your availability and manage patient appointments.</p>
         </div>
-        <button type="button" class="bg-primary text-white py-2 px-6 rounded-lg font-bold flex items-center gap-2" onclick="document.getElementById('availability-modal').classList.remove('hidden')">
+        <button type="button" class="bg-primary hover:bg-primary-container text-on-primary text-label-lg py-2 px-6 rounded-lg flex items-center gap-2 transition-colors" onclick="document.getElementById('availability-modal').classList.remove('hidden')">
           <span class="material-symbols-outlined">add</span> Set Availability
         </button>
       </div>
@@ -61,33 +86,49 @@ tailwind.config = { theme: { extend: {
       {% endif %}
 
       <div class="grid grid-cols-12 gap-lg">
-        <div class="col-span-12 lg:col-span-9 bg-white rounded-xl custom-shadow-sm border border-outline-variant overflow-hidden">
+        <div class="col-span-12 lg:col-span-9 bg-surface-container-lowest rounded-xl shadow-card border border-outline-variant overflow-hidden">
           <div class="p-lg flex items-center justify-between border-b border-outline-variant">
-            <h3 class="text-lg font-bold">{{ start_date|date:"M d" }} - {{ end_date|date:"M d, Y" }}</h3>
+            <h3 class="text-headline-sm">{{ start_date|date:"M d" }} - {{ end_date|date:"M d, Y" }}</h3>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left">
-              <thead class="bg-surface-container-lowest border-b border-outline-variant">
+              <thead class="bg-surface-container border-b border-outline-variant">
                 <tr>
-                  <th class="p-md text-sm text-on-surface-variant">Patient</th>
-                  <th class="p-md text-sm text-on-surface-variant">Date &amp; Time</th>
-                  <th class="p-md text-sm text-on-surface-variant">Type</th>
-                  <th class="p-md text-sm text-on-surface-variant">Status</th>
+                  <th class="p-md text-label-sm text-outline uppercase">Patient</th>
+                  <th class="p-md text-label-sm text-outline uppercase">Date &amp; Time</th>
+                  <th class="p-md text-label-sm text-outline uppercase">Type</th>
+                  <th class="p-md text-label-sm text-outline uppercase">Status</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-outline-variant">
                 {% for appt in week_appointments %}
                 <tr class="hover:bg-surface-container-low transition-colors">
-                  <td class="p-md flex items-center gap-3">
-                    <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs">{{ appt.patient.full_name|slice:":2" }}</div>
-                    <span class="font-semibold">{{ appt.patient.full_name }}</span>
+                  <td class="p-md">
+                    <a href="{% url 'doctor:patients_list' %}?patient={{ appt.patient.id }}" class="flex items-center gap-3 hover:underline">
+                      <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary text-label-sm">{{ appt.patient.full_name|slice:":2" }}</div>
+                      <span class="text-label-lg">{{ appt.patient.full_name }}</span>
+                    </a>
                   </td>
-                  <td class="p-md text-sm">{{ appt.date|date:"M d" }}, {{ appt.start_time|time:"g:i A" }} - {{ appt.end_time|time:"g:i A" }}</td>
-                  <td class="p-md text-sm">{{ appt.get_appointment_type_display }}</td>
-                  <td class="p-md"><span class="bg-secondary/10 text-secondary px-2 py-0.5 rounded text-[10px] font-bold">{{ appt.get_status_display|upper }}</span></td>
+                  <td class="p-md text-body-sm">{{ appt.date|date:"M d" }}, {{ appt.start_time|time:"g:i A" }} - {{ appt.end_time|time:"g:i A" }}</td>
+                  <td class="p-md text-body-sm">{{ appt.get_appointment_type_display }}</td>
+                  <td class="p-md">
+                    <form method="post" action="{% url 'doctor:update_appointment_status' appt.id %}" class="inline-flex items-center gap-2">
+                      {% csrf_token %}
+                      <select name="status" onchange="this.form.submit()"
+                        class="text-label-sm rounded px-2 py-1 border-0 cursor-pointer
+                        {% if appt.status == 'cancelled' %}bg-error-container text-[#93000a]
+                        {% elif appt.status == 'pending' %}bg-tertiary-container text-[#ffeedd]
+                        {% else %}bg-secondary-container text-[#005236]{% endif %}">
+                        <option value="pending" {% if appt.status == 'pending' %}selected{% endif %}>PENDING</option>
+                        <option value="confirmed" {% if appt.status == 'confirmed' %}selected{% endif %}>CONFIRMED</option>
+                        <option value="completed" {% if appt.status == 'completed' %}selected{% endif %}>COMPLETED</option>
+                        <option value="cancelled" {% if appt.status == 'cancelled' %}selected{% endif %}>CANCELLED</option>
+                      </select>
+                    </form>
+                  </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="4" class="p-md text-on-surface-variant italic">No appointments this week.</td></tr>
+                <tr><td colspan="4" class="p-md text-on-surface-variant italic text-body-sm">No appointments this week.</td></tr>
                 {% endfor %}
               </tbody>
             </table>
@@ -95,18 +136,18 @@ tailwind.config = { theme: { extend: {
         </div>
 
         <div class="col-span-12 lg:col-span-3 space-y-lg">
-          <div class="bg-white rounded-xl border border-outline-variant custom-shadow-sm p-lg">
-            <h4 class="text-sm font-bold mb-md">RECURRING SLOTS</h4>
+          <div class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-card p-lg">
+            <h4 class="text-label-sm text-outline uppercase mb-md">Recurring Slots</h4>
             <div class="space-y-md">
               {% for slot in availability %}
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="font-semibold">{{ slot.get_day_of_week_display }}</p>
-                  <p class="text-xs text-on-surface-variant">{{ slot.start_time|time:"g:i A" }} - {{ slot.end_time|time:"g:i A" }}</p>
+                  <p class="text-label-lg">{{ slot.get_day_of_week_display }}</p>
+                  <p class="text-body-sm text-on-surface-variant">{{ slot.start_time|time:"g:i A" }} - {{ slot.end_time|time:"g:i A" }}</p>
                 </div>
               </div>
               {% empty %}
-              <p class="text-sm text-on-surface-variant italic">No recurring availability set.</p>
+              <p class="text-body-sm text-on-surface-variant italic">No recurring availability set.</p>
               {% endfor %}
             </div>
           </div>
@@ -119,34 +160,34 @@ tailwind.config = { theme: { extend: {
 <!-- Availability Modal -->
 <div class="fixed inset-0 z-[100] hidden" id="availability-modal">
   <div class="absolute inset-0 bg-black/40" onclick="document.getElementById('availability-modal').classList.add('hidden')"></div>
-  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl overflow-hidden">
+  <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-surface-container-lowest rounded-xl shadow-modal overflow-hidden">
     <div class="p-lg border-b border-outline-variant flex items-center justify-between">
-      <h3 class="text-lg font-bold">Set New Availability</h3>
+      <h3 class="text-headline-sm">Set New Availability</h3>
       <button type="button" class="material-symbols-outlined" onclick="document.getElementById('availability-modal').classList.add('hidden')">close</button>
     </div>
     <form method="post" class="p-lg space-y-lg">
       {% csrf_token %}
       <div>
-        <label class="block text-sm font-bold mb-md">SELECT DAYS</label>
+        <label class="block text-label-md mb-md">Select Days</label>
         <div class="flex flex-wrap gap-2">
           {% for value, label in form.days.field.choices %}
-          <label class="flex items-center gap-1 text-sm">
+          <label class="flex items-center gap-1 text-body-sm">
             <input type="checkbox" name="days" value="{{ value }}"> {{ label|slice:":3" }}
           </label>
           {% endfor %}
         </div>
       </div>
       <div class="grid grid-cols-2 gap-lg">
-        <div><label class="block text-sm font-bold mb-sm">START TIME</label>{{ form.start_time }}</div>
-        <div><label class="block text-sm font-bold mb-sm">END TIME</label>{{ form.end_time }}</div>
+        <div><label class="block text-label-md mb-sm">Start Time</label>{{ form.start_time }}</div>
+        <div><label class="block text-label-md mb-sm">End Time</label>{{ form.end_time }}</div>
       </div>
       <div>
-        <label class="block text-sm font-bold mb-sm">SLOT DURATION</label>
+        <label class="block text-label-md mb-sm">Slot Duration</label>
         {{ form.slot_duration_minutes }}
       </div>
       <div class="flex justify-end gap-md pt-md border-t border-outline-variant">
-        <button type="button" class="px-6 py-2 border border-outline-variant rounded-lg font-bold" onclick="document.getElementById('availability-modal').classList.add('hidden')">Cancel</button>
-        <button type="submit" class="px-8 py-2 bg-primary text-white rounded-lg font-bold">Save Changes</button>
+        <button type="button" class="px-6 py-2 border border-outline-variant rounded-lg text-label-lg" onclick="document.getElementById('availability-modal').classList.add('hidden')">Cancel</button>
+        <button type="submit" class="px-8 py-2 bg-primary hover:bg-primary-container text-on-primary rounded-lg text-label-lg transition-colors">Save Changes</button>
       </div>
     </form>
   </div>

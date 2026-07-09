@@ -82,6 +82,21 @@ def schedule(request):
 
 
 @login_required
+def update_appointment_status(request, appointment_id):
+    """Quick status change (pending/confirmed/completed/cancelled) from the Schedule page."""
+    doctor = _get_doctor_profile(request)
+    appt = get_object_or_404(Appointment, id=appointment_id, doctor=doctor)
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        valid_statuses = dict(Appointment.STATUS_CHOICES)
+        if new_status in valid_statuses:
+            appt.status = new_status
+            appt.save()
+            messages.success(request, f"{appt.patient.full_name}'s appointment marked as {appt.get_status_display()}.")
+    return redirect('doctor:schedule')
+
+
+@login_required
 def patients_list(request):
     doctor = _get_doctor_profile(request)
     query = request.GET.get('q', '')
@@ -126,7 +141,10 @@ def prescriptions(request, patient_id=None):
         form = PrescriptionForm()
         formset = PrescriptionItemFormSet()
 
-    past_prescriptions = Prescription.objects.filter(patient=patient) if patient else Prescription.objects.none()
+    if patient:
+        past_prescriptions = Prescription.objects.filter(patient=patient)
+    else:
+        past_prescriptions = Prescription.objects.filter(doctor=doctor).select_related('patient').order_by('-date_issued')[:20]
 
     context = {
         'doctor': doctor,
@@ -136,3 +154,25 @@ def prescriptions(request, patient_id=None):
         'past_prescriptions': past_prescriptions,
     }
     return render(request, 'doc_siddhartha/prescription.html', context)
+
+
+@login_required
+def prescription_detail(request, prescription_id):
+    doctor = _get_doctor_profile(request)
+    rx = get_object_or_404(Prescription, id=prescription_id, doctor=doctor)
+    context = {'doctor': doctor, 'rx': rx}
+    return render(request, 'doc_siddhartha/prescription_detail.html', context)
+
+
+@login_required
+def delete_prescription(request, prescription_id):
+    doctor = _get_doctor_profile(request)
+    rx = get_object_or_404(Prescription, id=prescription_id, doctor=doctor)
+    if request.method == 'POST':
+        patient_id = rx.patient_id
+        patient_name = rx.patient.full_name
+        rx.delete()
+        messages.success(request, f"Prescription for {patient_name} deleted.")
+        if patient_id:
+            return redirect('doctor:prescriptions', patient_id=patient_id)
+    return redirect('doctor:prescriptions')
