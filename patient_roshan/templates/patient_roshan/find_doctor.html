@@ -24,8 +24,8 @@
             <div class="flex-1">
                 <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Search Doctor</label>
                 <div class="relative">
-                    <input class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm pl-xl focus:ring-2 focus:ring-primary font-body-md text-body-md transition-all"
-                           placeholder="Search by name..." type="text" name="search" value="{{ request.GET.search }}"/>
+                          <input class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm pl-xl focus:ring-2 focus:ring-primary font-body-md text-body-md transition-all"
+                              placeholder="Search by name..." type="text" name="search" value="{{ request.GET.search|default:'' }}"/>
                     <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
                 </div>
             </div>
@@ -33,9 +33,9 @@
                 <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Availability</label>
                 <div class="relative">
                     <select name="availability" onchange="this.form.submit()" class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm appearance-none focus:ring-2 focus:ring-primary font-body-md text-body-md transition-all">
-                        <option value="">Any time</option>
-                        <option value="today">Today</option>
-                        <option value="week">This week</option>
+                        <option value="" {% if request.GET.availability == '' %}selected{% endif %}>Any time</option>
+                        <option value="today" {% if request.GET.availability == 'today' %}selected{% endif %}>Today</option>
+                        <option value="week" {% if request.GET.availability == 'week' %}selected{% endif %}>This week</option>
                     </select>
                     <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
                 </div>

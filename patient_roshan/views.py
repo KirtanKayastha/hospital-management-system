@@ -9,7 +9,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from admin_nishan.models import Appointment, BillingInvoice, Department, LabReport, MedicalRecord, Notification, Prescription
+from admin_nishan.models import Appointment, BillingInvoice, Department, DoctorAvailability, LabReport, MedicalRecord, Notification, Prescription
 from doctor_siddhartha.models import DoctorProfile
 from hospital.access import ensure_patient_profile, patient_required
 from .models import PatientProfile
@@ -57,6 +57,56 @@ def _doctor_card(profile):
     }
 
 
+def _availability_for_date(doctor_user, target_date):
+    return DoctorAvailability.objects.filter(
+        doctor=doctor_user,
+        is_active=True,
+        day_of_week=target_date.weekday(),
+    ).order_by("start_time")
+
+
+def _doctor_cards_for_booking(department_id="", search=""):
+    doctor_profiles = DoctorProfile.objects.select_related("user", "department").filter(
+        user__availability_slots__is_active=True,
+    )
+    if department_id:
+        doctor_profiles = doctor_profiles.filter(department_id=department_id)
+    if search:
+        doctor_profiles = doctor_profiles.filter(
+            Q(user__first_name__icontains=search)
+            | Q(user__last_name__icontains=search)
+            | Q(user__username__icontains=search)
+            | Q(specialization__icontains=search)
+        )
+    return doctor_profiles.distinct()
+
+
+def _build_time_slots(doctor_user, target_date):
+    booked_times = set(
+        Appointment.objects.filter(
+            doctor=doctor_user,
+            appointment_date=target_date,
+            status__in=[Appointment.STATUS_PENDING, Appointment.STATUS_CONFIRMED],
+        ).values_list("appointment_time", flat=True)
+    )
+    slots = []
+    for availability in _availability_for_date(doctor_user, target_date):
+        current_time = datetime.combine(target_date, availability.start_time)
+        end_time = datetime.combine(target_date, availability.end_time)
+        while current_time + timedelta(minutes=30) <= end_time:
+            slot_time = current_time.time()
+            slot_value = slot_time.strftime("%H:%M")
+            slots.append(
+                {
+                    "value": slot_value,
+                    "label": slot_time.strftime("%I:%M %p"),
+                    "is_booked": slot_time in booked_times,
+                }
+            )
+            current_time += timedelta(minutes=30)
+    return slots
+
+
 def _calendar_days(selected_date):
     year = selected_date.year
     month = selected_date.month
@@ -80,33 +130,12 @@ def _calendar_days(selected_date):
 
 
 def _time_slots(selected_date, doctor_id=None):
-    start_hour = 9
-    end_hour = 17
-    slots = []
-    booked_times = set()
-
-    if doctor_id:
-        booked_times = set(
-            Appointment.objects.filter(
-                doctor_id=doctor_id,
-                appointment_date=selected_date,
-                status__in=[Appointment.STATUS_PENDING, Appointment.STATUS_CONFIRMED],
-            ).values_list("appointment_time", flat=True)
-        )
-
-    current_time = time(start_hour, 0)
-    while current_time < time(end_hour, 0):
-        slots.append(
-            {
-                "value": current_time.strftime("%H:%M"),
-                "label": current_time.strftime("%I:%M %p"),
-                "is_booked": current_time in booked_times,
-            }
-        )
-        slot_datetime = datetime.combine(date.today(), current_time) + timedelta(minutes=30)
-        current_time = slot_datetime.time()
-
-    return slots
+    if not doctor_id:
+        return []
+    doctor_profile = DoctorProfile.objects.filter(user_id=doctor_id).select_related("user", "department").first()
+    if not doctor_profile:
+        return []
+    return _build_time_slots(doctor_profile.user, selected_date)
 
 
 def _patient_profile(user):
@@ -153,6 +182,9 @@ def book_appointment(request):
     selected_doctor_id = request.POST.get("doctor_id") or request.GET.get("doctor") or ""
     selected_date_value = request.POST.get("appointment_date") or request.GET.get("date")
     selected_time_value = request.POST.get("appointment_time") or request.GET.get("time") or ""
+    department_id = request.GET.get("department", "")
+    search = (request.GET.get("search", "") or "").strip()
+    form_errors = []
 
     if selected_date_value:
         try:
@@ -168,52 +200,53 @@ def book_appointment(request):
         appointment_time_value = request.POST.get("appointment_time")
         reason = (request.POST.get("reason") or "").strip()
 
-        errors = []
         if not doctor_id:
-            errors.append("Select a doctor before booking.")
+            form_errors.append("Select a doctor before booking.")
         if not appointment_date_value:
-            errors.append("Select an appointment date.")
+            form_errors.append("Select an appointment date.")
         if not appointment_time_value:
-            errors.append("Select an appointment time.")
+            form_errors.append("Select an appointment time.")
         if not reason:
-            errors.append("Add a reason for the visit.")
+            form_errors.append("Add a reason for the visit.")
 
         try:
             appointment_date = date.fromisoformat(appointment_date_value)
         except (TypeError, ValueError):
             appointment_date = None
-            if not errors:
-                errors.append("Select a valid appointment date.")
+            if not form_errors:
+                form_errors.append("Select a valid appointment date.")
 
         try:
             appointment_time = datetime.strptime(appointment_time_value, "%H:%M").time()
         except (TypeError, ValueError):
             appointment_time = None
-            if not errors:
-                errors.append("Select a valid appointment time.")
+            if not form_errors:
+                form_errors.append("Select a valid appointment time.")
 
         doctor_profile = None
         if doctor_id:
             doctor_profile = DoctorProfile.objects.select_related("user", "department").filter(user_id=doctor_id).first()
             if not doctor_profile:
-                errors.append("Selected doctor does not exist.")
+                form_errors.append("Selected doctor does not exist.")
+        else:
+            form_errors.append("Select a doctor before booking.")
 
         if appointment_date and appointment_date < timezone.localdate():
-            errors.append("Appointment date cannot be in the past.")
+            form_errors.append("Appointment date cannot be in the past.")
 
         if doctor_profile and appointment_date and appointment_time:
+            available_values = {slot["value"] for slot in _build_time_slots(doctor_profile.user, appointment_date)}
+            if appointment_time.strftime("%H:%M") not in available_values:
+                form_errors.append("Selected time is not available for that doctor.")
             if Appointment.objects.filter(
                 doctor=doctor_profile.user,
                 appointment_date=appointment_date,
                 appointment_time=appointment_time,
                 status__in=[Appointment.STATUS_PENDING, Appointment.STATUS_CONFIRMED],
             ).exists():
-                errors.append("That time slot is already booked.")
+                form_errors.append("That time slot is already booked.")
 
-        if errors:
-            for error in errors:
-                messages.error(request, error)
-        else:
+        if not form_errors:
             appointment = Appointment.objects.create(
                 patient=request.user,
                 doctor=doctor_profile.user,
@@ -240,23 +273,45 @@ def book_appointment(request):
             messages.success(request, "Appointment booked successfully.")
             return redirect("patient_roshan:my_appointments")
 
-    doctors = [
-        _doctor_card(profile)
-        for profile in DoctorProfile.objects.select_related("user", "department").filter(status=DoctorProfile.STATUS_ACTIVE)
-    ]
+    doctor_profiles = _doctor_cards_for_booking(department_id=department_id, search=search)
+    doctors = [_doctor_card(profile) for profile in doctor_profiles]
     departments = Department.objects.filter(is_active=True).order_by("name")
     selected_date = selected_date if selected_date else timezone.localdate() + timedelta(days=1)
+
+    if selected_doctor_id and not doctor_profiles.filter(user_id=selected_doctor_id).exists():
+        selected_doctor_id = ""
+    if not selected_doctor_id and doctor_profiles.exists():
+        selected_doctor_profile = doctor_profiles.filter(user__availability_slots__day_of_week=selected_date.weekday()).first()
+        if not selected_doctor_profile:
+            selected_doctor_profile = doctor_profiles.first()
+        selected_doctor_id = str(selected_doctor_profile.user_id)
+
+    selected_doctor_profile = None
+    if selected_doctor_id and str(selected_doctor_id).isdigit():
+        selected_doctor_profile = DoctorProfile.objects.select_related("user", "department").filter(user_id=selected_doctor_id).first()
+    if selected_doctor_profile and not _availability_for_date(selected_doctor_profile.user, selected_date).exists():
+        alternate_doctor = doctor_profiles.filter(user__availability_slots__day_of_week=selected_date.weekday()).first()
+        if alternate_doctor:
+            selected_doctor_profile = alternate_doctor
+            selected_doctor_id = str(alternate_doctor.user_id)
+
+    time_slots = _build_time_slots(selected_doctor_profile.user, selected_date) if selected_doctor_profile else []
+    if not selected_time_value and time_slots:
+        selected_time_value = time_slots[0]["value"]
 
     context = {
         "active_page": "book",
         "patient": profile,
         "departments": departments,
         "doctors": doctors,
-        "time_slots": _time_slots(selected_date, selected_doctor_id or None),
+        "time_slots": time_slots,
         "calendar_days": _calendar_days(selected_date),
         "selected_date": selected_date.isoformat(),
         "selected_time": selected_time_value,
         "selected_doctor_id": int(selected_doctor_id) if str(selected_doctor_id).isdigit() else "",
+        "search": search,
+        "selected_department_id": department_id,
+        "form_errors": form_errors,
     }
     return render(request, "patient_roshan/book_appointment.html", context)
 
@@ -267,7 +322,9 @@ def find_doctor(request):
     search = (request.GET.get("search", "") or "").strip()
     availability = request.GET.get("availability", "")
 
-    doctor_profiles = DoctorProfile.objects.select_related("user", "department").filter(status=DoctorProfile.STATUS_ACTIVE)
+    doctor_profiles = DoctorProfile.objects.select_related("user", "department").filter(
+        user__availability_slots__is_active=True,
+    )
     if department_id:
         doctor_profiles = doctor_profiles.filter(department_id=department_id)
     if search:
@@ -284,7 +341,14 @@ def find_doctor(request):
             target_days = list(range(7))
         doctor_profiles = doctor_profiles.filter(user__availability_slots__day_of_week__in=target_days, user__availability_slots__is_active=True).distinct()
 
-    doctors = [_doctor_card(profile) for profile in doctor_profiles]
+    doctors = []
+    for profile in doctor_profiles.distinct():
+        doctor_card = _doctor_card(profile)
+        doctor_card["available_slots"] = [
+            f"{slot.get_day_of_week_display()[:3]} {slot.start_time.strftime('%I:%M %p')} - {slot.end_time.strftime('%I:%M %p')}"
+            for slot in profile.user.availability_slots.filter(is_active=True).order_by("day_of_week", "start_time")
+        ]
+        doctors.append(doctor_card)
 
     context = {
         "active_page": "finddoctor",
