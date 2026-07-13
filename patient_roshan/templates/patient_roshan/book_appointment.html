@@ -19,7 +19,7 @@
                         <select name="department" onchange="this.form.submit()" class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm appearance-none focus:ring-2 focus:ring-primary focus:border-primary font-body-md text-body-md transition-all">
                             <option value="">All Departments</option>
                             {% for dept in departments %}
-                            <option value="{{ dept.id }}">{{ dept.name }}</option>
+                            <option value="{{ dept.id }}" {% if selected_department_id == dept.id|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
                             {% endfor %}
                         </select>
                         <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
@@ -28,8 +28,8 @@
                 <div class="flex-1">
                     <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Search Specialist</label>
                     <div class="relative">
-                        <input class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm pl-xl focus:ring-2 focus:ring-primary focus:border-primary font-body-md text-body-md transition-all"
-                               placeholder="Dr. Name..." type="text" name="search"/>
+                           <input class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm pl-xl focus:ring-2 focus:ring-primary focus:border-primary font-body-md text-body-md transition-all"
+                               placeholder="Dr. Name..." type="text" name="search" value="{{ search|default:'' }}"/>
                         <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
                     </div>
                 </div>
@@ -83,6 +83,17 @@
                 {% csrf_token %}
                 <input type="hidden" name="doctor_id" id="selectedDoctor" value="{{ selected_doctor_id }}"/>
                 <div class="space-y-xl">
+
+                    {% if form_errors %}
+                    <div class="rounded-xl border border-error bg-error-container p-md text-on-error-container">
+                        <p class="font-label-md text-label-md mb-sm">Please fix the following:</p>
+                        <ul class="list-disc pl-lg space-y-xs font-body-sm text-body-sm">
+                            {% for error in form_errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
 
                     {# Calendar #}
                     <section>
