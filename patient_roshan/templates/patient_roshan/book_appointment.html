@@ -12,7 +12,10 @@
 
         {# Filters #}
         <section class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant">
-            <form method="GET" action="{% url 'patient_roshan:book_appointment' %}" class="flex flex-col md:flex-row gap-lg items-end">
+            <form method="GET" action="{% url 'patient_roshan:book_appointment' %}" id="bookingFilterForm" class="flex flex-col md:flex-row gap-lg items-end">
+                <input type="hidden" name="doctor" id="filterDoctor" value="{{ selected_doctor_id }}"/>
+                <input type="hidden" name="date" id="filterDate" value="{{ selected_date }}"/>
+                <input type="hidden" name="time" id="filterTime" value="{{ selected_time }}"/>
                 <div class="flex-1">
                     <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Select Department</label>
                     <div class="relative">
@@ -117,7 +120,6 @@
                             <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">Th</span>
                             <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">Fr</span>
                             <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">Sa</span>
-                            {# TODO: generate calendar days dynamically from view #}
                             {% for day in calendar_days %}
                             <button type="button"
                                 class="py-md rounded-lg font-body-md text-body-md cal-day
@@ -184,12 +186,19 @@
 {% block extra_js %}
 <script>
     const selectedDoctorInput = document.getElementById('selectedDoctor');
+    const bookingFilterForm = document.getElementById('bookingFilterForm');
+    const filterDoctorInput = document.getElementById('filterDoctor');
+    const filterDateInput = document.getElementById('filterDate');
+    const filterTimeInput = document.getElementById('filterTime');
     const doctorCards = document.querySelectorAll('.doctor-card');
     doctorCards.forEach(card => {
         card.addEventListener('click', () => {
             doctorCards.forEach(item => item.classList.remove('ring-2', 'ring-primary'));
             card.classList.add('ring-2', 'ring-primary');
             selectedDoctorInput.value = card.dataset.doctorId;
+            filterDoctorInput.value = card.dataset.doctorId;
+            filterTimeInput.value = '';
+            bookingFilterForm.submit();
         });
     });
 
@@ -201,6 +210,8 @@
             timeSlots.forEach(s => s.classList.remove('slot-selected'));
             slot.classList.add('slot-selected');
             selectedTimeInput.value = slot.dataset.time;
+            filterTimeInput.value = slot.dataset.time;
+            bookingFilterForm.submit();
         });
     });
 
@@ -216,6 +227,9 @@
             day.classList.add('bg-primary', 'text-white', 'font-bold', 'shadow-md');
             day.classList.remove('hover:bg-surface-container');
             selectedDateInput.value = day.dataset.date;
+            filterDateInput.value = day.dataset.date;
+            filterTimeInput.value = '';
+            bookingFilterForm.submit();
         });
     });
 </script>

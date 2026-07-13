@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.messages import get_messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group, User
 from django.shortcuts import redirect, render
@@ -124,5 +125,7 @@ def forgot_password_view(request):
 
 
 def logout_view(request):
+    storage = get_messages(request)
+    list(storage)
     logout(request)
     return redirect('/login/')
