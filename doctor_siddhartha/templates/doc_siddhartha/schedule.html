@@ -105,34 +105,16 @@
         }
     </script>
 <style>
-        .custom-shadow-sm { box-shadow: 0px 1px 2px 0px rgba(15, 23, 42, 0.05); }
-        .custom-shadow-md { box-shadow: 0px 4px 6px -1px rgba(15, 23, 42, 0.1); }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: 80px repeat(7, 1fr);
-        }
-
-        /* FIX: time-slot height and overflow */
-        .time-slot {
-            height: 70px;
-            position: relative;
-        }
-
-        /* FIX: every day column must be position:relative so appointments
-           with position:absolute are contained within their own column */
-        .day-column {
-            position: relative;
-            border-left: 1px solid rgba(195, 198, 215, 0.4);
-        }
-
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         }
-        .active-tab {
-            font-variation-settings: 'FILL' 1;
+        .custom-shadow-sm { box-shadow: 0px 1px 2px 0px rgba(15, 23, 42, 0.05); }
+        .custom-shadow-md { box-shadow: 0px 4px 6px -1px rgba(15, 23, 42, 0.1); }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
         }
-    </style>
+</style>
 </head>
 <body class="bg-background text-on-surface font-body-md min-h-screen flex overflow-hidden">
 
@@ -141,36 +123,36 @@
 <div class="p-lg">
 <h1 class="font-headline-md text-headline-md font-bold text-primary dark:text-inverse-primary mb-xl">MedCore</h1>
 <div class="flex items-center gap-md mb-xl p-md rounded-xl bg-surface-container-low">
-<img class="w-12 h-12 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGh4paJzsv3IXNHBOIjAd_LusroUq2JTm87PB-kS9qIcHlwt4yThTlRnYnrwN5YwK9RHveQ3a8SD0Ey8rMN1ixl8HrekzMKCkkjXNseso1qMPl-oNBmk2kFJrY_xlCGD_eIpq-kwxYqO8t-MUMlPFffoTwmJrhfL_Eca_hlFvlhbWpX67LVGkQg-SrIdiQdQqsEExkJQ7HVCmyPX91EWyqBM4NTYEgHnk8iIblUGphvh1c6ethCpRCJgqxRKcMgfWmfQC-Ks_Erw"/>
+<div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg">
+    {{ doctor_profile.user.first_name|first|upper }}{{ doctor_profile.user.last_name|first|upper }}
+</div>
 <div>
-<p class="font-label-md text-label-md text-primary">Dr. Richardson</p>
-<p class="text-xs text-on-surface-variant">Senior Oncologist</p>
+<p class="font-label-md text-label-md text-primary">Dr. {{ doctor_profile.display_name }}</p>
+<p class="text-xs text-on-surface-variant">{{ doctor_profile.specialization|default:"General Medicine" }}</p>
 </div>
 </div>
 <nav class="space-y-sm">
-<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors active:scale-95 duration-150" href="/doctor/dashboard/">
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors" href="/doctor/dashboard/">
     <span class="material-symbols-outlined">dashboard</span>
     <span class="font-body-md">Dashboard</span>
 </a>
-<a class="flex items-center gap-md p-md rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-low transition-colors active:scale-95 duration-150" href="/doctor/schedule/">
+<a class="flex items-center gap-md p-md rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-low transition-colors" href="/doctor/schedule/">
     <span class="material-symbols-outlined active-tab">calendar_month</span>
     <span class="font-body-md">Schedule</span>
 </a>
-<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors active:scale-95 duration-150" href="/doctor/patients/">
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors" href="/doctor/patients/">
     <span class="material-symbols-outlined">group</span>
     <span class="font-body-md">Patients</span>
 </a>
-<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors active:scale-95 duration-150" href="/doctor/prescriptions/">
+<a class="flex items-center gap-md p-md rounded-lg text-on-surface-variant hover:text-primary hover:bg-surface-container-low transition-colors" href="/doctor/prescriptions/">
     <span class="material-symbols-outlined">medication</span>
     <span class="font-body-md">Prescriptions</span>
 </a>
+<a class="flex items-center gap-md p-md rounded-lg text-error hover:text-error hover:bg-error-container/10 transition-colors" href="{% url 'auth_kirtan:logout' %}">
+    <span class="material-symbols-outlined">logout</span>
+    <span class="font-body-md">Logout</span>
+</a>
 </nav>
-</div>
-<div class="mt-auto p-lg">
-<button class="w-full bg-error text-white py-md px-lg rounded-xl font-bold flex items-center justify-center gap-sm active:scale-95 transition-transform">
-<span class="material-symbols-outlined">emergency_home</span>
-Emergency Alert
-</button>
 </div>
 </aside>
 
@@ -179,23 +161,18 @@ Emergency Alert
 <header class="flex justify-between items-center px-lg w-full h-16 sticky top-0 z-50 bg-surface/95 backdrop-blur-sm border-b border-outline-variant">
 <div class="flex items-center gap-xl flex-1">
 <span class="font-headline-sm text-headline-sm font-extrabold text-primary lg:hidden">MedCore</span>
-<div class="relative w-full max-w-md focus-within:ring-2 focus-within:ring-primary rounded-full">
+<form class="relative w-full max-w-md focus-within:ring-2 focus-within:ring-primary rounded-full" method="get" action="/doctor/patients/">
 <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline">search</span>
-<input class="w-full pl-12 pr-4 py-2 bg-surface-container-low border-none rounded-full text-body-sm focus:ring-0" placeholder="Search patients or schedules..." type="text"/>
-</div>
+<input class="w-full pl-12 pr-4 py-2 bg-surface-container-low border-none rounded-full text-body-sm focus:ring-0" placeholder="Search patients..." type="text" name="search"/>
+</form>
 </div>
 <div class="flex items-center gap-md ml-lg">
 <button class="p-2 hover:bg-surface-container-high rounded-full transition-all text-on-surface-variant">
-<span class="material-symbols-outlined">notifications</span>
+    <span class="material-symbols-outlined">notifications</span>
 </button>
-<button class="p-2 hover:bg-surface-container-high rounded-full transition-all text-on-surface-variant">
-<span class="material-symbols-outlined">settings</span>
-</button>
-<button class="p-2 hover:bg-surface-container-high rounded-full transition-all text-on-surface-variant">
-<span class="material-symbols-outlined">help</span>
-</button>
-<div class="h-8 w-[1px] bg-outline-variant mx-2"></div>
-<img class="w-8 h-8 rounded-full border border-outline-variant" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8gwlZI7gX-Hu46gyvaNPwPTZlDEIUUmlmaVjd5bOJHdrUwCRJlDW5iaC0y0JHQa1Mx0OIe-cej6DAw3jau_zyHwe_1tGttXLuvb6wIo5r8-rmeZufcu8g75KjayYKBg5qnIHmrSvey37TdORaL1Eq8RcnPD95veRdpvZ-knACLGf-mM9ioM2N002Co-9bhPnem9ueTNoMs-QVkAhG64Hnx0DUUF1BB3AIxFoqGf6qFhufsBWl5FbP2DZQ_hwWdWoIcYCYv5L2mg"/>
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">
+    {{ doctor_profile.user.first_name|first|upper }}{{ doctor_profile.user.last_name|first|upper }}
+</div>
 </div>
 </header>
 
@@ -209,316 +186,95 @@ Emergency Alert
 <h2 class="font-headline-lg text-headline-lg text-on-surface">Schedule Management</h2>
 <p class="text-on-surface-variant font-body-md">Configure your availability and manage patient appointments.</p>
 </div>
-<div class="flex items-center gap-md">
-<div class="bg-surface-container-high p-1 rounded-lg flex items-center">
-<button class="px-4 py-1.5 rounded-md text-label-md transition-all bg-white custom-shadow-sm text-primary flex items-center gap-2" id="cal-toggle" onclick="toggleView('calendar')">
-<span class="material-symbols-outlined text-[20px]">calendar_view_week</span>
-Calendar
-</button>
-<button class="px-4 py-1.5 rounded-md text-label-md transition-all text-on-surface-variant hover:text-on-surface flex items-center gap-2" id="list-toggle" onclick="toggleView('list')">
-<span class="material-symbols-outlined text-[20px]">list_alt</span>
-List
-</button>
-</div>
 <button class="bg-primary text-white py-2 px-6 rounded-lg font-bold flex items-center gap-2 custom-shadow-sm hover:opacity-90 transition-opacity active:scale-95" onclick="openModal()">
-<span class="material-symbols-outlined">add</span>
-Set Availability
+    <span class="material-symbols-outlined">add</span>
+    Set Availability
 </button>
-</div>
 </div>
 
-<!-- Bento Grid -->
 <div class="grid grid-cols-12 gap-lg">
 
-<!-- Calendar View -->
-<div class="col-span-12 lg:col-span-9 space-y-lg" id="calendar-view">
+<!-- Weekly Calendar View -->
+<div class="col-span-12 lg:col-span-9 space-y-lg">
 <div class="bg-white rounded-xl custom-shadow-sm border border-outline-variant overflow-hidden">
-
-<!-- Week Navigation -->
 <div class="p-lg flex items-center justify-between border-b border-outline-variant">
-<div class="flex items-center gap-md">
-<h3 class="font-headline-sm text-headline-sm text-on-surface">Oct 23 - Oct 29, 2023</h3>
-<div class="flex border border-outline-variant rounded-lg">
-<button class="p-1 hover:bg-surface-container-low transition-colors"><span class="material-symbols-outlined">chevron_left</span></button>
-<button class="px-4 py-1 font-label-md border-x border-outline-variant hover:bg-surface-container-low transition-colors">Today</button>
-<button class="p-1 hover:bg-surface-container-low transition-colors"><span class="material-symbols-outlined">chevron_right</span></button>
-</div>
-</div>
-<span class="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-label-sm font-bold">GMT -05:00 Eastern Time</span>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">{{ week_start|date:"M d" }} - {{ week_start|date:"M d, Y" }}</h3>
+<span class="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-label-sm font-bold">{{ appointments.count }} appointment{{ appointments.count|pluralize }} this week</span>
 </div>
 
-<!-- Calendar Content -->
-<div class="overflow-x-auto">
-<div class="min-w-[800px]">
-
-<!-- Day Headers -->
+{% if appointments %}
 <div class="calendar-grid bg-surface-container-lowest border-b border-outline-variant">
-<div class="p-4"></div>
-<div class="p-4 text-center border-l border-outline-variant">
-<p class="text-label-sm text-on-surface-variant">MON</p>
-<p class="font-headline-sm text-headline-sm">23</p>
+    {% for day in week_days %}
+    <div class="p-4 text-center border-l border-outline-variant {% if day == week_days|first %}{% endif %}">
+        <p class="text-label-sm text-on-surface-variant">{{ day|date:"D" }}</p>
+        <p class="font-headline-sm text-headline-sm">{{ day|date:"d" }}</p>
+    </div>
+    {% endfor %}
 </div>
-<div class="p-4 text-center border-l border-outline-variant bg-primary-fixed/20">
-<p class="text-label-sm text-primary">TUE</p>
-<p class="font-headline-sm text-headline-sm text-primary">24</p>
+<div class="p-lg grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-md">
+    {% for day in week_days %}
+    <div class="border-l border-outline-variant px-md space-y-sm min-h-[120px]">
+        {% for appt in appointments %}
+            {% if appt.appointment_date == day %}
+            <div class="rounded-lg bg-primary/10 border-l-4 border-primary p-2">
+                <p class="text-[10px] font-bold text-primary">{{ appt.display_time }}</p>
+                <p class="text-xs truncate text-on-surface font-semibold">{{ appt.patient_name }}</p>
+                <p class="text-[10px] text-on-surface-variant truncate">{{ appt.department_name }}</p>
+            </div>
+            {% endif %}
+        {% endfor %}
+    </div>
+    {% endfor %}
 </div>
-<div class="p-4 text-center border-l border-outline-variant">
-<p class="text-label-sm text-on-surface-variant">WED</p>
-<p class="font-headline-sm text-headline-sm">25</p>
+{% else %}
+<div class="p-xl text-center">
+    <span class="material-symbols-outlined text-4xl text-on-surface-variant">event_busy</span>
+    <p class="font-body-md text-on-surface mt-md">No schedule set.</p>
+    <p class="font-body-sm text-on-surface-variant">You have no appointments for this week.</p>
 </div>
-<div class="p-4 text-center border-l border-outline-variant">
-<p class="text-label-sm text-on-surface-variant">THU</p>
-<p class="font-headline-sm text-headline-sm">26</p>
-</div>
-<div class="p-4 text-center border-l border-outline-variant">
-<p class="text-label-sm text-on-surface-variant">FRI</p>
-<p class="font-headline-sm text-headline-sm">27</p>
-</div>
-<div class="p-4 text-center border-l border-outline-variant text-outline">
-<p class="text-label-sm">SAT</p>
-<p class="font-headline-sm text-headline-sm">28</p>
-</div>
-<div class="p-4 text-center border-l border-outline-variant text-outline">
-<p class="text-label-sm">SUN</p>
-<p class="font-headline-sm text-headline-sm">29</p>
-</div>
-</div>
-
-<!-- Time Grid -->
-<!-- FIX: removed overflow-hidden from wrapper so appointments don't get clipped -->
-<div class="relative h-[600px] overflow-y-auto overflow-x-hidden">
-<div class="absolute inset-0">
-
-<!-- 08:00 AM Row -->
-<div class="calendar-grid border-b border-outline-variant/30 time-slot">
-<div class="p-2 text-right text-label-sm text-on-surface-variant">08:00 AM</div>
-<!-- FIX: added day-column class to every day cell for position:relative -->
-<div class="day-column">
-  <div class="absolute top-2 left-1 right-1 bg-primary/10 border-l-4 border-primary p-2 rounded custom-shadow-sm">
-    <p class="text-[10px] font-bold text-primary">08:15 - 08:45</p>
-    <p class="text-xs truncate text-on-surface font-semibold">Sarah Jenkins</p>
-  </div>
-</div>
-<div class="day-column bg-primary-fixed/5"></div>
-<div class="day-column"></div>
-<div class="day-column"></div>
-<div class="day-column"></div>
-<div class="day-column bg-surface-container-high/20"></div>
-<div class="day-column bg-surface-container-high/20"></div>
-</div>
-
-<!-- 09:00 AM Row -->
-<div class="calendar-grid border-b border-outline-variant/30 time-slot">
-<div class="p-2 text-right text-label-sm text-on-surface-variant">09:00 AM</div>
-<div class="day-column"></div>
-<!-- FIX: Tuesday column — Consultation Block. Uses top-0 so it starts at top of this row -->
-<div class="day-column bg-primary-fixed/5">
-  <div class="absolute top-1 left-1 right-1 bg-secondary/10 border-l-4 border-secondary p-2 rounded custom-shadow-sm z-10">
-    <p class="text-[10px] font-bold text-secondary">09:00 - 10:30</p>
-    <p class="text-xs truncate text-on-surface font-semibold">Consultation Block</p>
-    <p class="text-[10px] text-on-surface-variant">Mark Thompson</p>
-  </div>
-</div>
-<div class="day-column"></div>
-<!-- FIX: Thursday column — Mark Thompson appointment -->
-<div class="day-column">
-  <div class="absolute top-2 left-1 right-1 bg-primary/10 border-l-4 border-primary p-2 rounded custom-shadow-sm">
-    <p class="text-[10px] font-bold text-primary">09:30 - 10:00</p>
-    <p class="text-xs truncate text-on-surface font-semibold">Mark Thompson</p>
-  </div>
-</div>
-<div class="day-column"></div>
-<div class="day-column bg-surface-container-high/20"></div>
-<div class="day-column bg-surface-container-high/20"></div>
-</div>
-
-<!-- 10:00 AM Row -->
-<div class="calendar-grid border-b border-outline-variant/30 time-slot">
-<div class="p-2 text-right text-label-sm text-on-surface-variant">10:00 AM</div>
-<div class="day-column"></div>
-<div class="day-column bg-primary-fixed/5"></div>
-<div class="day-column"></div>
-<div class="day-column"></div>
-<div class="day-column"></div>
-<div class="day-column bg-surface-container-high/20"></div>
-<div class="day-column bg-surface-container-high/20"></div>
-</div>
-
-<!-- 11:00 AM Row — Lunch Break -->
-<div class="calendar-grid border-b border-outline-variant/30 time-slot">
-<div class="p-2 text-right text-label-sm text-on-surface-variant">11:00 AM</div>
-<!-- FIX: lunch break uses day-column so it stays contained, removed incorrect absolute positioning -->
-<div class="day-column bg-tertiary-container/10" style="border-left: 4px solid #784b00;">
-  <div class="p-2">
-    <p class="text-[10px] font-bold text-tertiary">LUNCH BREAK</p>
-  </div>
-</div>
-<div class="day-column bg-primary-fixed/5"></div>
-<div class="day-column"></div>
-<div class="day-column"></div>
-<div class="day-column"></div>
-<div class="day-column bg-surface-container-high/20"></div>
-<div class="day-column bg-surface-container-high/20"></div>
-</div>
-
-<!-- 12:00 PM Row -->
-<div class="calendar-grid border-b border-outline-variant/30 time-slot">
-<div class="p-2 text-right text-label-sm text-on-surface-variant">12:00 PM</div>
-<div class="day-column"></div>
-<div class="day-column bg-primary-fixed/5"></div>
-<div class="day-column"></div>
-<div class="day-column"></div>
-<div class="day-column"></div>
-<div class="day-column bg-surface-container-high/20"></div>
-<div class="day-column bg-surface-container-high/20"></div>
-</div>
-
-<!-- 01:00 PM Row -->
-<div class="calendar-grid border-b border-outline-variant/30 time-slot">
-<div class="p-2 text-right text-label-sm text-on-surface-variant">01:00 PM</div>
-<div class="day-column"></div>
-<div class="day-column bg-primary-fixed/5"></div>
-<div class="day-column"></div>
-<div class="day-column"></div>
-<div class="day-column"></div>
-<div class="day-column bg-surface-container-high/20"></div>
-<div class="day-column bg-surface-container-high/20"></div>
-</div>
-
-<!-- 02:00 PM Row -->
-<div class="calendar-grid border-b border-outline-variant/30 time-slot">
-<div class="p-2 text-right text-label-sm text-on-surface-variant">02:00 PM</div>
-<div class="day-column"></div>
-<div class="day-column bg-primary-fixed/5"></div>
-<div class="day-column"></div>
-<div class="day-column"></div>
-<div class="day-column"></div>
-<div class="day-column bg-surface-container-high/20"></div>
-<div class="day-column bg-surface-container-high/20"></div>
-</div>
-
-<!-- 03:00 PM Row -->
-<div class="calendar-grid border-b border-outline-variant/30 time-slot">
-<div class="p-2 text-right text-label-sm text-on-surface-variant">03:00 PM</div>
-<div class="day-column"></div>
-<div class="day-column bg-primary-fixed/5"></div>
-<div class="day-column"></div>
-<div class="day-column"></div>
-<div class="day-column"></div>
-<div class="day-column bg-surface-container-high/20"></div>
-<div class="day-column bg-surface-container-high/20"></div>
-</div>
-
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-
-<!-- List View (hidden by default) -->
-<div class="col-span-12 lg:col-span-9 hidden space-y-lg" id="list-view">
-<div class="bg-white rounded-xl border border-outline-variant custom-shadow-sm p-lg">
-<table class="w-full">
-<thead>
-<tr class="text-left border-b border-outline-variant">
-<th class="pb-md font-label-md text-on-surface-variant">Patient</th>
-<th class="pb-md font-label-md text-on-surface-variant">Date &amp; Time</th>
-<th class="pb-md font-label-md text-on-surface-variant">Type</th>
-<th class="pb-md font-label-md text-on-surface-variant">Status</th>
-<th class="pb-md"></th>
-</tr>
-</thead>
-<tbody class="divide-y divide-outline-variant">
-<tr class="group hover:bg-surface-container-low transition-colors">
-<td class="py-md flex items-center gap-3">
-<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-xs">SJ</div>
-<span class="font-body-md font-semibold">Sarah Jenkins</span>
-</td>
-<td class="py-md text-body-sm">Oct 23, 08:15 AM - 08:45 AM</td>
-<td class="py-md text-body-sm">Follow-up</td>
-<td class="py-md">
-<span class="bg-secondary/10 text-secondary px-2 py-0.5 rounded text-[10px] font-bold">CONFIRMED</span>
-</td>
-<td class="py-md text-right">
-<button class="material-symbols-outlined text-outline hover:text-primary">more_vert</button>
-</td>
-</tr>
-<tr class="group hover:bg-surface-container-low transition-colors">
-<td class="py-md flex items-center gap-3">
-<div class="w-8 h-8 rounded-full bg-secondary-fixed flex items-center justify-center text-secondary font-bold text-xs">MT</div>
-<span class="font-body-md font-semibold">Mark Thompson</span>
-</td>
-<td class="py-md text-body-sm">Oct 26, 09:30 AM - 10:00 AM</td>
-<td class="py-md text-body-sm">Consultation</td>
-<td class="py-md">
-<span class="bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] font-bold">PENDING</span>
-</td>
-<td class="py-md text-right">
-<button class="material-symbols-outlined text-outline hover:text-primary">more_vert</button>
-</td>
-</tr>
-</tbody>
-</table>
+{% endif %}
 </div>
 </div>
 
 <!-- Right Panel -->
 <div class="col-span-12 lg:col-span-3 space-y-lg">
-<!-- Stats Card -->
+
+<!-- Weekly Capacity -->
 <div class="bg-primary-container text-on-primary-container p-lg rounded-xl custom-shadow-sm">
-<h4 class="font-label-md text-on-primary-container/80 mb-sm">WEEKLY CAPACITY</h4>
-<div class="flex items-end justify-between">
-<p class="font-headline-lg text-headline-lg">84%</p>
-<span class="material-symbols-outlined text-4xl opacity-50">show_chart</span>
+<h4 class="font-label-md text-on-primary-container/80 mb-sm">YOUR AVAILABILITY</h4>
+{% if availability_slots %}
+<div class="space-y-md">
+    {% for slot in availability_slots %}
+    <div class="flex items-center justify-between">
+        <div>
+            <p class="font-body-md font-semibold">{{ slot.day_label }}</p>
+            <p class="text-xs text-on-primary-container/70">{{ slot.start_time|time:"g:i A" }} - {{ slot.end_time|time:"g:i A" }}</p>
+        </div>
+        {% if not slot.is_active %}
+        <span class="text-[10px] font-bold uppercase text-on-primary-container/70">Inactive</span>
+        {% endif %}
+    </div>
+    {% endfor %}
 </div>
-<div class="w-full bg-white/20 h-2 rounded-full mt-md overflow-hidden">
-<div class="bg-white h-full w-[84%]"></div>
-</div>
-<p class="text-xs mt-sm opacity-80">32 of 38 slots booked this week</p>
+{% else %}
+<p class="text-sm opacity-80 mt-md">No availability set.</p>
+{% endif %}
 </div>
 
 <!-- Recurring Slots -->
 <div class="bg-white rounded-xl border border-outline-variant custom-shadow-sm p-lg">
 <div class="flex items-center justify-between mb-md">
-<h4 class="font-label-md text-on-surface">RECURRING SLOTS</h4>
-<button class="text-primary text-xs font-bold hover:underline">Edit All</button>
+    <h4 class="font-label-md text-on-surface">AVAILABLE DAYS</h4>
 </div>
-<div class="space-y-md">
-<div class="flex items-center justify-between">
-<div>
-<p class="font-body-md font-semibold">Mon - Fri</p>
-<p class="text-xs text-on-surface-variant">08:00 AM - 04:00 PM</p>
-</div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only peer" type="checkbox"/>
-<div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-</label>
-</div>
-<div class="flex items-center justify-between">
-<div>
-<p class="font-body-md font-semibold">Saturday</p>
-<p class="text-xs text-on-surface-variant">09:00 AM - 01:00 PM</p>
-</div>
-<label class="relative inline-flex items-center cursor-pointer">
-<input class="sr-only peer" type="checkbox"/>
-<div class="w-11 h-6 bg-outline-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-</label>
-</div>
-</div>
-</div>
-
-<!-- Manage Time Off -->
-<div class="bg-white rounded-xl border border-outline-variant custom-shadow-sm p-md">
-<div class="w-full h-32 rounded-lg bg-cover bg-center mb-md" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuCuAyUr2h32j_7hIsddDOwchXi1_NdU6ewv5Xwv6evcwqZ1RPeyoUt_sMZlkmaRTPN8903R9Xe5LT8dm2uI6_zENQ1sF4hg8y1mLHaHbBtD_kBD07cyceLWrUbUpYrs-d8dXavvdniJEYCkvbJij9GauIGSwPuOf8pcqGe6lUbq24L6fDgcpMnn4HAP7pm35XLMrxTMGr1r-ekD65Ao4GJ82bDMEORq6ORchCBRPnExfz2dBW7mXq_9-oZkufd-EUHszHleZPxrHw')"></div>
-<p class="font-label-sm text-center text-on-surface-variant">Manage upcoming vacation blocks</p>
-<button class="w-full mt-md py-2 border border-outline-variant text-on-surface font-bold rounded-lg hover:bg-surface-container-low transition-colors text-body-sm">
-Manage Time Off
-</button>
-</div>
+{% if doctor_profile.available_day_labels %}
+<p class="font-body-md text-on-surface">{{ doctor_profile.available_day_labels|join:", " }}</p>
+{% else %}
+<p class="text-xs text-on-surface-variant">No regular availability set.</p>
+{% endif %}
 </div>
 
 </div>
+
 </div>
 </main>
 </div>
@@ -527,123 +283,54 @@ Manage Time Off
 <div class="fixed inset-0 z-[100] hidden" id="availability-modal">
 <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal()"></div>
 <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl custom-shadow-md overflow-hidden">
+<form method="post" action="/doctor/schedule/">
+    {% csrf_token %}
 <div class="p-lg border-b border-outline-variant flex items-center justify-between bg-surface-container-lowest">
 <h3 class="font-headline-sm text-headline-sm">Set New Availability</h3>
-<button class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high rounded-full p-1" onclick="closeModal()">close</button>
+<button type="button" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high rounded-full p-1" onclick="closeModal()">close</button>
 </div>
 <div class="p-lg space-y-lg">
-<!-- Day Selection -->
 <div>
-<label class="block font-label-md text-on-surface-variant mb-md">SELECT DAYS</label>
-<div class="flex flex-wrap gap-2">
-<button class="w-10 h-10 rounded-full border border-outline text-label-sm font-bold flex items-center justify-center hover:bg-primary-container hover:text-primary transition-colors">S</button>
-<button class="w-10 h-10 rounded-full bg-primary text-white text-label-sm font-bold flex items-center justify-center">M</button>
-<button class="w-10 h-10 rounded-full bg-primary text-white text-label-sm font-bold flex items-center justify-center">T</button>
-<button class="w-10 h-10 rounded-full bg-primary text-white text-label-sm font-bold flex items-center justify-center">W</button>
-<button class="w-10 h-10 rounded-full bg-primary text-white text-label-sm font-bold flex items-center justify-center">T</button>
-<button class="w-10 h-10 rounded-full bg-primary text-white text-label-sm font-bold flex items-center justify-center">F</button>
-<button class="w-10 h-10 rounded-full border border-outline text-label-sm font-bold flex items-center justify-center hover:bg-primary-container hover:text-primary transition-colors">S</button>
+    <label class="block font-label-md text-on-surface-variant mb-md">SELECT DAY</label>
+    <select class="w-full border border-outline-variant rounded-lg p-md" name="day_of_week">
+        <option value="0">Monday</option>
+        <option value="1">Tuesday</option>
+        <option value="2">Wednesday</option>
+        <option value="3">Thursday</option>
+        <option value="4">Friday</option>
+        <option value="5">Saturday</option>
+        <option value="6">Sunday</option>
+    </select>
 </div>
-</div>
-<!-- Time Pickers -->
 <div class="grid grid-cols-2 gap-lg">
-<div>
-<label class="block font-label-md text-on-surface-variant mb-sm">START TIME</label>
-<div class="relative">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">schedule</span>
-<select class="w-full pl-10 py-2 border-outline-variant rounded-lg focus:ring-primary focus:border-primary text-body-sm">
-<option>08:00 AM</option>
-<option>09:00 AM</option>
-<option>10:00 AM</option>
-</select>
+    <div>
+        <label class="block font-label-md text-on-surface-variant mb-sm">START TIME</label>
+        <input type="time" name="start_time" class="w-full border border-outline-variant rounded-lg p-md" required/>
+    </div>
+    <div>
+        <label class="block font-label-md text-on-surface-variant mb-sm">END TIME</label>
+        <input type="time" name="end_time" class="w-full border border-outline-variant rounded-lg p-md" required/>
+    </div>
 </div>
-</div>
-<div>
-<label class="block font-label-md text-on-surface-variant mb-sm">END TIME</label>
-<div class="relative">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">schedule</span>
-<select class="w-full pl-10 py-2 border-outline-variant rounded-lg focus:ring-primary focus:border-primary text-body-sm">
-<option>04:00 PM</option>
-<option>05:00 PM</option>
-<option>06:00 PM</option>
-</select>
-</div>
-</div>
-</div>
-<!-- Slot Duration -->
-<div>
-<label class="block font-label-md text-on-surface-variant mb-sm">SLOT DURATION</label>
-<div class="flex gap-md">
-<label class="flex-1">
-<input checked="" class="hidden peer" name="duration" type="radio"/>
-<div class="text-center py-2 border border-outline-variant rounded-lg peer-checked:bg-primary-container peer-checked:border-primary peer-checked:text-primary font-bold text-body-sm cursor-pointer hover:bg-surface-container-low transition-all">30 Min</div>
-</label>
-<label class="flex-1">
-<input class="hidden peer" name="duration" type="radio"/>
-<div class="text-center py-2 border border-outline-variant rounded-lg peer-checked:bg-primary-container peer-checked:border-primary peer-checked:text-primary font-bold text-body-sm cursor-pointer hover:bg-surface-container-low transition-all">45 Min</div>
-</label>
-<label class="flex-1">
-<input class="hidden peer" name="duration" type="radio"/>
-<div class="text-center py-2 border border-outline-variant rounded-lg peer-checked:bg-primary-container peer-checked:border-primary peer-checked:text-primary font-bold text-body-sm cursor-pointer hover:bg-surface-container-low transition-all">60 Min</div>
-</label>
-</div>
+<div class="flex items-center gap-md">
+    <input type="checkbox" name="is_active" id="is-active" checked class="w-4 h-4"/>
+    <label for="is-active" class="font-label-md text-on-surface-variant">Active</label>
 </div>
 </div>
 <div class="p-lg bg-surface-container-low border-t border-outline-variant flex justify-end gap-md">
-<button class="px-6 py-2 border border-outline-variant rounded-lg font-bold hover:bg-white transition-colors" onclick="closeModal()">Cancel</button>
-<button class="px-8 py-2 bg-primary text-white rounded-lg font-bold custom-shadow-sm active:scale-95 transition-transform" onclick="saveSchedule()">Save Changes</button>
+<button type="button" class="px-6 py-2 border border-outline-variant rounded-lg font-bold hover:bg-white transition-colors" onclick="closeModal()">Cancel</button>
+<button type="submit" class="px-8 py-2 bg-primary text-white rounded-lg font-bold custom-shadow-sm active:scale-95 transition-transform">Save</button>
 </div>
+</form>
 </div>
 </div>
 
 <script>
-        function toggleView(view) {
-            const calView = document.getElementById('calendar-view');
-            const listView = document.getElementById('list-view');
-            const calToggle = document.getElementById('cal-toggle');
-            const listToggle = document.getElementById('list-toggle');
-
-            if (view === 'calendar') {
-                calView.classList.remove('hidden');
-                listView.classList.add('hidden');
-                calToggle.classList.add('bg-white', 'custom-shadow-sm', 'text-primary');
-                calToggle.classList.remove('text-on-surface-variant');
-                listToggle.classList.remove('bg-white', 'custom-shadow-sm', 'text-primary');
-                listToggle.classList.add('text-on-surface-variant');
-            } else {
-                calView.classList.add('hidden');
-                listView.classList.remove('hidden');
-                listToggle.classList.add('bg-white', 'custom-shadow-sm', 'text-primary');
-                listToggle.classList.remove('text-on-surface-variant');
-                calToggle.classList.remove('bg-white', 'custom-shadow-sm', 'text-primary');
-                calToggle.classList.add('text-on-surface-variant');
-            }
-        }
-
         function openModal() {
             document.getElementById('availability-modal').classList.remove('hidden');
         }
-
         function closeModal() {
             document.getElementById('availability-modal').classList.add('hidden');
-        }
-
-        function saveSchedule() {
-            const btn = event.target;
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<span class="material-symbols-outlined">refresh</span> Saving...';
-            btn.disabled = true;
-
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                closeModal();
-                const toast = document.createElement('div');
-                toast.className = 'fixed bottom-8 right-8 bg-inverse-surface text-inverse-on-surface px-lg py-md rounded-xl custom-shadow-md z-[200]';
-                toast.innerText = 'Availability schedule updated successfully.';
-                document.body.appendChild(toast);
-                setTimeout(() => toast.remove(), 3000);
-            }, 1000);
         }
     </script>
 </body></html>

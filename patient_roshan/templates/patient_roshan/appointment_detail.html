@@ -1,0 +1,87 @@
+{% extends 'patient_roshan/base.html' %}
+{% block title %}Appointment Details{% endblock %}
+{% block page_title %}Appointment Details{% endblock %}
+
+{% block content %}
+{% with active_page='appointments' %}
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
+    <div class="lg:col-span-2 space-y-lg">
+        <section class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-lg">
+            <div class="flex flex-col md:flex-row md:items-start justify-between gap-lg">
+                <div>
+                    <p class="font-label-sm text-label-sm text-primary uppercase tracking-wider">{{ appointment.status }}</p>
+                    <h1 class="font-headline-lg text-headline-lg text-on-surface mt-xs">{{ appointment.doctor_name }}</h1>
+                    <p class="font-body-md text-on-surface-variant">{{ appointment.department_name }}</p>
+                </div>
+                <div class="flex flex-wrap gap-sm">
+                    <span class="px-md py-xs rounded-full bg-secondary-container text-on-secondary-container font-label-sm">{{ appointment.display_date }}</span>
+                    <span class="px-md py-xs rounded-full bg-primary-container text-white font-label-sm">{{ appointment.display_time }}</span>
+                </div>
+            </div>
+            <div class="mt-lg grid grid-cols-1 md:grid-cols-2 gap-lg">
+                <div class="p-md rounded-lg bg-surface-container-low">
+                    <p class="font-label-sm text-label-sm text-on-surface-variant">Patient</p>
+                    <p class="font-body-md text-on-surface">{{ appointment.patient_name }}</p>
+                </div>
+                <div class="p-md rounded-lg bg-surface-container-low">
+                    <p class="font-label-sm text-label-sm text-on-surface-variant">Reason</p>
+                    <p class="font-body-md text-on-surface">{{ appointment.reason }}</p>
+                </div>
+            </div>
+        </section>
+
+        {% if medical_record %}
+        <section class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-lg">
+            <h2 class="font-headline-sm text-headline-sm text-on-surface mb-md">Clinical Record</h2>
+            <div class="space-y-md">
+                <div>
+                    <p class="font-label-sm text-label-sm text-on-surface-variant">Diagnosis</p>
+                    <p class="font-body-md text-on-surface">{{ medical_record.diagnosis }}</p>
+                </div>
+                <div>
+                    <p class="font-label-sm text-label-sm text-on-surface-variant">Treatment</p>
+                    <p class="font-body-md text-on-surface">{{ medical_record.treatment }}</p>
+                </div>
+                <div>
+                    <p class="font-label-sm text-label-sm text-on-surface-variant">Notes</p>
+                    <p class="font-body-md text-on-surface-variant">{{ medical_record.notes }}</p>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        {% if prescription %}
+        <section class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-lg">
+            <h2 class="font-headline-sm text-headline-sm text-on-surface mb-md">Prescription</h2>
+            <div class="space-y-sm">
+                {% for item in prescription.items.all %}
+                <div class="flex items-center justify-between p-md rounded-lg bg-surface-container-low">
+                    <div>
+                        <p class="font-body-md text-on-surface">{{ item.medicine_name }}</p>
+                        <p class="text-body-sm text-on-surface-variant">{{ item.dosage }} · {{ item.frequency }} · {{ item.duration }}</p>
+                    </div>
+                    <span class="material-symbols-outlined text-primary">pill</span>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+    </div>
+
+    <aside class="space-y-lg">
+        <section class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm p-lg">
+            <h2 class="font-headline-sm text-headline-sm text-on-surface mb-md">Actions</h2>
+            <div class="space-y-sm">
+                {% if appointment.status == 'Pending' or appointment.status == 'Confirmed' %}
+                <a href="{% url 'patient_roshan:reschedule_appointment' appointment.id %}" class="w-full inline-flex justify-center items-center gap-sm px-md py-sm rounded-lg bg-primary text-white font-label-md hover:opacity-90 transition-opacity">Reschedule</a>
+                <a href="{% url 'patient_roshan:cancel_appointment' appointment.id %}" class="w-full inline-flex justify-center items-center gap-sm px-md py-sm rounded-lg border border-error text-error font-label-md hover:bg-error hover:text-white transition-colors">Cancel</a>
+                {% endif %}
+                <a href="{% url 'patient_roshan:my_appointments' %}" class="w-full inline-flex justify-center items-center gap-sm px-md py-sm rounded-lg border border-outline-variant text-on-surface font-label-md hover:bg-surface-container transition-colors">Back to list</a>
+            </div>
+        </section>
+    </aside>
+</div>
+
+{% endwith %}
+{% endblock %}

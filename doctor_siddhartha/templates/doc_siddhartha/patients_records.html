@@ -14,22 +14,11 @@
             display: inline-block;
             line-height: 1;
         }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #E2E8F0;
-            border-radius: 10px;
-        }
-        .card-shadow {
-            box-shadow: 0px 1px 2px 0px rgba(15, 23, 42, 0.05);
-        }
-        .card-shadow-hover:hover {
-            box-shadow: 0px 4px 6px -1px rgba(15, 23, 42, 0.1);
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #E2E8F0; border-radius: 10px; }
+        .card-shadow { box-shadow: 0px 1px 2px 0px rgba(15, 23, 42, 0.05); }
+        .card-shadow-hover:hover { box-shadow: 0px 4px 6px -1px rgba(15, 23, 42, 0.1); }
     </style>
 <script id="tailwind-config">
         tailwind.config = {
@@ -134,17 +123,19 @@
 <header class="flex justify-between items-center px-lg w-full sticky top-0 z-50 bg-surface/95 backdrop-blur-sm w-full h-16 border-b border-outline-variant">
 <div class="flex items-center gap-md">
 <span class="font-headline-sm text-headline-sm font-extrabold text-primary">MedCore Portal</span>
-<div class="hidden md:flex items-center ml-xl bg-surface-container-high rounded-full px-md py-1 border border-outline-variant focus-within:ring-2 focus-within:ring-primary transition-all">
+<form class="hidden md:flex items-center ml-xl bg-surface-container-high rounded-full px-md py-1 border border-outline-variant focus-within:ring-2 focus-within:ring-primary transition-all" method="get" action="">
 <span class="material-symbols-outlined text-outline">search</span>
-<input class="bg-transparent border-none focus:ring-0 text-body-sm w-64 placeholder:text-outline" placeholder="Search patients, ID, or records..." type="text"/>
-</div>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm w-64 placeholder:text-outline" placeholder="Search patients..." type="text" name="search"/>
+</form>
 </div>
 <div class="flex items-center gap-md">
 <button class="material-symbols-outlined p-2 rounded-full hover:bg-surface-container-high text-on-surface-variant transition-all">notifications</button>
 <button class="material-symbols-outlined p-2 rounded-full hover:bg-surface-container-high text-on-surface-variant transition-all">settings</button>
 <div class="flex items-center gap-sm ml-sm">
-<img class="w-8 h-8 rounded-full object-cover" data-alt="A professional portrait of Dr. Richardson, a senior oncologist, wearing clinical attire with a warm, trustworthy expression. The background is a blurred high-end clinical office with soft lighting, reflecting the MedCore Portal's modern corporate and reliable aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYgN5vATBkABuLUlYYzZt-jdZchWJVhr5wY_DGqm_eUF0NfoH_v1cKO89dEuco_EupcNchfhIdqWAa3n6xnEd3TQ_1_LloG5SEJh78R0coMdYDnmfiQQbdgJrDQj1KPbxk-UP4SvnE0PWriPnEc4oq6VZOeM9dFYEn1Eyhnz8CmsHMonyTUHayOboSYoFHxsyoXx_a9jwCqUdRqae9THmvvrNRDxkWZ9jIxKAX_WKqbB3WxMIPXSFKQ_D4TgFGQjdbuHvU0kA-Nw"/>
-<span class="font-label-md text-label-md text-on-surface hidden lg:block">Dr. Richardson</span>
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">
+    {{ doctor_profile.user.first_name|first|upper }}{{ doctor_profile.user.last_name|first|upper }}
+</div>
+<span class="font-label-md text-label-md text-on-surface hidden lg:block">Dr. {{ doctor_profile.display_name }}</span>
 </div>
 </div>
 </header>
@@ -152,11 +143,11 @@
 <!-- SideNavBar -->
 <aside class="hidden lg:flex flex-col h-full sticky top-0 left-0 h-screen w-64 border-r border-outline-variant bg-surface-container-lowest transition-colors shadow-sm">
 <nav class="flex-1 px-sm py-md space-y-1">
-<a class="flex items-center gap-md px-md py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors active:scale-95 duration-150" href="/doctor/dashboard/">
+<a class="flex items-center gap-md px-md py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors" href="/doctor/dashboard/">
     <span class="material-symbols-outlined">dashboard</span>
     <span class="font-body-md text-body-md">Dashboard</span>
 </a>
-<a class="flex items-center gap-md px-md py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors active:scale-95 duration-150" href="/doctor/schedule/">
+<a class="flex items-center gap-md px-md py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors" href="/doctor/schedule/">
     <span class="material-symbols-outlined">calendar_month</span>
     <span class="font-body-md text-body-md">Schedule</span>
 </a>
@@ -164,16 +155,15 @@
     <span class="material-symbols-outlined">group</span>
     <span class="font-body-md text-body-md">Patients</span>
 </a>
-<a class="flex items-center gap-md px-md py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors active:scale-95 duration-150" href="/doctor/prescriptions/">
+<a class="flex items-center gap-md px-md py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors" href="/doctor/prescriptions/">
     <span class="material-symbols-outlined">medication</span>
     <span class="font-body-md text-body-md">Prescriptions</span>
 </a>
+<a class="flex items-center gap-md px-md py-3 rounded-lg text-error hover:bg-error-container/10 transition-colors" href="{% url 'auth_kirtan:logout' %}">
+    <span class="material-symbols-outlined">logout</span>
+    <span class="font-body-md text-body-md">Logout</span>
+</a>
 </nav>
-<div class="p-lg mt-auto">
-<button class="w-full py-md bg-error text-on-error font-bold rounded-lg shadow-sm active:scale-95 transition-all">
-                    Emergency Alert
-                </button>
-</div>
 </aside>
 <!-- Main Content Area -->
 <main class="flex-1 overflow-hidden flex flex-col md:flex-row p-md lg:p-lg gap-lg">
@@ -182,88 +172,54 @@
 <div class="flex justify-between items-end mb-sm">
 <div>
 <h1 class="font-headline-md text-headline-md text-on-surface">Patients</h1>
-<p class="text-body-sm text-outline">24 assigned patients</p>
+<p class="text-body-sm text-outline">{{ patients|length }} assigned patient{{ patients|length|pluralize }}</p>
 </div>
-<button class="bg-primary text-on-primary p-2 rounded-full material-symbols-outlined card-shadow hover:card-shadow-hover transition-all">person_add</button>
 </div>
 <div class="bg-white rounded-xl card-shadow flex-1 overflow-hidden flex flex-col">
 <div class="p-md border-b border-outline-variant">
 <div class="flex items-center bg-surface-container-low px-md py-2 rounded-lg">
-<span class="material-symbols-outlined text-outline text-sm">search</span>
-<input class="bg-transparent border-none focus:ring-0 text-body-sm w-full" placeholder="Filter patient name..." type="text"/>
+    <span class="material-symbols-outlined text-outline text-sm">search</span>
+    <input class="bg-transparent border-none focus:ring-0 text-body-sm w-full" placeholder="Filter patient name..." type="text" onkeyup="filterPatients(this.value)"/>
 </div>
 </div>
 <div class="overflow-y-auto flex-1 custom-scrollbar">
-<!-- Patient Items -->
+{% if patients %}
 <div class="flex flex-col">
-<!-- Active Patient -->
-<button class="p-lg flex items-center gap-md border-b border-outline-variant bg-primary-fixed/20 text-left transition-all hover:bg-primary-fixed/30 group">
-<img class="w-12 h-12 rounded-full object-cover" data-alt="A portrait of Alexander Bennett, an elderly man with silver hair and a gentle smile, wearing a soft blue sweater. The image conveys a sense of well-being and calm, matching the clean medical UI style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4EnHe_2LkUlhGDUpl91Ax-xumGv5xDaLE2yupGlOpDJSols3VDXVZkE13pULI0IZcT6w0ludv7EnPgM7yzffpguN6cm7Yveoe1SUgRuhg1s4gaQdKUkt5nQP4KSIb0hEqlqJbjSCZXTSIRCRY0WcjDZYcJK6ThTMmRNAb83qN8dpkI_8RaKSZJD6jJ5bDOsSxqAvO0Vu-m16SaTAYgvcGFF6WhV52rpi3hCvqV5fyhiS6v8s6SxVamXzbf1MbtZdTwCDf2sG6Lg"/>
-<div class="flex-1">
-<div class="flex justify-between items-start">
-<h3 class="font-bold text-on-surface">Alexander Bennett</h3>
-<span class="text-[10px] uppercase font-bold text-primary tracking-wider px-2 py-0.5 bg-primary-fixed rounded-full">Selected</span>
+    {% for appt in patients %}
+    <a href="?patient={{ appt.patient_id }}" class="p-lg flex items-center gap-md border-b border-outline-variant text-left transition-all hover:bg-surface-container-low {% if selected_patient and selected_patient.id == appt.patient_id %}bg-primary-fixed/20{% endif %} group">
+        <div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-outline text-lg">
+            {{ appt.patient.first_name|first|upper }}{{ appt.patient.last_name|first|upper }}
+        </div>
+        <div class="flex-1">
+            <h3 class="font-bold text-on-surface">{{ appt.patient_name }}</h3>
+            <p class="text-body-sm text-outline">Last: {{ appt.display_date }}</p>
+        </div>
+        <span class="material-symbols-outlined text-outline-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+    </a>
+    {% endfor %}
 </div>
-<p class="text-body-sm text-outline">Last: 12 Oct 2023</p>
-<p class="text-xs font-medium text-secondary mt-1">Next: 24 Nov 2023</p>
+{% else %}
+<div class="p-xl text-center">
+    <span class="material-symbols-outlined text-4xl text-on-surface-variant">group_off</span>
+    <p class="font-body-md text-on-surface mt-md">No patients assigned</p>
+    <p class="font-body-sm text-on-surface-variant">Appointments you take will appear here.</p>
 </div>
-<span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">chevron_right</span>
-</button>
-<button class="p-lg flex items-center gap-md border-b border-outline-variant text-left transition-all hover:bg-surface-container-low group">
-<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-outline text-lg">RB</div>
-<div class="flex-1">
-<h3 class="font-bold text-on-surface">Robert Brown</h3>
-<p class="text-body-sm text-outline">Last: 05 Oct 2023</p>
-<p class="text-xs font-medium text-outline mt-1">Next: 15 Dec 2023</p>
-</div>
-<span class="material-symbols-outlined text-outline-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
-</button>
-<button class="p-lg flex items-center gap-md border-b border-outline-variant text-left transition-all hover:bg-surface-container-low group">
-<img class="w-12 h-12 rounded-full object-cover" data-alt="A portrait of Elena Rodriguez, a middle-aged woman with professional glasses and a focused expression. The lighting is bright and even, typical of a modern healthcare environment, maintaining the clinical accuracy of the design system." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdRaQzTa37QTvhQZLSpaHmIEySRka6X94yvjWAX9R-saModPY1ZURwQ12n8vxDqzpzeT-_fMqQzUgtUjPZyFFpp8qEKZ00XkLaFF_h6lmmFLB8vWzeQhsAefjLI5760yh2fn6abDNSmCRaE4_hqKVYifDB5EXIpj2TONKuP0yrObwP-ts4Egw1-b2blCZtuJdchgPMH7U-bnQTgsW7QaiQecFHjzTZX6qYFoD3j752s_Efj8lSZVuI-7RwSYBdmRFpo-uV1tVRLg"/>
-<div class="flex-1">
-<h3 class="font-bold text-on-surface">Elena Rodriguez</h3>
-<p class="text-body-sm text-outline">Last: 29 Sep 2023</p>
-<p class="text-xs font-medium text-secondary mt-1">Next: Tomorrow</p>
-</div>
-<span class="material-symbols-outlined text-outline-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
-</button>
-<button class="p-lg flex items-center gap-md border-b border-outline-variant text-left transition-all hover:bg-surface-container-low group">
-<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-outline text-lg">MW</div>
-<div class="flex-1">
-<h3 class="font-bold text-on-surface">Marcus Wright</h3>
-<p class="text-body-sm text-outline">Last: 15 Sep 2023</p>
-<p class="text-xs font-medium text-outline mt-1">Next: 20 Jan 2024</p>
-</div>
-<span class="material-symbols-outlined text-outline-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
-</button>
-<button class="p-lg flex items-center gap-md border-b border-outline-variant text-left transition-all hover:bg-surface-container-low group">
-<img class="w-12 h-12 rounded-full object-cover" data-alt="A portrait of Sophia Chen, a young woman with a calm demeanor. The photo has a clean white background and high-key lighting, fitting the minimalist healthcare aesthetic of the MedCore application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDSH_KzpomFL7seAWJqTeNdp9n26UFaHIzDmA6su2I6ZXAl9mgPIvd2wlcC_B8NpPY1qiBxftBJA7lzjZq2Gl9B3NPXZaIhqAxE09Ux-bfyRZdHjrMrLNZF-yzx_HGYYCS96i7KhODHnw6fO5KaJ5uWjmtsxV5AVdURjO0znWM4Midz8zpBbpS28cxejtZxr8eI6r6RDHZ-19QOwxbcdW1xhr82q9l_Cc7359RQud__MuWxmjID585Z_TVQHfs7G-YqlPeNP_zSZA"/>
-<div class="flex-1">
-<h3 class="font-bold text-on-surface">Sophia Chen</h3>
-<p class="text-body-sm text-outline">Last: 10 Sep 2023</p>
-<p class="text-xs font-medium text-error mt-1">Overdue Follow-up</p>
-</div>
-<span class="material-symbols-outlined text-outline-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
-</button>
-</div>
+{% endif %}
 </div>
 </div>
 </section>
 <!-- Patient Detail Section -->
 <section class="flex-1 flex flex-col gap-md overflow-hidden">
+{% if selected_patient %}
 <div class="flex flex-col md:flex-row md:items-center justify-between gap-md mb-sm">
 <div class="flex items-center gap-md">
 <div class="p-3 bg-primary-container text-on-primary-container rounded-xl">
-<span class="material-symbols-outlined text-3xl">medical_information</span>
+    <span class="material-symbols-outlined text-3xl">medical_information</span>
 </div>
 <div>
-<h2 class="font-headline-sm text-headline-sm text-on-surface">Alexander Bennett</h2>
-<p class="text-body-sm text-outline">Patient ID: #MC-9284-ALX</p>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">{{ selected_patient.get_full_name|default:selected_patient.username }}</h2>
+<p class="text-body-sm text-outline">Patient ID: #HM-{{ selected_patient.id }}</p>
 </div>
-</div>
-<div class="flex gap-sm">
-<button class="px-md py-2 border border-outline-variant rounded-lg text-label-md font-bold hover:bg-surface-container-high transition-all">Edit Profile</button>
-<button class="px-md py-2 bg-primary text-on-primary rounded-lg text-label-md font-bold card-shadow hover:card-shadow-hover transition-all">New Consultation</button>
 </div>
 </div>
 <div class="flex-1 overflow-y-auto custom-scrollbar pr-1">
@@ -274,180 +230,95 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
 <div class="bg-white p-lg rounded-xl card-shadow border-l-4 border-primary">
 <p class="text-label-sm text-outline uppercase tracking-wider mb-2">Age / Gender</p>
-<h4 class="font-headline-sm text-on-surface">72 years / Male</h4>
+<h4 class="font-headline-sm text-on-surface">
+    {% if selected_patient_profile.age %}{{ selected_patient_profile.age }} years{% else %}--{% endif %}
+    / {% if selected_patient_profile.gender %}{{ selected_patient_profile.gender }}{% else %}--{% endif %}
+</h4>
 </div>
 <div class="bg-white p-lg rounded-xl card-shadow border-l-4 border-secondary">
 <p class="text-label-sm text-outline uppercase tracking-wider mb-2">Blood Group</p>
-<h4 class="font-headline-sm text-on-surface">O Positive</h4>
-</div>
-<div class="bg-white p-lg rounded-xl card-shadow sm:col-span-2">
-<div class="flex justify-between items-center mb-md border-b border-outline-variant pb-2">
-<h3 class="font-bold text-on-surface">Medical History</h3>
-<span class="material-symbols-outlined text-outline">history_edu</span>
-</div>
-<div class="flex flex-wrap gap-2">
-<span class="px-md py-1 bg-error-container text-on-error-container rounded-full text-xs font-bold">Hypertension</span>
-<span class="px-md py-1 bg-surface-container-highest text-on-surface-variant rounded-full text-xs font-bold">Type 2 Diabetes</span>
-<span class="px-md py-1 bg-surface-container-highest text-on-surface-variant rounded-full text-xs font-bold">Osteoarthritis</span>
-<span class="px-md py-1 bg-secondary-container text-on-secondary-container rounded-full text-xs font-bold">Non-Smoker</span>
-</div>
-<p class="mt-md text-body-sm text-on-surface-variant leading-relaxed">
-                                        Diagnosed with hypertension in 2015. Underwent knee replacement surgery (left) in July 2021. Managed diabetes through diet and Metformin since 2018. No known allergies to medication.
-                                    </p>
+<h4 class="font-headline-sm text-on-surface">{% if selected_patient_profile.blood_group %}{{ selected_patient_profile.blood_group }}{% else %}--{% endif %}</h4>
 </div>
 </div>
-<!-- Appointments List -->
+<!-- Medical Records -->
 <div class="bg-white rounded-xl card-shadow overflow-hidden">
 <div class="p-lg border-b border-outline-variant flex justify-between items-center">
-<h3 class="font-bold text-on-surface">Past Appointments</h3>
-<button class="text-primary text-label-md font-bold">View All</button>
+<h3 class="font-bold text-on-surface">Medical Records</h3>
 </div>
 <div class="divide-y divide-outline-variant">
-<div class="p-lg flex items-center justify-between hover:bg-surface-container-low transition-colors">
-<div class="flex items-center gap-lg">
-<div class="w-12 h-12 bg-surface-container-low rounded-lg flex flex-col items-center justify-center">
-<span class="text-xs font-bold text-primary">OCT</span>
-<span class="text-lg font-bold text-on-surface">12</span>
+{% if patient_records %}
+    {% for record in patient_records %}
+    <div class="p-lg flex items-center justify-between hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-lg">
+            <div class="w-12 h-12 bg-surface-container-low rounded-lg flex flex-col items-center justify-center">
+                <span class="text-xs font-bold text-primary">{{ record.visit_date|date:"M"|upper }}</span>
+                <span class="text-lg font-bold text-on-surface">{{ record.visit_date|date:"d" }}</span>
+            </div>
+            <div>
+                <h4 class="font-bold text-on-surface">{{ record.diagnosis }}</h4>
+                <p class="text-body-sm text-outline">{{ record.status }} &middot; {{ record.department.name|default:"General" }}</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% else %}
+<div class="p-xl text-center">
+    <p class="font-body-md text-on-surface">No medical records found.</p>
 </div>
-<div>
-<h4 class="font-bold text-on-surface">Routine Oncology Check-up</h4>
-<p class="text-body-sm text-outline">Stable recovery, blood pressure 130/85</p>
-</div>
-</div>
-<button class="p-2 text-outline hover:text-primary material-symbols-outlined">description</button>
-</div>
-<div class="p-lg flex items-center justify-between hover:bg-surface-container-low transition-colors">
-<div class="flex items-center gap-lg">
-<div class="w-12 h-12 bg-surface-container-low rounded-lg flex flex-col items-center justify-center">
-<span class="text-xs font-bold text-primary">AUG</span>
-<span class="text-lg font-bold text-on-surface">05</span>
-</div>
-<div>
-<h4 class="font-bold text-on-surface">Diabetes Consultation</h4>
-<p class="text-body-sm text-outline">Adjusted Metformin dosage, HbA1c at 6.8%</p>
-</div>
-</div>
-<button class="p-2 text-outline hover:text-primary material-symbols-outlined">description</button>
+{% endif %}
 </div>
 </div>
 </div>
-</div>
-<!-- Right Column: Prescriptions & Vitals -->
+<!-- Right Column: Prescriptions -->
 <div class="space-y-lg">
-<!-- Prescriptions -->
 <div class="bg-white rounded-xl card-shadow overflow-hidden">
 <div class="p-lg border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest">
 <h3 class="font-bold text-on-surface">Prescriptions</h3>
-<span class="material-symbols-outlined text-outline">pill</span>
 </div>
 <div class="p-lg space-y-md">
-<div class="p-md bg-surface-container-low rounded-lg border border-outline-variant/30">
-<div class="flex justify-between items-start mb-1">
-<h4 class="font-bold text-primary">Lisinopril</h4>
-<span class="text-[10px] font-bold text-secondary px-2 py-0.5 bg-secondary-container rounded">Active</span>
+{% if patient_prescriptions %}
+    {% for rx in patient_prescriptions %}
+    <div class="p-md bg-surface-container-low rounded-lg border border-outline-variant/30">
+        <div class="flex justify-between items-start mb-1">
+            <h4 class="font-bold text-primary">{{ rx.diagnosis }}</h4>
+            <span class="text-[10px] font-bold text-secondary px-2 py-0.5 bg-secondary-container rounded">Active</span>
+        </div>
+        <p class="text-xs text-on-surface-variant">Prescribed: {{ rx.prescribed_on|date:"M d, Y" }}</p>
+        <ul class="mt-2 space-y-1">
+            {% for item in rx.items.all %}
+            <li class="text-xs text-on-surface-variant">{{ item.medicine_name }} — {{ item.dosage }}, {{ item.frequency }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+{% else %}
+<div class="p-xl text-center">
+    <p class="font-body-md text-on-surface">No prescriptions found.</p>
 </div>
-<p class="text-xs text-on-surface-variant">10mg — Once daily in morning</p>
-<div class="mt-2 flex justify-between items-center">
-<span class="text-[10px] text-outline">Refills: 2 remaining</span>
-<button class="text-xs font-bold text-primary hover:underline">Renew</button>
-</div>
-</div>
-<div class="p-md bg-surface-container-low rounded-lg border border-outline-variant/30">
-<div class="flex justify-between items-start mb-1">
-<h4 class="font-bold text-primary">Metformin</h4>
-<span class="text-[10px] font-bold text-secondary px-2 py-0.5 bg-secondary-container rounded">Active</span>
-</div>
-<p class="text-xs text-on-surface-variant">500mg — Twice daily with meals</p>
-<div class="mt-2 flex justify-between items-center">
-<span class="text-[10px] text-outline">Refills: 0 remaining</span>
-<button class="text-xs font-bold text-primary hover:underline">Renew</button>
-</div>
-</div>
-<div class="p-md bg-surface-container-low rounded-lg border border-outline-variant/30 opacity-60">
-<div class="flex justify-between items-start mb-1">
-<h4 class="font-bold text-on-surface-variant">Ibuprofen</h4>
-<span class="text-[10px] font-bold text-outline px-2 py-0.5 bg-surface-container-highest rounded">Expired</span>
-</div>
-<p class="text-xs text-on-surface-variant">400mg — As needed for pain</p>
-</div>
-<button class="w-full py-2 border-2 border-dashed border-outline-variant rounded-lg text-outline font-bold text-sm hover:border-primary hover:text-primary transition-all flex items-center justify-center gap-2">
-<span class="material-symbols-outlined text-sm">add</span> Add Medication
-                                    </button>
-</div>
-</div>
-<!-- Quick Vitals -->
-<div class="bg-primary text-on-primary rounded-xl p-lg card-shadow">
-<h3 class="font-bold mb-md">Last Recorded Vitals</h3>
-<div class="space-y-md">
-<div class="flex justify-between items-center border-b border-on-primary/20 pb-2">
-<span class="text-sm opacity-90">Weight</span>
-<span class="font-bold">78.5 kg</span>
-</div>
-<div class="flex justify-between items-center border-b border-on-primary/20 pb-2">
-<span class="text-sm opacity-90">Blood Pressure</span>
-<span class="font-bold">128 / 82</span>
-</div>
-<div class="flex justify-between items-center border-b border-on-primary/20 pb-2">
-<span class="text-sm opacity-90">Heart Rate</span>
-<span class="font-bold">72 bpm</span>
-</div>
-<div class="flex justify-between items-center">
-<span class="text-sm opacity-90">SpO2</span>
-<span class="font-bold">98%</span>
-</div>
-</div>
-<button class="w-full mt-lg py-2 bg-on-primary text-primary font-bold rounded-lg text-sm active:scale-95 transition-all">Update Vitals</button>
+{% endif %}
 </div>
 </div>
 </div>
 </div>
+</div>
+{% else %}
+<div class="flex-1 flex items-center justify-center">
+<div class="text-center">
+    <span class="material-symbols-outlined text-5xl text-on-surface-variant">clinical_notes</span>
+    <p class="font-headline-sm text-headline-sm text-on-surface mt-md">Select a patient</p>
+    <p class="font-body-sm text-on-surface-variant">Choose a patient from the list to view their records.</p>
+</div>
+</div>
+{% endif %}
 </section>
 </main>
 </div>
-<!-- Mobile Bottom Navigation Shell -->
-<nav class="md:hidden sticky bottom-0 w-full bg-surface-container-lowest border-t border-outline-variant flex justify-around items-center h-16 px-md z-50">
-<button class="flex flex-col items-center gap-1 text-on-surface-variant">
-<span class="material-symbols-outlined">dashboard</span>
-<span class="text-[10px] font-bold">Home</span>
-</button>
-<button class="flex flex-col items-center gap-1 text-on-surface-variant">
-<span class="material-symbols-outlined">calendar_month</span>
-<span class="text-[10px] font-bold">Schedule</span>
-</button>
-<button class="flex flex-col items-center gap-1 text-primary">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
-<span class="text-[10px] font-bold">Patients</span>
-</button>
-<button class="flex flex-col items-center gap-1 text-on-surface-variant">
-<span class="material-symbols-outlined">medication</span>
-<span class="text-[10px] font-bold">Meds</span>
-</button>
-</nav>
 <script>
-        // Simple micro-interaction for patient selection
-        document.querySelectorAll('button[class*="flex items-center gap-md border-b"]').forEach(btn => {
-            btn.addEventListener('click', function() {
-                // Reset all
-                document.querySelectorAll('button[class*="flex items-center gap-md border-b"]').forEach(b => {
-                    b.classList.remove('bg-primary-fixed/20');
-                    const badge = b.querySelector('.selected-badge');
-                    if(badge) badge.remove();
-                });
-                
-                // Set active
-                this.classList.add('bg-primary-fixed/20');
-                // We'd normally update the detail view content here via JS/Framework
-            });
-        });
-
-        // Search bar focus effect
-        const searchInput = document.querySelector('input[placeholder*="Search patients"]');
-        if(searchInput) {
-            searchInput.addEventListener('focus', () => {
-                searchInput.parentElement.classList.add('w-80');
-            });
-            searchInput.addEventListener('blur', () => {
-                searchInput.parentElement.classList.remove('w-80');
+        function filterPatients(value) {
+            const term = value.toLowerCase();
+            document.querySelectorAll('a[href^="?patient="]').forEach(link => {
+                const name = link.querySelector('h3') ? link.querySelector('h3').innerText.toLowerCase() : '';
+                link.style.display = name.includes(term) ? '' : 'none';
             });
         }
     </script>
