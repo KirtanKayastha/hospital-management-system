@@ -12,11 +12,11 @@
 
         {# Filters #}
         <section class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant">
-            <div class="flex flex-col md:flex-row gap-lg">
+            <form method="GET" action="{% url 'patient_roshan:book_appointment' %}" class="flex flex-col md:flex-row gap-lg items-end">
                 <div class="flex-1">
                     <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Select Department</label>
                     <div class="relative">
-                        <select name="department" class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm appearance-none focus:ring-2 focus:ring-primary focus:border-primary font-body-md text-body-md transition-all">
+                        <select name="department" onchange="this.form.submit()" class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm appearance-none focus:ring-2 focus:ring-primary focus:border-primary font-body-md text-body-md transition-all">
                             <option value="">All Departments</option>
                             {% for dept in departments %}
                             <option value="{{ dept.id }}">{{ dept.name }}</option>
@@ -33,14 +33,19 @@
                         <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
                     </div>
                 </div>
-            </div>
+                <button type="submit" class="bg-primary text-white px-lg py-sm rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
+                    Filter
+                </button>
+            </form>
         </section>
 
         {# Doctor List #}
         <h2 class="font-headline-sm text-headline-sm text-on-surface">Available Specialists</h2>
 
         {% for doctor in doctors %}
-        <div class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant hover:shadow-md transition-all cursor-pointer group active:scale-[0.98]">
+        <div class="doctor-card bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant hover:shadow-md transition-all cursor-pointer group active:scale-[0.98] {% if selected_doctor_id == doctor.id %}ring-2 ring-primary{% endif %}"
+             data-doctor-id="{{ doctor.id }}"
+             data-doctor-name="{{ doctor.name }}">
             <div class="flex gap-lg">
                 <div class="w-20 h-20 rounded-xl overflow-hidden bg-secondary-container flex items-center justify-center text-2xl font-bold text-on-secondary-container flex-shrink-0">
                     {{ doctor.initials }}
@@ -76,6 +81,7 @@
         <div class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant sticky top-32">
             <form method="POST" action="{% url 'patient_roshan:book_appointment' %}">
                 {% csrf_token %}
+                <input type="hidden" name="doctor_id" id="selectedDoctor" value="{{ selected_doctor_id }}"/>
                 <div class="space-y-xl">
 
                     {# Calendar #}
@@ -166,6 +172,16 @@
 
 {% block extra_js %}
 <script>
+    const selectedDoctorInput = document.getElementById('selectedDoctor');
+    const doctorCards = document.querySelectorAll('.doctor-card');
+    doctorCards.forEach(card => {
+        card.addEventListener('click', () => {
+            doctorCards.forEach(item => item.classList.remove('ring-2', 'ring-primary'));
+            card.classList.add('ring-2', 'ring-primary');
+            selectedDoctorInput.value = card.dataset.doctorId;
+        });
+    });
+
     // Time slot selection
     const timeSlots = document.querySelectorAll('.time-slot:not(.cursor-not-allowed)');
     const selectedTimeInput = document.getElementById('selectedTime');

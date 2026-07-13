@@ -8,11 +8,11 @@
 {# Search Filters #}
 <section class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant mb-lg">
     <form method="GET" action="{% url 'patient_roshan:find_doctor' %}">
-        <div class="flex flex-col md:flex-row gap-lg">
+        <div class="flex flex-col md:flex-row gap-lg items-end">
             <div class="flex-1">
                 <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Select Department</label>
                 <div class="relative">
-                    <select name="department" class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm appearance-none focus:ring-2 focus:ring-primary font-body-md text-body-md transition-all">
+                    <select name="department" onchange="this.form.submit()" class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm appearance-none focus:ring-2 focus:ring-primary font-body-md text-body-md transition-all">
                         <option value="">All Departments</option>
                         {% for dept in departments %}
                         <option value="{{ dept.id }}" {% if request.GET.department == dept.id|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
@@ -32,7 +32,7 @@
             <div class="flex-1">
                 <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Availability</label>
                 <div class="relative">
-                    <select name="availability" class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm appearance-none focus:ring-2 focus:ring-primary font-body-md text-body-md transition-all">
+                    <select name="availability" onchange="this.form.submit()" class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm appearance-none focus:ring-2 focus:ring-primary font-body-md text-body-md transition-all">
                         <option value="">Any time</option>
                         <option value="today">Today</option>
                         <option value="week">This week</option>
@@ -40,6 +40,9 @@
                     <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
                 </div>
             </div>
+            <button type="submit" class="bg-primary text-white px-lg py-sm rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
+                Search
+            </button>
         </div>
     </form>
 </section>

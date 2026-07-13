@@ -1,544 +1,80 @@
-<!DOCTYPE html>
+{% extends 'base.html' %}
+{% block title %}Appointments{% endblock %}
+{% block page_title %}Appointment Oversight{% endblock %}
 
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>MediCare Admin - Manage Appointments</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "on-tertiary-container": "#ffeedd",
-                    "on-secondary-fixed-variant": "#005236",
-                    "on-secondary-fixed": "#002113",
-                    "on-secondary-container": "#00714d",
-                    "surface-tint": "#0053db",
-                    "surface-container": "#eceef0",
-                    "on-primary-container": "#eeefff",
-                    "inverse-surface": "#2d3133",
-                    "on-surface-variant": "#434655",
-                    "surface": "#f7f9fb",
-                    "secondary": "#006c49",
-                    "on-background": "#191c1e",
-                    "surface-bright": "#f7f9fb",
-                    "primary": "#004ac6",
-                    "error-container": "#ffdad6",
-                    "secondary-fixed": "#6ffbbe",
-                    "on-primary-fixed": "#00174b",
-                    "outline-variant": "#c3c6d7",
-                    "error": "#ba1a1a",
-                    "outline": "#737686",
-                    "on-error-container": "#93000a",
-                    "on-primary": "#ffffff",
-                    "background": "#f7f9fb",
-                    "secondary-fixed-dim": "#4edea3",
-                    "surface-container-low": "#f2f4f6",
-                    "primary-fixed": "#dbe1ff",
-                    "on-error": "#ffffff",
-                    "surface-container-highest": "#e0e3e5",
-                    "tertiary-fixed-dim": "#ffb95f",
-                    "surface-container-lowest": "#ffffff",
-                    "on-surface": "#191c1e",
-                    "on-tertiary-fixed-variant": "#653e00",
-                    "primary-fixed-dim": "#b4c5ff",
-                    "inverse-primary": "#b4c5ff",
-                    "inverse-on-surface": "#eff1f3",
-                    "surface-variant": "#e0e3e5",
-                    "surface-dim": "#d8dadc",
-                    "surface-container-high": "#e6e8ea",
-                    "on-tertiary": "#ffffff",
-                    "primary-container": "#2563eb",
-                    "tertiary": "#784b00",
-                    "secondary-container": "#6cf8bb",
-                    "tertiary-fixed": "#ffddb8",
-                    "on-tertiary-fixed": "#2a1700",
-                    "tertiary-container": "#996100",
-                    "on-primary-fixed-variant": "#003ea8",
-                    "on-secondary": "#ffffff"
-            },
-            "borderRadius": {
-                    "DEFAULT": "0.25rem",
-                    "lg": "0.5rem",
-                    "xl": "0.75rem",
-                    "full": "9999px"
-            },
-            "spacing": {
-                    "xs": "4px",
-                    "xxl": "48px",
-                    "container-max": "1280px",
-                    "md": "16px",
-                    "gutter": "24px",
-                    "base": "4px",
-                    "lg": "24px",
-                    "xl": "32px",
-                    "sm": "8px"
-            },
-            "fontFamily": {
-                    "label-md": ["Inter"],
-                    "body-sm": ["Inter"],
-                    "headline-lg": ["Inter"],
-                    "headline-lg-mobile": ["Inter"],
-                    "label-sm": ["Inter"],
-                    "headline-md": ["Inter"],
-                    "body-lg": ["Inter"],
-                    "headline-sm": ["Inter"],
-                    "body-md": ["Inter"]
-            },
-            "fontSize": {
-                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
-                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
-                    "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
-                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
-                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
-                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
-                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
-                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
-            }
-          },
-        },
-      }
-    </script>
-<style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-        .table-row-hover:hover {
-            background-color: #f8fafc;
-        }
-    </style>
-</head>
-<body class="bg-background text-on-surface font-body-md overflow-hidden h-screen flex">
-<!-- SideNavBar (Shared Component) -->
-<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest dark:bg-inverse-surface border-r border-outline-variant dark:border-outline shadow-sm flex flex-col p-lg z-50">
-<div class="mb-xl">
-<h1 class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed-dim">MediCare Admin</h1>
-<p class="text-on-surface-variant font-label-sm uppercase tracking-wider">System Portal</p>
+{% block content %}
+<div class="flex justify-between items-end mb-xl">
+    <div>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">Appointment Oversight</h2>
+        <p class="text-on-surface-variant">Real-time scheduling management ({{ total_appointments }} total).</p>
+    </div>
 </div>
-<nav class="flex-1 space-y-base overflow-y-auto custom-scrollbar">
-<!-- Nav Items based on JSON -->
-<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-md text-label-md" href="#">
-<span class="material-symbols-outlined">dashboard</span>
-                Dashboard
-            </a>
-<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-md text-label-md" href="#">
-<span class="material-symbols-outlined">group</span>
-                Patients
-            </a>
-<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-md text-label-md" href="#">
-<span class="material-symbols-outlined">medical_services</span>
-                Doctors
-            </a>
-<a class="flex items-center gap-md p-md bg-primary-container text-on-primary-container font-bold rounded-lg font-label-md text-label-md" href="#">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">event</span>
-                Appointments
-            </a>
-<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-md text-label-md" href="#">
-<span class="material-symbols-outlined">analytics</span>
-                Reports
-            </a>
-<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-md text-label-md" href="#">
-<span class="material-symbols-outlined">settings</span>
-                Settings
-            </a>
-</nav>
-<div class="mt-auto pt-lg border-t border-outline-variant">
-<div class="flex items-center gap-md">
-<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
-<span class="material-symbols-outlined">account_circle</span>
-</div>
-<div>
-<p class="font-label-md text-on-surface">Admin User</p>
-<p class="text-[10px] text-on-surface-variant uppercase">Medical Supervisor</p>
-</div>
-</div>
-</div>
-</aside>
-<!-- Main Workspace -->
-<main class="ml-64 flex-1 flex flex-col relative overflow-hidden">
-<!-- TopNavBar (Shared Component) -->
-<header class="h-16 bg-surface dark:bg-background border-b border-outline-variant dark:border-outline flex justify-between items-center px-lg shrink-0">
-<div class="flex items-center flex-1 max-w-xl">
-<div class="relative w-full group">
-<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">search</span>
-<input class="w-full bg-surface-container-low border-none rounded-full pl-xl pr-md py-sm font-body-sm text-on-surface placeholder:text-on-surface-variant focus:ring-2 focus:ring-primary transition-all" placeholder="Global search for patients or records..." type="text"/>
-</div>
-</div>
-<div class="flex items-center gap-lg">
-<div class="flex items-center gap-md">
-<button class="p-xs text-on-surface-variant hover:text-primary transition-colors relative">
-<span class="material-symbols-outlined">notifications</span>
-<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full"></span>
-</button>
-<button class="p-xs text-on-surface-variant hover:text-primary transition-colors">
-<span class="material-symbols-outlined">help</span>
-</button>
-<button class="p-xs text-on-surface-variant hover:text-primary transition-colors">
-<span class="material-symbols-outlined">apps</span>
-</button>
-</div>
-<div class="h-8 w-[1px] bg-outline-variant"></div>
-<img class="w-10 h-10 rounded-full object-cover border-2 border-primary-container" data-alt="A professional headshot of a female hospital administrator in her 40s, wearing a navy blue blazer and a stethoscope draped professionally. The background is a brightly lit, clean hospital administrative wing with blurred medical signage and minimalist architecture. The lighting is soft and corporate, emphasizing trust and competence." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBO3z6f1E4kwd4ZsdFzXLwBQppBvyFA09EsOLMBD4qjxyYJ4CnFk7MrsdYgTcbmjRk7ELSUKTN8z9AimCPhgcor57U7YRT6tcpC0PjbPh0h6gq8zE9jyRTf8gyLPlg_IOv_f4MOfT4-xS7uIQNF3ruPQ8q51skpk5CGO0GaAm657-cs0Oq2YlcQTWM7JEhGJKumGvHTLnJxAg2FdGPSYhWksZKxc6PUHEdkeGlY5pfhnw--hAQGKHY5v4Jeg84DBRxRH_kQ9oopjQ"/>
-</div>
-</header>
-<!-- Content Canvas -->
-<section class="p-lg overflow-y-auto custom-scrollbar flex-1 bg-surface">
-<!-- Page Header -->
-<div class="mb-xl flex justify-between items-end">
-<div>
-<nav class="flex text-label-sm text-on-surface-variant gap-xs mb-xs">
-<span>Dashboard</span>
-<span>/</span>
-<span class="text-primary">Appointments</span>
-</nav>
-<h2 class="font-headline-lg text-headline-lg text-on-surface">Appointment Oversight</h2>
-<p class="text-on-surface-variant">Real-time scheduling management and patient flow monitoring.</p>
-</div>
-<button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md flex items-center gap-sm shadow-sm hover:opacity-90 transition-opacity">
-<span class="material-symbols-outlined">add</span>
-                    New Appointment
-                </button>
-</div>
-<!-- Dashboard-like Metrics (Bento Grid Style) -->
+
+<!-- Status Metrics -->
 <div class="grid grid-cols-1 md:grid-cols-4 gap-lg mb-xl">
-<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center gap-lg">
-<div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-<span class="material-symbols-outlined text-[32px]">calendar_today</span>
+    <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center gap-lg">
+        <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary"><span class="material-symbols-outlined text-[32px]">calendar_today</span></div>
+        <div><p class="text-on-surface-variant text-label-sm uppercase">Total</p><p class="text-headline-md font-bold">{{ total_appointments }}</p></div>
+    </div>
+    <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center gap-lg">
+        <div class="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary"><span class="material-symbols-outlined text-[32px]">check_circle</span></div>
+        <div><p class="text-on-surface-variant text-label-sm uppercase">Confirmed</p><p class="text-headline-md font-bold">{{ appointments|length|default:0 }}</p></div>
+    </div>
 </div>
-<div>
-<p class="text-on-surface-variant text-label-sm uppercase">Total Today</p>
-<p class="text-headline-md font-bold">42</p>
-</div>
-</div>
-<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center gap-lg">
-<div class="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary">
-<span class="material-symbols-outlined text-[32px]">check_circle</span>
-</div>
-<div>
-<p class="text-on-surface-variant text-label-sm uppercase">Confirmed</p>
-<p class="text-headline-md font-bold">28</p>
-</div>
-</div>
-<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center gap-lg">
-<div class="w-12 h-12 rounded-lg bg-tertiary/10 flex items-center justify-center text-tertiary">
-<span class="material-symbols-outlined text-[32px]">pending_actions</span>
-</div>
-<div>
-<p class="text-on-surface-variant text-label-sm uppercase">Pending</p>
-<p class="text-headline-md font-bold">10</p>
-</div>
-</div>
-<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center gap-lg">
-<div class="w-12 h-12 rounded-lg bg-error/10 flex items-center justify-center text-error">
-<span class="material-symbols-outlined text-[32px]">cancel</span>
-</div>
-<div>
-<p class="text-on-surface-variant text-label-sm uppercase">Canceled</p>
-<p class="text-headline-md font-bold">4</p>
-</div>
-</div>
-</div>
-<!-- Filters & Table Section -->
-<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
-<!-- Filter Bar -->
-<div class="p-lg border-b border-outline-variant flex flex-wrap gap-md items-center justify-between">
-<div class="flex flex-wrap gap-md items-center">
-<div class="relative w-64">
-<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]">search</span>
-<input class="w-full border-outline-variant border rounded-lg pl-xl pr-md py-xs font-body-sm focus:ring-primary focus:border-primary" placeholder="Search appointments..." type="text"/>
-</div>
-<select class="border-outline-variant border rounded-lg py-xs px-md font-body-sm focus:ring-primary focus:border-primary min-w-[140px]">
-<option>Status: All</option>
-<option>Pending</option>
-<option>Confirmed</option>
-<option>Cancelled</option>
-<option>Completed</option>
-</select>
-<select class="border-outline-variant border rounded-lg py-xs px-md font-body-sm focus:ring-primary focus:border-primary min-w-[160px]">
-<option>All Doctors</option>
-<option>Dr. Sarah Jenkins</option>
-<option>Dr. Michael Chen</option>
-<option>Dr. Emily Brooks</option>
-</select>
-<div class="flex items-center gap-sm bg-surface-container-low border border-outline-variant px-md py-xs rounded-lg">
-<span class="material-symbols-outlined text-[18px] text-on-surface-variant">calendar_month</span>
-<span class="text-body-sm">Oct 24, 2023 - Oct 31, 2023</span>
-</div>
-</div>
-<button class="text-primary font-label-md flex items-center gap-xs hover:bg-primary/5 px-md py-xs rounded-lg transition-colors">
-<span class="material-symbols-outlined">tune</span>
-                        More Filters
-                    </button>
-</div>
-<!-- Table Area -->
-<div class="overflow-x-auto">
-<table class="w-full text-left border-collapse">
-<thead>
-<tr class="bg-surface-container-low/50 border-b border-outline-variant">
-<th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">ID</th>
-<th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Patient Name</th>
-<th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Doctor Name</th>
-<th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Date</th>
-<th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Time</th>
-<th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Status</th>
-<th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider text-right">Actions</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-outline-variant/30">
-<!-- Pending Row -->
-<tr class="table-row-hover transition-colors">
-<td class="px-lg py-md text-body-sm font-medium">#APT-8821</td>
-<td class="px-lg py-md">
-<div class="flex items-center gap-md">
-<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-primary text-[12px]">JD</div>
-<span class="text-body-sm font-semibold">Jane Doe</span>
-</div>
-</td>
-<td class="px-lg py-md text-body-sm">Dr. Sarah Jenkins</td>
-<td class="px-lg py-md text-body-sm">Oct 26, 2023</td>
-<td class="px-lg py-md text-body-sm">09:30 AM</td>
-<td class="px-lg py-md">
-<span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-tertiary-fixed text-tertiary-container uppercase tracking-tight">
-<span class="w-1.5 h-1.5 rounded-full bg-tertiary mr-1.5"></span>
-                                        Pending
-                                    </span>
-</td>
-<td class="px-lg py-md text-right">
-<div class="flex justify-end gap-sm">
-<button class="p-xs text-secondary hover:bg-secondary/10 rounded-lg transition-colors" title="Confirm">
-<span class="material-symbols-outlined text-[20px]">check</span>
-</button>
-<button class="p-xs text-error hover:bg-error/10 rounded-lg transition-colors" title="Cancel">
-<span class="material-symbols-outlined text-[20px]">close</span>
-</button>
-<button class="p-xs text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors" title="View Details">
-<span class="material-symbols-outlined text-[20px]">visibility</span>
-</button>
-</div>
-</td>
-</tr>
-<!-- Confirmed Row -->
-<tr class="table-row-hover transition-colors">
-<td class="px-lg py-md text-body-sm font-medium">#APT-8819</td>
-<td class="px-lg py-md">
-<div class="flex items-center gap-md">
-<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-primary text-[12px]">MS</div>
-<span class="text-body-sm font-semibold">Mark Stevens</span>
-</div>
-</td>
-<td class="px-lg py-md text-body-sm">Dr. Michael Chen</td>
-<td class="px-lg py-md text-body-sm">Oct 26, 2023</td>
-<td class="px-lg py-md text-body-sm">11:00 AM</td>
-<td class="px-lg py-md">
-<span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-secondary-fixed text-on-secondary-fixed-variant uppercase tracking-tight">
-<span class="w-1.5 h-1.5 rounded-full bg-secondary mr-1.5"></span>
-                                        Confirmed
-                                    </span>
-</td>
-<td class="px-lg py-md text-right">
-<div class="flex justify-end gap-sm">
-<button class="p-xs text-error hover:bg-error/10 rounded-lg transition-colors" title="Cancel">
-<span class="material-symbols-outlined text-[20px]">close</span>
-</button>
-<button class="p-xs text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors" title="View Details">
-<span class="material-symbols-outlined text-[20px]">visibility</span>
-</button>
-</div>
-</td>
-</tr>
-<!-- Completed Row -->
-<tr class="table-row-hover transition-colors">
-<td class="px-lg py-md text-body-sm font-medium">#APT-8804</td>
-<td class="px-lg py-md">
-<div class="flex items-center gap-md">
-<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-primary text-[12px]">RW</div>
-<span class="text-body-sm font-semibold">Robert Wilson</span>
-</div>
-</td>
-<td class="px-lg py-md text-body-sm">Dr. Emily Brooks</td>
-<td class="px-lg py-md text-body-sm">Oct 25, 2023</td>
-<td class="px-lg py-md text-body-sm">02:15 PM</td>
-<td class="px-lg py-md">
-<span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-primary-fixed text-on-primary-fixed-variant uppercase tracking-tight">
-<span class="w-1.5 h-1.5 rounded-full bg-primary mr-1.5"></span>
-                                        Completed
-                                    </span>
-</td>
-<td class="px-lg py-md text-right">
-<div class="flex justify-end gap-sm">
-<button class="p-xs text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors" title="View Details">
-<span class="material-symbols-outlined text-[20px]">visibility</span>
-</button>
-</div>
-</td>
-</tr>
-<!-- Cancelled Row -->
-<tr class="table-row-hover transition-colors opacity-70">
-<td class="px-lg py-md text-body-sm font-medium">#APT-8792</td>
-<td class="px-lg py-md">
-<div class="flex items-center gap-md">
-<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-primary text-[12px]">LK</div>
-<span class="text-body-sm font-semibold">Linda Kim</span>
-</div>
-</td>
-<td class="px-lg py-md text-body-sm">Dr. Sarah Jenkins</td>
-<td class="px-lg py-md text-body-sm">Oct 24, 2023</td>
-<td class="px-lg py-md text-body-sm">04:00 PM</td>
-<td class="px-lg py-md">
-<span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-error-container text-on-error-container uppercase tracking-tight">
-<span class="w-1.5 h-1.5 rounded-full bg-error mr-1.5"></span>
-                                        Cancelled
-                                    </span>
-</td>
-<td class="px-lg py-md text-right">
-<div class="flex justify-end gap-sm">
-<button class="p-xs text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors" title="View Details">
-<span class="material-symbols-outlined text-[20px]">visibility</span>
-</button>
-</div>
-</td>
-</tr>
-<!-- Row 5 (Confirmed) -->
-<tr class="table-row-hover transition-colors">
-<td class="px-lg py-md text-body-sm font-medium">#APT-8822</td>
-<td class="px-lg py-md">
-<div class="flex items-center gap-md">
-<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-primary text-[12px]">AL</div>
-<span class="text-body-sm font-semibold">Alice Lee</span>
-</div>
-</td>
-<td class="px-lg py-md text-body-sm">Dr. Emily Brooks</td>
-<td class="px-lg py-md text-body-sm">Oct 26, 2023</td>
-<td class="px-lg py-md text-body-sm">03:45 PM</td>
-<td class="px-lg py-md">
-<span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-secondary-fixed text-on-secondary-fixed-variant uppercase tracking-tight">
-<span class="w-1.5 h-1.5 rounded-full bg-secondary mr-1.5"></span>
-                                        Confirmed
-                                    </span>
-</td>
-<td class="px-lg py-md text-right">
-<div class="flex justify-end gap-sm">
-<button class="p-xs text-error hover:bg-error/10 rounded-lg transition-colors" title="Cancel">
-<span class="material-symbols-outlined text-[20px]">close</span>
-</button>
-<button class="p-xs text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors" title="View Details">
-<span class="material-symbols-outlined text-[20px]">visibility</span>
-</button>
-</div>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<!-- Pagination -->
-<div class="p-lg flex items-center justify-between bg-surface-container-low/30 border-t border-outline-variant">
-<p class="text-body-sm text-on-surface-variant">Showing 1 to 5 of 42 entries</p>
-<div class="flex items-center gap-xs">
-<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container-high transition-colors text-on-surface-variant disabled:opacity-30" disabled="">
-<span class="material-symbols-outlined text-[20px]">chevron_left</span>
-</button>
-<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-on-primary font-bold text-body-sm">1</button>
-<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container-high transition-colors text-on-surface-variant font-bold text-body-sm">2</button>
-<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container-high transition-colors text-on-surface-variant font-bold text-body-sm">3</button>
-<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface-container-high transition-colors text-on-surface-variant">
-<span class="material-symbols-outlined text-[20px]">chevron_right</span>
-</button>
-</div>
-</div>
-</div>
-<!-- Contextual Help / Status Cards -->
-<div class="mt-xl grid grid-cols-1 md:grid-cols-2 gap-lg">
-<div class="p-lg rounded-xl bg-primary-container/10 border border-primary/20 flex gap-lg">
-<div class="text-primary">
-<span class="material-symbols-outlined text-[28px]">info</span>
-</div>
-<div>
-<h4 class="font-bold text-on-surface">Auto-Confirmation Rule</h4>
-<p class="text-body-sm text-on-surface-variant">Standard checkups with primary care doctors are automatically confirmed if the patient has a clear record of attendance. Surgical consults require manual oversight.</p>
-</div>
-</div>
-<div class="p-lg rounded-xl bg-secondary-container/10 border border-secondary/20 flex gap-lg">
-<div class="text-secondary">
-<span class="material-symbols-outlined text-[28px]">tips_and_updates</span>
-</div>
-<div>
-<h4 class="font-bold text-on-surface">Scheduling Efficiency</h4>
-<p class="text-body-sm text-on-surface-variant">Optimization engine suggests shifting 3 appointments from Dr. Chen to Dr. Brooks to balance the workload for today's afternoon shift.</p>
-<button class="mt-md text-secondary font-bold text-label-sm hover:underline">Apply Suggestions</button>
-</div>
-</div>
-</div>
+
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-surface-container-low/50 border-b border-outline-variant">
+                    <th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">ID</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Patient</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Doctor</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Department</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Date</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Time</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-outline-variant/30">
+                {% for appt in appointments %}
+                <tr class="hover:bg-surface-container-low transition-colors">
+                    <td class="px-lg py-md text-body-sm font-medium">#APT-{{ appt.id }}</td>
+                    <td class="px-lg py-md">
+                        <div class="flex items-center gap-md">
+                            <div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-primary text-[12px]">{{ appt.patient_initials }}</div>
+                            <span class="text-body-sm font-semibold">{{ appt.patient_name }}</span>
+                        </div>
+                    </td>
+                    <td class="px-lg py-md text-body-sm">{{ appt.doctor_name }}</td>
+                    <td class="px-lg py-md text-body-sm">{{ appt.department_name }}</td>
+                    <td class="px-lg py-md text-body-sm">{{ appt.display_date }}</td>
+                    <td class="px-lg py-md text-body-sm">{{ appt.display_time }}</td>
+                    <td class="px-lg py-md">
+                        {% if appt.status == 'Confirmed' %}
+                        <span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-secondary-fixed text-on-secondary-fixed-variant uppercase"><span class="w-1.5 h-1.5 rounded-full bg-secondary mr-1.5"></span>Confirmed</span>
+                        {% elif appt.status == 'Pending' %}
+                        <span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-tertiary-fixed text-tertiary-container uppercase"><span class="w-1.5 h-1.5 rounded-full bg-tertiary mr-1.5"></span>Pending</span>
+                        {% elif appt.status == 'Completed' %}
+                        <span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-primary-fixed text-on-primary-fixed-variant uppercase"><span class="w-1.5 h-1.5 rounded-full bg-primary mr-1.5"></span>Completed</span>
+                        {% elif appt.status == 'Cancelled' %}
+                        <span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-error-container text-on-error-container uppercase"><span class="w-1.5 h-1.5 rounded-full bg-error mr-1.5"></span>Cancelled</span>
+                        {% else %}
+                        <span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-surface-container-highest text-on-surface-variant uppercase">{{ appt.status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-lg py-xl text-center">
+                        <span class="material-symbols-outlined text-4xl text-on-surface-variant">event_busy</span>
+                        <p class="font-body-md text-on-surface mt-md">No appointments found</p>
+                        <p class="font-body-sm text-on-surface-variant">Appointments booked in the system will appear here.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </section>
-<!-- Footer Info -->
-<footer class="px-lg py-sm bg-surface-container-low text-[11px] text-on-surface-variant flex justify-between border-t border-outline-variant">
-<span>© 2023 MediCare Health Systems | Admin Portal v2.4.0</span>
-<div class="flex gap-lg uppercase font-bold tracking-tighter">
-<a class="hover:text-primary" href="#">Privacy Policy</a>
-<a class="hover:text-primary" href="#">System Status: Optimal</a>
-</div>
-</footer>
-</main>
-<!-- Floating Action Feedback Area (Micro-interaction example) -->
-<div class="fixed bottom-xl right-xl flex flex-col gap-md z-50 pointer-events-none" id="toast-container">
-<!-- Toasts would be injected here via script -->
-</div>
-<script>
-        // Simple micro-interaction for button feedback
-        document.querySelectorAll('button').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                const title = this.getAttribute('title') || 'Action Triggered';
-                if (title !== 'Action Triggered' || this.innerText.trim()) {
-                    showToast(`${title === 'Action Triggered' ? this.innerText.trim() : title} action processed successfully.`);
-                }
-            });
-        });
-
-        function showToast(message) {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = 'pointer-events-auto bg-inverse-surface text-inverse-on-surface px-lg py-md rounded-lg shadow-xl flex items-center gap-md transform translate-y-10 opacity-0 transition-all duration-300';
-            toast.innerHTML = `
-                <span class="material-symbols-outlined text-secondary-fixed">check_circle</span>
-                <span class="text-label-md">${message}</span>
-            `;
-            container.appendChild(toast);
-            
-            // Animation In
-            setTimeout(() => {
-                toast.classList.remove('translate-y-10', 'opacity-0');
-            }, 10);
-
-            // Animation Out
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'scale-95');
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
-
-        // Dropdown focus logic visualization
-        document.querySelectorAll('select, input').forEach(el => {
-            el.addEventListener('focus', () => {
-                el.parentElement.classList.add('ring-2', 'ring-primary/20');
-            });
-            el.addEventListener('blur', () => {
-                el.parentElement.classList.remove('ring-2', 'ring-primary/20');
-            });
-        });
-    </script>
-</body></html>
+{% endblock %}
