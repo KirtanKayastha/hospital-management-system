@@ -270,8 +270,7 @@ def book_appointment(request):
                 category=Notification.CATEGORY_APPOINTMENT,
                 action_url=f"/doctor/schedule/",
             )
-            messages.success(request, "Appointment booked successfully.")
-            return redirect("patient_roshan:my_appointments")
+            return redirect("/patient/appointments/?booked=1")
 
     doctor_profiles = _doctor_cards_for_booking(department_id=department_id, search=search)
     doctors = [_doctor_card(profile) for profile in doctor_profiles]
@@ -296,6 +295,9 @@ def book_appointment(request):
             selected_doctor_id = str(alternate_doctor.user_id)
 
     time_slots = _build_time_slots(selected_doctor_profile.user, selected_date) if selected_doctor_profile else []
+    available_time_values = {slot["value"] for slot in time_slots}
+    if selected_time_value and selected_time_value not in available_time_values:
+        selected_time_value = ""
     if not selected_time_value and time_slots:
         selected_time_value = time_slots[0]["value"]
 
@@ -363,6 +365,7 @@ def find_doctor(request):
 def my_appointments(request):
     status_filter = request.GET.get("status", "")
     search = (request.GET.get("search", "") or "").strip()
+    booking_success = request.GET.get("booked") == "1"
 
     appointments = Appointment.objects.filter(patient=request.user).select_related("doctor", "department")
     if status_filter:
@@ -393,6 +396,7 @@ def my_appointments(request):
         "appointments": appointments_page,
         "status_filters": status_filters,
         "current_status": status_filter,
+        "booking_success": booking_success,
     }
     return render(request, "patient_roshan/my_appointments.html", context)
 
