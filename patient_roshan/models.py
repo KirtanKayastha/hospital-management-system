@@ -48,3 +48,27 @@ class PatientProfile(models.Model):
     class Meta:
         verbose_name = 'Patient Profile'
         verbose_name_plural = 'Patient Profiles'
+class Appointment(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Confirmed', 'Confirmed'),
+        ('Completed', 'Completed'),
+        ('Cancelled', 'Cancelled'),
+    ]
+
+    patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments')
+    doctor_name = models.CharField(max_length=100)
+    department = models.CharField(max_length=100)
+    date = models.DateField()
+    time = models.TimeField()
+    reason = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.patient.get_full_name()} - {self.doctor_name} - {self.date}"
+
+    class Meta:
+        ordering = ['-date']
+        verbose_name = 'Appointment'
+        verbose_name_plural = 'Appointments'

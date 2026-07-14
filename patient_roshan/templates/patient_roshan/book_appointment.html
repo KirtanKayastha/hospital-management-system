@@ -16,7 +16,7 @@
                 <div class="flex-1">
                     <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Select Department</label>
                     <div class="relative">
-                        <select name="department" class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm appearance-none focus:ring-2 focus:ring-primary focus:border-primary font-body-md text-body-md transition-all">
+                        <select class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm appearance-none focus:ring-2 focus:ring-primary focus:border-primary font-body-md text-body-md transition-all">
                             <option value="">All Departments</option>
                             {% for dept in departments %}
                             <option value="{{ dept.id }}">{{ dept.name }}</option>
@@ -29,7 +29,7 @@
                     <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Search Specialist</label>
                     <div class="relative">
                         <input class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm pl-xl focus:ring-2 focus:ring-primary focus:border-primary font-body-md text-body-md transition-all"
-                               placeholder="Dr. Name..." type="text" name="search"/>
+                               placeholder="Dr. Name..." type="text"/>
                         <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
                     </div>
                 </div>
@@ -40,7 +40,9 @@
         <h2 class="font-headline-sm text-headline-sm text-on-surface">Available Specialists</h2>
 
         {% for doctor in doctors %}
-        <div class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant hover:shadow-md transition-all cursor-pointer group active:scale-[0.98]">
+        <div class="doctor-card bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant hover:shadow-md transition-all cursor-pointer group active:scale-[0.98]"
+             data-doctor="{{ doctor.name }}"
+             data-department="{{ doctor.department }}">
             <div class="flex gap-lg">
                 <div class="w-20 h-20 rounded-xl overflow-hidden bg-secondary-container flex items-center justify-center text-2xl font-bold text-on-secondary-container flex-shrink-0">
                     {{ doctor.initials }}
@@ -65,7 +67,7 @@
         </div>
         {% empty %}
         <div class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant text-center">
-            <p class="font-body-md text-on-surface-variant">No doctors available for the selected filters.</p>
+            <p class="font-body-md text-on-surface-variant">No doctors available.</p>
         </div>
         {% endfor %}
 
@@ -76,6 +78,19 @@
         <div class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant sticky top-32">
             <form method="POST" action="{% url 'patient_roshan:book_appointment' %}">
                 {% csrf_token %}
+
+                {# Hidden fields #}
+                <input type="hidden" name="doctor_name" id="selectedDoctor" value="">
+                <input type="hidden" name="department" id="selectedDepartment" value="">
+                <input type="hidden" name="appointment_date" id="selectedDate" value="{{ selected_date }}"/>
+                <input type="hidden" name="appointment_time" id="selectedTime" value="{{ selected_time }}"/>
+
+                {# Selected doctor display #}
+                <div class="mb-lg p-md bg-surface-container rounded-lg border border-outline-variant">
+                    <p class="font-label-sm text-label-sm text-on-surface-variant mb-xs">Selected Doctor</p>
+                    <p class="font-label-md text-label-md text-on-surface" id="selectedDoctorDisplay">Click a doctor to select</p>
+                </div>
+
                 <div class="space-y-xl">
 
                     {# Calendar #}
@@ -86,7 +101,7 @@
                                 <button type="button" class="p-xs hover:bg-surface-container rounded transition-colors">
                                     <span class="material-symbols-outlined">chevron_left</span>
                                 </button>
-                                <span class="font-label-md text-label-md py-xs" id="calMonthLabel">July 2025</span>
+                                <span class="font-label-md text-label-md py-xs">July 2025</span>
                                 <button type="button" class="p-xs hover:bg-surface-container rounded transition-colors">
                                     <span class="material-symbols-outlined">chevron_right</span>
                                 </button>
@@ -100,7 +115,6 @@
                             <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">Th</span>
                             <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">Fr</span>
                             <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">Sa</span>
-                            {# TODO: generate calendar days dynamically from view #}
                             {% for day in calendar_days %}
                             <button type="button"
                                 class="py-md rounded-lg font-body-md text-body-md cal-day
@@ -112,7 +126,6 @@
                             </button>
                             {% endfor %}
                         </div>
-                        <input type="hidden" name="appointment_date" id="selectedDate" value="{{ selected_date }}"/>
                     </section>
 
                     {# Time Slots #}
@@ -129,7 +142,6 @@
                             </button>
                             {% endfor %}
                         </div>
-                        <input type="hidden" name="appointment_time" id="selectedTime" value="{{ selected_time }}"/>
                     </section>
 
                     {# Reason #}
@@ -137,7 +149,7 @@
                         <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Reason for Visit</label>
                         <textarea name="reason" rows="3"
                             class="w-full bg-white border border-outline-variant rounded-lg px-md py-md focus:ring-2 focus:ring-primary focus:border-primary font-body-md text-body-md transition-all resize-none"
-                            placeholder="Briefly describe your symptoms or reason for the appointment...">{{ form.reason.value|default:'' }}</textarea>
+                            placeholder="Briefly describe your symptoms..."></textarea>
                     </section>
 
                     {# Actions #}
@@ -166,29 +178,44 @@
 
 {% block extra_js %}
 <script>
+    // Doctor card selection
+    document.querySelectorAll('.doctor-card').forEach(function(card) {
+        card.addEventListener('click', function() {
+            // Remove highlight from all cards
+            document.querySelectorAll('.doctor-card').forEach(function(c) {
+                c.classList.remove('border-primary', 'bg-primary/5');
+            });
+            // Highlight selected
+            this.classList.add('border-primary', 'bg-primary/5');
+            // Set hidden inputs
+            document.getElementById('selectedDoctor').value = this.dataset.doctor;
+            document.getElementById('selectedDepartment').value = this.dataset.department;
+            // Show selected doctor name
+            document.getElementById('selectedDoctorDisplay').textContent = this.dataset.doctor + ' — ' + this.dataset.department;
+        });
+    });
+
     // Time slot selection
-    const timeSlots = document.querySelectorAll('.time-slot:not(.cursor-not-allowed)');
-    const selectedTimeInput = document.getElementById('selectedTime');
-    timeSlots.forEach(slot => {
-        slot.addEventListener('click', () => {
-            timeSlots.forEach(s => s.classList.remove('slot-selected'));
-            slot.classList.add('slot-selected');
-            selectedTimeInput.value = slot.dataset.time;
+    document.querySelectorAll('.time-slot:not(.cursor-not-allowed)').forEach(function(slot) {
+        slot.addEventListener('click', function() {
+            document.querySelectorAll('.time-slot').forEach(function(s) {
+                s.classList.remove('slot-selected');
+            });
+            this.classList.add('slot-selected');
+            document.getElementById('selectedTime').value = this.dataset.time;
         });
     });
 
     // Calendar day selection
-    const calDays = document.querySelectorAll('.cal-day:not(.cursor-not-allowed)');
-    const selectedDateInput = document.getElementById('selectedDate');
-    calDays.forEach(day => {
-        day.addEventListener('click', () => {
-            calDays.forEach(d => {
+    document.querySelectorAll('.cal-day:not(.cursor-not-allowed)').forEach(function(day) {
+        day.addEventListener('click', function() {
+            document.querySelectorAll('.cal-day').forEach(function(d) {
                 d.classList.remove('bg-primary', 'text-white', 'font-bold', 'shadow-md');
                 d.classList.add('hover:bg-surface-container');
             });
-            day.classList.add('bg-primary', 'text-white', 'font-bold', 'shadow-md');
-            day.classList.remove('hover:bg-surface-container');
-            selectedDateInput.value = day.dataset.date;
+            this.classList.add('bg-primary', 'text-white', 'font-bold', 'shadow-md');
+            this.classList.remove('hover:bg-surface-container');
+            document.getElementById('selectedDate').value = this.dataset.date;
         });
     });
 </script>
