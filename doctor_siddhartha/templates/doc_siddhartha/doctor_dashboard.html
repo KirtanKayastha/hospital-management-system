@@ -53,6 +53,38 @@
         </div>
       </section>
 
+      {% if pending_appointments %}
+      <section class="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-amber-900">Pending Approvals</h2>
+          <span class="px-3 py-1 rounded-full bg-amber-200 text-amber-800 text-xs font-semibold">{{ pending_appointments|length }} Pending</span>
+        </div>
+        <div class="space-y-3">
+          {% for appointment in pending_appointments %}
+          <div class="rounded-xl bg-white p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-amber-100">
+            <div class="flex-1">
+              <div class="font-semibold text-slate-900">{{ appointment.patient_name }}</div>
+              <div class="text-sm text-slate-500 mt-1">
+                {{ appointment.display_date }} at {{ appointment.display_time }} · {{ appointment.department_name }}
+              </div>
+              <div class="text-sm text-slate-500 mt-1">{{ appointment.reason|truncatechars:80 }}</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <a href="{% url 'doctor_siddhartha:approve_appointment' appointment.id %}" class="inline-flex items-center gap-xs px-4 py-2 rounded-xl bg-green-600 text-white font-label-md text-label-md hover:bg-green-700 transition-colors">
+                <span class="material-symbols-outlined text-base">check</span>
+                Approve
+              </a>
+              <a href="{% url 'doctor_siddhartha:reject_appointment' appointment.id %}" class="inline-flex items-center gap-xs px-4 py-2 rounded-xl bg-red-600 text-white font-label-md text-label-md hover:bg-red-700 transition-colors">
+                <span class="material-symbols-outlined text-base">close</span>
+                Reject
+              </a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
       <section class="grid gap-6 lg:grid-cols-2">
         <div class="rounded-2xl border border-slate-200 bg-white p-5">
           <div class="flex items-center justify-between mb-4">

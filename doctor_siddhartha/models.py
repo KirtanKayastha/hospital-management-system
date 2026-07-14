@@ -5,12 +5,16 @@ from django.db import models
 class DoctorProfile(models.Model):
 	STATUS_PENDING = "Pending"
 	STATUS_ACTIVE = "Active"
+	STATUS_APPROVED = "APPROVED"
+	STATUS_REJECTED = "REJECTED"
 	STATUS_INACTIVE = "Inactive"
 	STATUS_ON_LEAVE = "On Leave"
 
 	STATUS_CHOICES = [
 		(STATUS_PENDING, "Pending"),
 		(STATUS_ACTIVE, "Active"),
+		(STATUS_APPROVED, "Approved"),
+		(STATUS_REJECTED, "Rejected"),
 		(STATUS_INACTIVE, "Inactive"),
 		(STATUS_ON_LEAVE, "On Leave"),
 	]
