@@ -156,19 +156,14 @@
                       {% if active_page == 'records' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
                 <span class="material-symbols-outlined">medical_services</span>Medical Records
             </a>
-            <div class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md">
+<div class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md">
     <span class="material-symbols-outlined">prescriptions</span>Prescriptions
 </div>
+<a href="{% url 'patient_roshan:lab_reports' %}"
    class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
-          {% if active_page == 'prescriptions' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
-    <span class="material-symbols-outlined">prescriptions</span>Prescriptions
+          {% if active_page == 'labreports' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+    <span class="material-symbols-outlined">science</span>Lab Reports
 </a>
-            <a href="{% url 'patient_roshan:lab_reports' %}"
-               class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
-                      {% if active_page == 'labreports' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
-                <span class="material-symbols-outlined">science</span>Lab Reports
-            </a>
-
             <!-- ACCOUNT -->
             <p class="px-md pt-md pb-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Account</p>
             <div class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md">
