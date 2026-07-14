@@ -1,0 +1,88 @@
+{% extends 'patient_roshan/base.html' %}
+{% block title %}Billing & Payments{% endblock %}
+{% block page_title %}Billing & Payments{% endblock %}
+
+{% block content %}
+{% with active_page='billing' %}
+
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-lg">
+    <div>
+        <h1 class="font-headline-lg text-headline-lg text-on-surface">Billing &amp; Payments</h1>
+        <p class="font-body-md text-on-surface-variant mt-xs">Track your invoices and payments.</p>
+    </div>
+</div>
+
+{# Stats #}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md mb-lg">
+    <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant flex flex-col gap-sm">
+        <span class="material-symbols-outlined text-error p-xs bg-error/10 rounded-lg w-fit">receipt_long</span>
+        <p class="font-label-md text-label-md text-on-surface-variant">Total Due</p>
+        <p class="font-headline-lg text-headline-lg text-on-surface">Rs. 2,400</p>
+    </div>
+    <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant flex flex-col gap-sm">
+        <span class="material-symbols-outlined text-secondary p-xs bg-secondary/10 rounded-lg w-fit">payments</span>
+        <p class="font-label-md text-label-md text-on-surface-variant">Paid This Year</p>
+        <p class="font-headline-lg text-headline-lg text-on-surface">Rs. 9,800</p>
+    </div>
+    <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant flex flex-col gap-sm">
+        <span class="material-symbols-outlined text-tertiary p-xs bg-tertiary/10 rounded-lg w-fit">pending</span>
+        <p class="font-label-md text-label-md text-on-surface-variant">Pending Invoices</p>
+        <p class="font-headline-lg text-headline-lg text-on-surface">{{ pending_count }}</p>
+    </div>
+</div>
+
+{# Invoices Table #}
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+    <div class="px-lg py-md border-b border-outline-variant">
+        <h3 class="font-headline-sm text-headline-sm text-on-surface">Invoices</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-surface-container-low border-b border-outline-variant">
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Invoice #</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Date</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Description</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Amount</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Status</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-outline-variant">
+                {% for invoice in invoices %}
+                <tr class="hover:bg-surface-bright transition-colors">
+                    <td class="px-lg py-md font-body-sm text-on-surface">{{ invoice.number }}</td>
+                    <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ invoice.date }}</td>
+                    <td class="px-lg py-md font-body-sm text-on-surface">{{ invoice.description }}</td>
+                    <td class="px-lg py-md font-body-md font-semibold text-on-surface">{{ invoice.amount }}</td>
+                    <td class="px-lg py-md">
+                        {% if invoice.status == 'Unpaid' %}
+                            <span class="inline-flex items-center gap-xs px-sm py-xs bg-red-100 text-red-700 rounded-lg font-label-sm">
+                                <span class="w-2 h-2 rounded-full bg-red-500"></span>Unpaid
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center gap-xs px-sm py-xs bg-green-100 text-green-700 rounded-lg font-label-sm">
+                                <span class="w-2 h-2 rounded-full bg-green-500"></span>Paid
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-lg py-md text-right">
+                        {% if invoice.status == 'Unpaid' %}
+                        <button class="bg-primary text-white px-md py-xs rounded-lg font-label-md text-label-md hover:opacity-90">Pay Now</button>
+                        {% else %}
+                        <button class="border border-outline-variant text-on-surface-variant px-md py-xs rounded-lg font-label-md text-label-md hover:bg-surface-container">Receipt</button>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-lg py-xl text-center font-body-sm text-on-surface-variant">No invoices found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endwith %}
+{% endblock %}

@@ -5,8 +5,22 @@ from django.contrib.auth import logout as auth_logout
 
 def patient_logout(request):
     auth_logout(request)
-    return redirect('/admin/login/')
-
+    return redirect('/patient/login/')
+def patient_login(request):
+    if request.user.is_authenticated:
+        return redirect('patient_roshan:dashboard')
+    error = None
+    if request.method == 'POST':
+        from django.contrib.auth import authenticate, login
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('patient_roshan:dashboard')
+        else:
+            error = 'Invalid username or password.'
+    return render(request, 'patient_roshan/login.html', {'error': error})
 
 # Real Nepali doctors from Neuro Hospital, Clinic One, OM Hospital - Kathmandu
 DOCTORS = [
@@ -131,6 +145,16 @@ def dashboard(request):
 @login_required
 def book_appointment(request):
     if request.method == 'POST':
+        from .models import Appointment
+        Appointment.objects.create(
+            patient=request.user,
+            doctor_name=request.POST.get('doctor_name', 'Unknown'),
+            department=request.POST.get('department', 'Unknown'),
+            date=request.POST.get('appointment_date'),
+            time=request.POST.get('appointment_time'),
+            reason=request.POST.get('reason'),
+            status='Pending'
+        )
         messages.success(request, 'Appointment booked successfully!')
         return redirect('patient_roshan:my_appointments')
 
@@ -189,12 +213,8 @@ def find_doctor(request):
 
 @login_required
 def my_appointments(request):
-    appointments = [
-        {'id': 1, 'date': '12 Jul 2025', 'time': '09:00 AM', 'doctor_initials': 'NRS', 'doctor_name': 'Dr. Nikesh Raj Shrestha', 'department': 'Cardiology', 'status': 'Confirmed'},
-        {'id': 2, 'date': '18 Jul 2025', 'time': '10:30 AM', 'doctor_initials': 'BKB', 'doctor_name': 'Dr. Birendra Kumar Bista', 'department': 'Neurology', 'status': 'Pending'},
-        {'id': 3, 'date': '24 Jun 2025', 'time': '08:30 AM', 'doctor_initials': 'NKK', 'doctor_name': 'Prof. Dr. Navin Kumar Karna', 'department': 'Orthopedics', 'status': 'Completed'},
-        {'id': 4, 'date': '10 Jun 2025', 'time': '05:00 PM', 'doctor_initials': 'ST', 'doctor_name': 'Dr. Sanjeev Thapa', 'department': 'Cardiology', 'status': 'Cancelled'},
-    ]
+    from .models import Appointment
+    appointments = Appointment.objects.filter(patient=request.user)
     status_filters = [
         {'label': 'All', 'value': ''},
         {'label': 'Confirmed', 'value': 'Confirmed'},
@@ -323,3 +343,16 @@ def change_password(request):
     if request.method == 'POST':
         messages.success(request, 'Password updated successfully.')
     return redirect('patient_roshan:profile')
+
+@login_required
+def prescriptions(request):
+    prescriptions = [
+        {'date': '28 Jun 2025', 'medicine': 'Amlodipine 5mg', 'dosage': '1 tab / day', 'doctor': 'Dr. Nikesh Raj Shrestha', 'status': 'Active'},
+        {'date': '28 Jun 2025', 'medicine': 'Aspirin 75mg', 'dosage': '1 tab / day', 'doctor': 'Dr. Sanjeev Thapa', 'status': 'Active'},
+        {'date': '15 Jun 2025', 'medicine': 'Paracetamol 500mg', 'dosage': 'As needed', 'doctor': 'Dr. Birendra Kumar Bista', 'status': 'Completed'},
+    ]
+    context = {
+        'active_page': 'prescriptions',
+        'prescriptions': prescriptions,
+    }
+    return render(request, 'patient_roshan/prescriptions.html', context)
