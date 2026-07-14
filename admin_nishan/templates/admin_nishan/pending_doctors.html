@@ -1,0 +1,76 @@
+{% extends 'admin_nishan/base.html' %}
+{% block title %}Pending Approvals{% endblock %}
+{% block page_title %}Pending Doctor Approvals{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-end gap-lg flex-wrap">
+    <div>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">Pending Doctor Approvals</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant mt-xs">Review doctor registrations waiting for approval. {{ total_pending }} pending.</p>
+    </div>
+    <div class="px-lg py-md rounded-xl bg-tertiary-fixed text-on-tertiary-fixed-variant border border-outline-variant">
+        <p class="text-label-sm uppercase tracking-wider text-on-surface-variant">Pending total</p>
+        <p class="text-headline-md font-bold text-on-surface">{{ total_pending }}</p>
+    </div>
+</div>
+
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-surface-container-low border-b border-outline-variant">
+                <tr>
+                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Doctor</th>
+                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Email</th>
+                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Specialty</th>
+                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">License Number</th>
+                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Registration Date</th>
+                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-outline-variant">
+                {% for doctor in pending_doctors %}
+                <tr class="hover:bg-surface-container-low transition-colors">
+                    <td class="px-lg py-lg">
+                        <div class="flex items-center gap-md">
+                            <div class="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold">
+                                {{ doctor.display_name|first|upper }}
+                            </div>
+                            <div>
+                                <p class="font-label-md text-label-md text-on-surface">Dr. {{ doctor.display_name }}</p>
+                                <p class="text-label-sm text-on-surface-variant">{{ doctor.user.email|default:"—" }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">{{ doctor.user.email|default:"—" }}</td>
+                    <td class="px-lg py-lg">
+                        <span class="px-md py-xs rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm">{{ doctor.specialization|default:"General" }}</span>
+                    </td>
+                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">{{ doctor.license_number|default:"—" }}</td>
+                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">{{ doctor.user.date_joined|date:"M d, Y" }}</td>
+                    <td class="px-lg py-lg">
+                        <div class="flex items-center gap-sm">
+                            <a href="{% url 'admin_nishan:approve_doctor' doctor.id %}" class="inline-flex items-center gap-xs px-md py-2 rounded-xl bg-secondary text-on-secondary font-label-md text-label-md hover:bg-secondary/90 transition-colors">
+                                <span class="material-symbols-outlined text-base">check</span>
+                                Approve
+                            </a>
+                            <a href="{% url 'admin_nishan:reject_doctor' doctor.id %}" class="inline-flex items-center gap-xs px-md py-2 rounded-xl bg-error text-on-error font-label-md text-label-md hover:bg-error/90 transition-colors">
+                                <span class="material-symbols-outlined text-base">close</span>
+                                Reject
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-lg py-xl text-center">
+                        <span class="material-symbols-outlined text-4xl text-on-surface-variant">fact_check</span>
+                        <p class="font-body-md text-on-surface mt-md">No pending doctor approvals</p>
+                        <p class="font-body-sm text-on-surface-variant">All registered doctors have already been reviewed.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'admin_nishan/base.html' %}
+{% block title %}Appointments{% endblock %}
+{% block page_title %}Appointment Oversight{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-end mb-xl">
+    <div>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">Appointment Oversight</h2>
+        <p class="text-on-surface-variant">Real-time scheduling management ({{ total_appointments }} total).</p>
+    </div>
+</div>
+
+<!-- Status Metrics -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-lg mb-xl">
+    <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center gap-lg">
+        <div class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary"><span class="material-symbols-outlined text-[32px]">calendar_today</span></div>
+        <div><p class="text-on-surface-variant text-label-sm uppercase">Total</p><p class="text-headline-md font-bold">{{ total_appointments }}</p></div>
+    </div>
+    <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center gap-lg">
+        <div class="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary"><span class="material-symbols-outlined text-[32px]">check_circle</span></div>
+        <div><p class="text-on-surface-variant text-label-sm uppercase">Confirmed</p><p class="text-headline-md font-bold">{{ appointments|length|default:0 }}</p></div>
+    </div>
+</div>
+
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-surface-container-low/50 border-b border-outline-variant">
+                    <th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">ID</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Patient</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Doctor</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Department</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Date</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Time</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-outline-variant/30">
+                {% for appt in appointments %}
+                <tr class="hover:bg-surface-container-low transition-colors">
+                    <td class="px-lg py-md text-body-sm font-medium">#APT-{{ appt.id }}</td>
+                    <td class="px-lg py-md">
+                        <div class="flex items-center gap-md">
+                            <div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-primary text-[12px]">{{ appt.patient_initials }}</div>
+                            <span class="text-body-sm font-semibold">{{ appt.patient_name }}</span>
+                        </div>
+                    </td>
+                    <td class="px-lg py-md text-body-sm">{{ appt.doctor_name }}</td>
+                    <td class="px-lg py-md text-body-sm">{{ appt.department_name }}</td>
+                    <td class="px-lg py-md text-body-sm">{{ appt.display_date }}</td>
+                    <td class="px-lg py-md text-body-sm">{{ appt.display_time }}</td>
+                    <td class="px-lg py-md">
+                        {% if appt.status == 'Confirmed' %}
+                        <span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-secondary-fixed text-on-secondary-fixed-variant uppercase"><span class="w-1.5 h-1.5 rounded-full bg-secondary mr-1.5"></span>Confirmed</span>
+                        {% elif appt.status == 'Pending' %}
+                        <span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-tertiary-fixed text-tertiary-container uppercase"><span class="w-1.5 h-1.5 rounded-full bg-tertiary mr-1.5"></span>Pending</span>
+                        {% elif appt.status == 'Completed' %}
+                        <span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-primary-fixed text-on-primary-fixed-variant uppercase"><span class="w-1.5 h-1.5 rounded-full bg-primary mr-1.5"></span>Completed</span>
+                        {% elif appt.status == 'Cancelled' %}
+                        <span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-error-container text-on-error-container uppercase"><span class="w-1.5 h-1.5 rounded-full bg-error mr-1.5"></span>Cancelled</span>
+                        {% else %}
+                        <span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-surface-container-highest text-on-surface-variant uppercase">{{ appt.status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="px-lg py-xl text-center">
+                        <span class="material-symbols-outlined text-4xl text-on-surface-variant">event_busy</span>
+                        <p class="font-body-md text-on-surface mt-md">No appointments found</p>
+                        <p class="font-body-sm text-on-surface-variant">Appointments booked in the system will appear here.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

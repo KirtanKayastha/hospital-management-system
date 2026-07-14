@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Prescription Management | MedCore Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-low": "#f2f4f6",
+                      "primary-fixed": "#dbe1ff",
+                      "surface-container-lowest": "#ffffff",
+                      "secondary": "#006c49",
+                      "tertiary-container": "#996100",
+                      "surface-tint": "#0053db",
+                      "on-primary-fixed": "#00174b",
+                      "inverse-on-surface": "#eff1f3",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "tertiary": "#784b00",
+                      "on-surface": "#191c1e",
+                      "secondary-fixed": "#6ffbbe",
+                      "on-surface-variant": "#434655",
+                      "inverse-primary": "#b4c5ff",
+                      "primary": "#004ac6",
+                      "on-error-container": "#93000a",
+                      "surface-container-highest": "#e0e3e5",
+                      "on-tertiary-fixed": "#2a1700",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "surface-bright": "#f7f9fb",
+                      "on-primary": "#ffffff",
+                      "error-container": "#ffdad6",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "surface-container": "#eceef0",
+                      "outline-variant": "#c3c6d7",
+                      "outline": "#737686",
+                      "on-background": "#191c1e",
+                      "on-tertiary": "#ffffff",
+                      "error": "#ba1a1a",
+                      "on-secondary": "#ffffff",
+                      "on-tertiary-container": "#ffeedd",
+                      "on-error": "#ffffff",
+                      "primary-container": "#2563eb",
+                      "on-secondary-fixed-variant": "#005236",
+                      "on-primary-container": "#eeefff",
+                      "inverse-surface": "#2d3133",
+                      "surface-dim": "#d8dadc",
+                      "on-secondary-container": "#00714d",
+                      "on-secondary-fixed": "#002113",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "surface-variant": "#e0e3e5",
+                      "secondary-fixed-dim": "#4edea3",
+                      "surface-container-high": "#e6e8ea",
+                      "surface": "#f7f9fb",
+                      "tertiary-fixed": "#ffddb8",
+                      "background": "#f7f9fb",
+                      "secondary-container": "#6cf8bb"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "base": "4px",
+                      "xxl": "48px",
+                      "lg": "24px",
+                      "xl": "32px",
+                      "sm": "8px",
+                      "container-max": "1280px",
+                      "xs": "4px",
+                      "md": "16px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "body-sm": ["Inter"],
+                      "body-lg": ["Inter"],
+                      "label-md": ["Inter"],
+                      "headline-lg": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "headline-lg-mobile": ["Inter"],
+                      "label-sm": ["Inter"],
+                      "headline-sm": ["Inter"],
+                      "body-md": ["Inter"]
+              },
+              "fontSize": {
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                      "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                      "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .shadow-sm { box-shadow: 0px 1px 2px 0px rgba(15, 23, 42, 0.05); }
+        .shadow-md { box-shadow: 0px 4px 6px -1px rgba(15, 23, 42, 0.1); }
+        body { background-color: #F8FAFC; color: #191C1E; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="flex overflow-hidden">
+<!-- Side Navigation Shell -->
+<aside class="hidden lg:flex flex-col h-screen w-64 border-r border-outline-variant bg-surface-container-lowest sticky top-0 left-0 shadow-sm z-50">
+<div class="p-lg flex flex-col gap-sm">
+<div class="flex items-center gap-md mb-lg">
+<div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg">
+    {{ doctor_profile.user.first_name|first|upper }}{{ doctor_profile.user.last_name|first|upper }}
+</div>
+<div>
+<h2 class="font-headline-sm text-headline-sm font-bold text-primary">Dr. {{ doctor_profile.display_name }}</h2>
+<p class="font-body-sm text-body-sm text-outline">{{ doctor_profile.specialization|default:"General Medicine" }}</p>
+</div>
+</div>
+<nav class="flex flex-col gap-xs">
+<a class="flex items-center gap-md p-md rounded-lg font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-low transition-colors duration-150" href="/doctor/dashboard/">
+    <span class="material-symbols-outlined">dashboard</span>
+    Dashboard
+</a>
+<a class="flex items-center gap-md p-md rounded-lg font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-low transition-colors duration-150" href="/doctor/schedule/">
+    <span class="material-symbols-outlined">calendar_month</span>
+    Schedule
+</a>
+<a class="flex items-center gap-md p-md rounded-lg font-body-md text-body-md text-on-surface-variant hover:bg-surface-container-low transition-colors duration-150" href="/doctor/patients/">
+    <span class="material-symbols-outlined">group</span>
+    Patients
+</a>
+<a class="flex items-center gap-md p-md rounded-lg font-body-md text-body-md text-primary font-bold border-r-4 border-primary bg-surface-container-low transition-colors duration-150" href="/doctor/prescriptions/">
+    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">medication</span>
+    Prescriptions
+</a>
+<a class="flex items-center gap-md p-md rounded-lg font-body-md text-body-md text-error hover:bg-error-container/10 transition-colors duration-150" href="{% url 'auth_kirtan:logout' %}">
+    <span class="material-symbols-outlined">logout</span>
+    Logout
+</a>
+</nav>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="flex-1 h-screen overflow-y-auto relative no-scrollbar">
+<!-- Top App Bar Shell -->
+<header class="flex justify-between items-center px-lg w-full h-16 sticky top-0 z-40 bg-surface/95 backdrop-blur-sm border-b border-outline-variant">
+<div class="flex items-center gap-lg">
+<h1 class="font-headline-sm text-headline-sm font-extrabold text-primary">MedCore Portal</h1>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container-high transition-all"><span class="material-symbols-outlined">notifications</span></button>
+<button class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container-high transition-all"><span class="material-symbols-outlined">settings</span></button>
+<div class="h-8 w-px bg-outline-variant mx-xs"></div>
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">
+    {{ doctor_profile.user.first_name|first|upper }}{{ doctor_profile.user.last_name|first|upper }}
+</div>
+</div>
+</header>
+<div class="p-lg max-w-container-max mx-auto space-y-lg pb-xxl">
+<!-- Patient Search & Info Header -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-lg">
+<form method="get" action="" class="md:col-span-2 bg-white rounded-xl p-lg shadow-sm border border-outline-variant flex flex-col gap-md">
+<label class="font-label-md text-label-md text-on-surface-variant">Select Patient</label>
+<div class="relative group">
+<span class="absolute left-md top-1/2 -translate-y-1/2 material-symbols-outlined text-primary">person_search</span>
+<select name="patient" onchange="this.form.submit()" class="w-full pl-xl pr-md py-md rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md bg-white">
+    <option value="">-- Select a patient --</option>
+    {% for p in patients %}
+    <option value="{{ p.patient_id }}" {% if selected_patient and selected_patient.id == p.patient_id %}selected{% endif %}>
+        {{ p.patient__first_name }} {{ p.patient__last_name }} ({{ p.patient__username }})
+    </option>
+    {% endfor %}
+</select>
+</div>
+{% if selected_patient %}
+<div class="flex flex-wrap gap-xl mt-sm pt-md border-t border-outline-variant">
+<div class="flex flex-col">
+<span class="text-label-sm text-outline uppercase">Patient ID</span>
+<span class="font-body-md font-semibold">#HM-{{ selected_patient.id }}</span>
+</div>
+<div class="flex flex-col">
+<span class="text-label-sm text-outline uppercase">Name</span>
+<span class="font-body-md font-semibold">{{ selected_patient.get_full_name|default:selected_patient.username }}</span>
+</div>
+</div>
+{% endif %}
+</form>
+<div class="bg-primary text-on-primary rounded-xl p-lg shadow-sm flex flex-col justify-between overflow-hidden relative">
+<div class="relative z-10">
+<div class="flex items-center gap-sm mb-xs">
+    <span class="material-symbols-outlined text-on-primary-container">info</span>
+    <h3 class="font-label-md">Summary</h3>
+</div>
+<div class="space-y-sm">
+<div class="flex justify-between items-center">
+<span class="text-on-primary/80 text-body-sm">Total Prescriptions</span>
+<span class="font-bold">{{ past_prescriptions|length }}</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-on-primary/80 text-body-sm">For this patient</span>
+<span class="font-bold">{{ selected_patient_prescription_count|default:past_prescriptions|length }}</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+
+{% if selected_patient %}
+<!-- Prescription Tabs -->
+<div class="flex gap-md border-b border-outline-variant">
+<button class="pb-md px-md font-label-md text-primary border-b-2 border-primary transition-all" id="tab-new" onclick="switchTab('new')">New Prescription</button>
+<button class="pb-md px-md font-label-md text-outline hover:text-on-surface transition-all" id="tab-past" onclick="switchTab('past')">View Past Prescriptions</button>
+</div>
+<!-- New Prescription Form Canvas -->
+<div class="space-y-lg" id="content-new">
+<form method="post" action="" class="bg-white rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+{% csrf_token %}
+<input type="hidden" name="patient_id" value="{{ selected_patient.id }}"/>
+<div class="p-lg border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest">
+<h2 class="font-headline-sm text-headline-sm text-on-surface">Prescription Details</h2>
+<span class="text-label-sm text-outline">Date: {% now "M d, Y" %}</span>
+</div>
+<div class="p-lg space-y-lg">
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface-variant">Diagnosis &amp; Clinical Notes</label>
+<textarea class="w-full p-md rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md" placeholder="Enter patient diagnosis, symptoms, and clinical findings..." rows="3" name="diagnosis"></textarea>
+</div>
+<div class="flex flex-col gap-sm">
+<div class="flex justify-between items-center">
+<label class="font-label-md text-label-md text-on-surface-variant">Prescribed Medicines</label>
+</div>
+<div class="overflow-x-auto rounded-lg border border-outline-variant">
+<table class="w-full text-left border-collapse" id="medicine-table">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-md">
+<th class="p-md border-b border-outline-variant">Medicine Name</th>
+<th class="p-md border-b border-outline-variant">Dosage</th>
+<th class="p-md border-b border-outline-variant">Frequency</th>
+<th class="p-md border-b border-outline-variant">Duration</th>
+<th class="p-md border-b border-outline-variant w-16"></th>
+</tr>
+</thead>
+<tbody class="font-body-md">
+<tr class="hover:bg-surface-container-lowest border-b border-outline-variant">
+<td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="medicine_name" placeholder="Enter medicine..."/></td>
+<td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="dosage" placeholder="e.g. 5ml"/></td>
+<td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="frequency" placeholder="e.g. 3x daily"/></td>
+<td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="duration" placeholder="e.g. 1 week"/></td>
+<td class="p-md text-center"><button type="button" class="text-outline hover:text-error transition-colors" onclick="removeRow(this)"><span class="material-symbols-outlined">delete</span></button></td>
+</tr>
+</tbody>
+</table>
+</div>
+<button type="button" class="flex items-center gap-xs text-primary font-label-md hover:underline" onclick="addRow()">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+Add Medicine
+</button>
+</div>
+<div class="flex flex-col gap-sm">
+<label class="font-label-md text-label-md text-on-surface-variant">Additional Notes / Warnings</label>
+<textarea class="w-full p-md rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md" placeholder="Special instructions for patient..." rows="2" name="notes"></textarea>
+</div>
+</div>
+<div class="p-lg bg-surface-container-low border-t border-outline-variant flex flex-wrap gap-md justify-end">
+<button type="submit" class="px-xl py-md rounded-lg bg-primary text-on-primary font-label-md hover:brightness-110 active:scale-95 transition-all flex items-center gap-sm shadow-sm">
+    <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">save</span>
+    Save Prescription
+</button>
+</div>
+</form>
+</div>
+<!-- Past Prescriptions Canvas -->
+<div class="hidden space-y-lg" id="content-past">
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-lg">
+{% for rx in past_prescriptions %}
+    {% if not selected_patient or rx.patient_id == selected_patient.id %}
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant p-lg">
+<div class="flex justify-between items-start mb-md">
+<div class="p-sm bg-primary-fixed rounded-lg text-on-primary-fixed">
+    <span class="material-symbols-outlined">description</span>
+</div>
+<span class="text-label-sm text-outline">{{ rx.prescribed_on|date:"M d, Y" }}</span>
+</div>
+<h4 class="font-headline-sm text-headline-sm mb-xs">{{ rx.diagnosis }}</h4>
+<p class="text-body-sm text-on-surface-variant mb-md">Patient: {{ rx.patient_name }}</p>
+<ul class="space-y-1 mb-md">
+    {% for item in rx.items.all %}
+    <li class="text-xs text-on-surface-variant">{{ item.medicine_name }} — {{ item.dosage }}, {{ item.frequency }}</li>
+    {% endfor %}
+</ul>
+</div>
+    {% endif %}
+{% empty %}
+<div class="col-span-full bg-white rounded-xl shadow-sm border border-outline-variant p-xl text-center">
+    <span class="material-symbols-outlined text-4xl text-on-surface-variant">medication</span>
+    <p class="font-body-md text-on-surface mt-md">No prescriptions found.</p>
+</div>
+{% endfor %}
+</div>
+</div>
+{% else %}
+<div class="bg-white rounded-xl shadow-sm border border-outline-variant p-xl text-center">
+<span class="material-symbols-outlined text-5xl text-on-surface-variant">person_search</span>
+<p class="font-headline-sm text-headline-sm text-on-surface mt-md">Select a patient</p>
+<p class="font-body-sm text-on-surface-variant">Choose a patient above to create or view prescriptions.</p>
+</div>
+{% endif %}
+</main>
+<script>
+        function switchTab(tab) {
+            const newTab = document.getElementById('tab-new');
+            const pastTab = document.getElementById('tab-past');
+            const newContent = document.getElementById('content-new');
+            const pastContent = document.getElementById('content-past');
+            if (tab === 'new') {
+                newTab.classList.add('text-primary', 'border-primary');
+                newTab.classList.remove('text-outline');
+                pastTab.classList.remove('text-primary', 'border-primary');
+                pastTab.classList.add('text-outline');
+                newContent.classList.remove('hidden');
+                pastContent.classList.add('hidden');
+            } else {
+                pastTab.classList.add('text-primary', 'border-primary');
+                pastTab.classList.remove('text-outline');
+                newTab.classList.remove('text-primary', 'border-primary');
+                newTab.classList.add('text-outline');
+                pastContent.classList.remove('hidden');
+                newContent.classList.add('hidden');
+            }
+        }
+
+        function addRow() {
+            const tbody = document.querySelector('#medicine-table tbody');
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-surface-container-lowest border-b border-outline-variant';
+            tr.innerHTML = `
+                <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="medicine_name" placeholder="Enter medicine..."/></td>
+                <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="dosage" placeholder="e.g. 5ml"/></td>
+                <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="frequency" placeholder="e.g. 3x daily"/></td>
+                <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="duration" placeholder="e.g. 1 week"/></td>
+                <td class="p-md text-center"><button type="button" class="text-outline hover:text-error transition-colors" onclick="removeRow(this)"><span class="material-symbols-outlined">delete</span></button></td>`;
+            tbody.appendChild(tr);
+        }
+
+        function removeRow(btn) {
+            btn.closest('tr').remove();
+        }
+    </script>
+</body></html>

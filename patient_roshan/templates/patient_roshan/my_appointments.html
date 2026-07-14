@@ -5,6 +5,12 @@
 {% block content %}
 {% with active_page='appointments' %}
 
+{% if booking_success %}
+<div class="mb-lg rounded-xl border border-green-200 bg-green-50 p-md text-green-800">
+    Appointment booked successfully.
+</div>
+{% endif %}
+
 {# Header #}
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-lg">
     <div>
