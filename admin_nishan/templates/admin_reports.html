@@ -1,0 +1,68 @@
+{% extends 'admin_nishan/base.html' %}
+{% block title %}Reports{% endblock %}
+{% block page_title %}Reports &amp; Analytics{% endblock %}
+
+{% block content %}
+<div class="mb-lg flex justify-between items-end">
+    <div>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">Reports &amp; Analytics</h2>
+        <p class="text-body-md text-on-surface-variant mt-xs">Institutional performance and patient health trends.</p>
+    </div>
+</div>
+
+<!-- KPI Summary Cards -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-lg mb-lg">
+    <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant">
+        <span class="material-symbols-outlined text-primary bg-primary-fixed p-xs rounded-lg">person_add</span>
+        <p class="text-on-surface-variant font-label-md text-label-md mt-md">Total Patients</p>
+        <h3 class="font-headline-md text-headline-md text-on-surface mt-xs">{{ total_patients }}</h3>
+    </div>
+    <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant">
+        <span class="material-symbols-outlined text-primary bg-primary-fixed p-xs rounded-lg">event_available</span>
+        <p class="text-on-surface-variant font-label-md text-label-md mt-md">Appointments</p>
+        <h3 class="font-headline-md text-headline-md text-on-surface mt-xs">{{ total_appointments }}</h3>
+    </div>
+    <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant">
+        <span class="material-symbols-outlined text-primary bg-primary-fixed p-xs rounded-lg">payments</span>
+        <p class="text-on-surface-variant font-label-md text-label-md mt-md">Revenue (Paid)</p>
+        <h3 class="font-headline-md text-headline-md text-on-surface mt-xs">${{ total_revenue }}</h3>
+    </div>
+    <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant">
+        <span class="material-symbols-outlined text-primary bg-primary-fixed p-xs rounded-lg">description</span>
+        <p class="text-on-surface-variant font-label-md text-label-md mt-md">Records / Rx</p>
+        <h3 class="font-headline-md text-headline-md text-on-surface mt-xs">{{ total_records }} / {{ total_prescriptions }}</h3>
+    </div>
+</section>
+
+<!-- Charts -->
+<section class="grid grid-cols-12 gap-lg mb-lg">
+    <div class="col-span-12 lg:col-span-8 bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant">
+        <h4 class="font-headline-sm text-headline-sm text-on-surface mb-xl">Appointment Trends (Last 8 Weeks)</h4>
+        <div class="h-48 flex items-end gap-sm md:gap-lg px-md overflow-hidden">
+            {% for point in appointment_trends %}
+            <div class="flex-1 bg-primary-container/20 hover:bg-primary-container/40 transition-colors rounded-t h-[{{ point.height_pct }}%] relative group">
+                <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-xs opacity-0 group-hover:opacity-100 transition-opacity bg-on-surface text-white text-[10px] px-xs py-xs rounded">{{ point.count }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="mt-md pt-md border-t border-outline-variant flex justify-between text-label-sm text-on-surface-variant">
+            {% for point in appointment_trends %}<span>{{ point.label }}</span>{% endfor %}
+        </div>
+    </div>
+    <div class="col-span-12 lg:col-span-4 bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant">
+        <h4 class="font-headline-sm text-headline-sm text-on-surface mb-xl">Department Distribution</h4>
+        {% if department_distribution %}
+        <div class="space-y-sm">
+            {% for dept in department_distribution %}
+            <div class="flex justify-between items-center text-label-sm">
+                <span class="flex items-center gap-xs"><div class="w-2 h-2 rounded-full bg-primary"></div> {{ dept.name }}</span>
+                <span class="font-bold">{{ dept.appt_count }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="font-body-md text-on-surface-variant">No department data available.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

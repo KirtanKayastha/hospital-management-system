@@ -1,0 +1,66 @@
+{% extends 'admin_nishan/base.html' %}
+{% block title %}Manage Patients{% endblock %}
+{% block page_title %}Manage Patients{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-end mb-xl">
+    <div>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">Manage Patients</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant mt-xs">Overview of registered patients ({{ total_patients }} total).</p>
+    </div>
+</div>
+
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-surface-container-low border-b border-outline-variant">
+                <tr>
+                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">ID</th>
+                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Name</th>
+                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Email</th>
+                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Phone</th>
+                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Registered</th>
+                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-outline-variant">
+                {% for profile in patients %}
+                <tr class="hover:bg-surface-container-low transition-colors">
+                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">#HM-{{ profile.user.id }}</td>
+                    <td class="px-lg py-lg">
+                        <div class="flex items-center gap-md">
+                            <div class="w-8 h-8 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-xs">
+                                {{ profile.user.first_name|first|upper }}{{ profile.user.last_name|first|upper }}
+                            </div>
+                            <span class="font-label-md text-label-md text-on-surface">{{ profile.user.get_full_name|default:profile.user.username }}</span>
+                        </div>
+                    </td>
+                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">{{ profile.user.email|default:"—" }}</td>
+                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">{{ profile.phone|default:"—" }}</td>
+                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">{{ profile.user.date_joined|date:"M d, Y" }}</td>
+                    <td class="px-lg py-lg">
+                        {% if profile.user.is_active %}
+                        <span class="px-sm py-xs rounded-full bg-secondary-container/20 text-on-secondary-container font-label-sm text-label-sm inline-flex items-center gap-xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Active
+                        </span>
+                        {% else %}
+                        <span class="px-sm py-xs rounded-full bg-error-container/20 text-error font-label-sm text-label-sm inline-flex items-center gap-xs">
+                            <span class="w-1.5 h-1.5 rounded-full bg-error"></span> Inactive
+                        </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-lg py-xl text-center">
+                        <span class="material-symbols-outlined text-4xl text-on-surface-variant">group_off</span>
+                        <p class="font-body-md text-on-surface mt-md">No patients assigned</p>
+                        <p class="font-body-sm text-on-surface-variant">Registered patients will appear here.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
