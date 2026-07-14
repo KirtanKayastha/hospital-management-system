@@ -1,0 +1,72 @@
+{% extends 'admin_nishan/base.html' %}
+{% block title %}Manage Doctors{% endblock %}
+{% block page_title %}Manage Doctors{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-end mb-xl">
+    <div>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">Manage Doctors</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant mt-xs">Hospital medical staff ({{ total_doctors }} total).</p>
+    </div>
+</div>
+
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-surface-container-low border-b border-outline-variant">
+                <tr>
+                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">ID</th>
+                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Doctor</th>
+                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Specialty</th>
+                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Email</th>
+                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Phone</th>
+                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-outline-variant">
+                {% for doc in doctors %}
+                <tr class="hover:bg-surface-container-low transition-colors">
+                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">DOC-{{ doc.user.id }}</td>
+                    <td class="px-lg py-lg">
+                        <div class="flex items-center gap-md">
+                            <div class="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold">
+                                {{ doc.user.first_name|first|upper }}{{ doc.user.last_name|first|upper }}
+                            </div>
+                            <div>
+                                <p class="font-label-md text-label-md text-on-surface">Dr. {{ doc.display_name }}</p>
+                                <p class="text-label-sm font-label-sm text-outline">{{ doc.qualification|default:"" }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-lg py-lg">
+                        <span class="px-md py-xs rounded-full bg-blue-100 text-blue-700 text-label-sm font-label-sm">{{ doc.specialization|default:"General" }}</span>
+                        <p class="text-xs text-on-surface-variant mt-xs">{{ doc.department.name }}</p>
+                    </td>
+                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">{{ doc.user.email|default:"—" }}</td>
+                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">{{ doc.phone|default:"—" }}</td>
+                    <td class="px-lg py-lg">
+                        {% if doc.status == 'Active' %}
+                        <span class="flex items-center gap-xs text-secondary font-semibold text-sm"><span class="w-2 h-2 rounded-full bg-secondary"></span> Active</span>
+                        {% elif doc.status == 'On Leave' %}
+                        <span class="flex items-center gap-xs text-tertiary font-semibold text-sm"><span class="w-2 h-2 rounded-full bg-tertiary"></span> On Leave</span>
+                        {% elif doc.status == 'Pending' %}
+                        <span class="flex items-center gap-xs text-tertiary font-semibold text-sm"><span class="w-2 h-2 rounded-full bg-tertiary"></span> Pending</span>
+                        {% else %}
+                        <span class="flex items-center gap-xs text-outline font-semibold text-sm"><span class="w-2 h-2 rounded-full bg-outline"></span> {{ doc.status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-lg py-xl text-center">
+                        <span class="material-symbols-outlined text-4xl text-on-surface-variant">medical_services_off</span>
+                        <p class="font-body-md text-on-surface mt-md">No doctors found</p>
+                        <p class="font-body-sm text-on-surface-variant">Registered doctors will appear here.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends 'patient_roshan/base.html' %}
+{% block title %}Find Doctor{% endblock %}
+{% block page_title %}Find Doctor{% endblock %}
+
+{% block content %}
+{% with active_page='finddoctor' %}
+
+{# Search Filters #}
+<section class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant mb-lg">
+    <form method="GET" action="{% url 'patient_roshan:find_doctor' %}">
+        <div class="flex flex-col md:flex-row gap-lg items-end">
+            <div class="flex-1">
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Select Department</label>
+                <div class="relative">
+                    <select name="department" onchange="this.form.submit()" class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm appearance-none focus:ring-2 focus:ring-primary font-body-md text-body-md transition-all">
+                        <option value="">All Departments</option>
+                        {% for dept in departments %}
+                        <option value="{{ dept.id }}" {% if request.GET.department == dept.id|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                </div>
+            </div>
+            <div class="flex-1">
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Search Doctor</label>
+                <div class="relative">
+                          <input class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm pl-xl focus:ring-2 focus:ring-primary font-body-md text-body-md transition-all"
+                              placeholder="Search by name..." type="text" name="search" value="{{ request.GET.search|default:'' }}"/>
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                </div>
+            </div>
+            <div class="flex-1">
+                <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Availability</label>
+                <div class="relative">
+                    <select name="availability" onchange="this.form.submit()" class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm appearance-none focus:ring-2 focus:ring-primary font-body-md text-body-md transition-all">
+                        <option value="" {% if request.GET.availability == '' %}selected{% endif %}>Any time</option>
+                        <option value="today" {% if request.GET.availability == 'today' %}selected{% endif %}>Today</option>
+                        <option value="week" {% if request.GET.availability == 'week' %}selected{% endif %}>This week</option>
+                    </select>
+                    <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                </div>
+            </div>
+            <button type="submit" class="bg-primary text-white px-lg py-sm rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
+                Search
+            </button>
+        </div>
+    </form>
+</section>
+
+<h2 class="font-headline-sm text-headline-sm text-on-surface mb-md">All Specialists</h2>
+
+<div class="space-y-md">
+    {% for doctor in doctors %}
+    <div class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant hover:shadow-md transition-all cursor-pointer group active:scale-[0.98]">
+        <div class="flex gap-lg">
+            <div class="w-20 h-20 rounded-xl overflow-hidden bg-secondary-container flex items-center justify-center text-2xl font-bold text-on-secondary-container flex-shrink-0">
+                {{ doctor.initials }}
+            </div>
+            <div class="flex-1">
+                <div class="flex justify-between items-start flex-wrap gap-sm">
+                    <div>
+                        <h3 class="font-headline-sm text-headline-sm group-hover:text-primary transition-colors">{{ doctor.name }}</h3>
+                        <p class="font-body-md text-body-md text-on-surface-variant">{{ doctor.specialization }} · {{ doctor.experience }} yrs exp</p>
+                    </div>
+                    <div class="bg-secondary-container text-on-secondary-container px-sm py-xs rounded text-label-sm font-label-sm flex items-center gap-xs">
+                        <span class="material-symbols-outlined text-[14px]">star</span>{{ doctor.rating }} ({{ doctor.review_count }}+ reviews)
+                    </div>
+                </div>
+                <div class="mt-md flex flex-wrap gap-sm items-center">
+                    <span class="px-md py-xs bg-surface-container rounded-full text-label-sm font-label-sm text-on-surface-variant border border-outline-variant">
+                        {{ doctor.available_days }}
+                    </span>
+                    <a href="{% url 'patient_roshan:book_appointment' %}?doctor={{ doctor.id }}" class="ml-auto bg-primary text-white px-md py-xs rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
+                        Book Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant text-center py-xl">
+        <p class="font-body-md text-on-surface-variant">No doctors found for your search.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% endwith %}
+{% endblock %}

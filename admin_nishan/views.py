@@ -1,3 +1,214 @@
-from django.shortcuts import render
+from datetime import timedelta
 
-# Create your views here.
+from django.contrib import messages
+from django.contrib.auth.models import User
+from django.db.models import Count, Sum
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+
+from admin_nishan.models import (
+    Appointment,
+    BillingInvoice,
+    Department,
+    MedicalRecord,
+    Prescription,
+)
+from doctor_siddhartha.models import DoctorProfile
+from hospital.access import admin_required
+from patient_roshan.models import PatientProfile
+
+
+@admin_required
+def admin_dashboard(request):
+    today = timezone.localdate()
+
+    weekly_counts = [
+        Appointment.objects.filter(appointment_date=today - timedelta(days=i)).count()
+        for i in range(6, -1, -1)
+    ]
+    weekly_max = max(weekly_counts) if weekly_counts else 0
+    weekly_appointments = []
+    for i in range(6, -1, -1):
+        day = today - timedelta(days=i)
+        count = weekly_counts[6 - i]
+        height_pct = int((count / weekly_max) * 100) if weekly_max else 0
+        weekly_appointments.append(
+            {"label": day.strftime("%a"), "count": count, "height_pct": max(height_pct, 4)}
+        )
+
+    recent_activity = (
+        Appointment.objects.select_related("patient", "doctor", "department")
+        .order_by("-created_at")[:8]
+    )
+
+    total_revenue = (
+        BillingInvoice.objects.filter(status=BillingInvoice.STATUS_PAID).aggregate(
+            total=Sum("amount")
+        )["total"]
+        or 0
+    )
+
+    context = {
+        "active_page": "dashboard",
+        "total_patients": PatientProfile.objects.count(),
+        "total_doctors": DoctorProfile.objects.count(),
+        "departments_count": Department.objects.count(),
+        "todays_appointments": Appointment.objects.filter(appointment_date=today).count(),
+        "confirmed_today": Appointment.objects.filter(
+            appointment_date=today, status=Appointment.STATUS_CONFIRMED
+        ).count(),
+        "pending_today": Appointment.objects.filter(
+            appointment_date=today, status=Appointment.STATUS_PENDING
+        ).count(),
+        "cancelled_today": Appointment.objects.filter(
+            appointment_date=today, status=Appointment.STATUS_CANCELLED
+        ).count(),
+        "total_revenue": total_revenue,
+        "weekly_appointments": weekly_appointments,
+        "recent_activity": recent_activity,
+    }
+    return render(request, "admin_dashboard.html", context)
+
+
+@admin_required
+def admin_manage_patients(request):
+    patients = (
+        PatientProfile.objects.select_related("user")
+        .order_by("-user__date_joined")
+    )
+    context = {
+        "active_page": "patients",
+        "patients": patients,
+        "total_patients": patients.count(),
+    }
+    return render(request, "admin_manage_patients.html", context)
+
+
+@admin_required
+def admin_manage_doctor(request):
+    doctors = (
+        DoctorProfile.objects.select_related("user", "department").order_by(
+            "user__first_name", "user__last_name"
+        )
+    )
+    context = {
+        "active_page": "doctor",
+        "doctors": doctors,
+        "total_doctors": doctors.count(),
+    }
+    return render(request, "admin_manage_doctor.html", context)
+
+
+@admin_required
+def pending_doctors(request):
+    pending_doctors = (
+        DoctorProfile.objects.select_related("user", "department")
+        .filter(status=DoctorProfile.STATUS_PENDING)
+        .order_by("user__date_joined")
+    )
+    context = {
+        "active_page": "pending_doctors",
+        "pending_doctors": pending_doctors,
+        "total_pending": pending_doctors.count(),
+    }
+    return render(request, "admin_nishan/pending_doctors.html", context)
+
+
+@admin_required
+def approve_doctor(request, doctor_id):
+    profile = get_object_or_404(DoctorProfile, pk=doctor_id)
+    profile.status = DoctorProfile.STATUS_APPROVED
+    profile.save(update_fields=["status"])
+    messages.success(request, f"Dr. {profile.display_name} has been approved.")
+    return redirect("admin_nishan:pending_doctors")
+
+
+@admin_required
+def reject_doctor(request, doctor_id):
+    profile = get_object_or_404(DoctorProfile, pk=doctor_id)
+    profile.status = DoctorProfile.STATUS_REJECTED
+    profile.save(update_fields=["status"])
+    messages.warning(request, f"Dr. {profile.display_name} has been rejected.")
+    return redirect("admin_nishan:pending_doctors")
+
+
+@admin_required
+def admin_appointments(request):
+    appointments = (
+        Appointment.objects.select_related("patient", "doctor", "department").order_by(
+            "-appointment_date", "-appointment_time"
+        )
+    )
+    context = {
+        "active_page": "appointments",
+        "appointments": appointments,
+        "total_appointments": appointments.count(),
+    }
+    return render(request, "admin_appointments.html", context)
+
+
+@admin_required
+def admin_accounts(request):
+    accounts = User.objects.all().order_by("-date_joined")
+    context = {
+        "active_page": "accounts",
+        "accounts": accounts,
+        "total_accounts": accounts.count(),
+        "total_patients": PatientProfile.objects.count(),
+        "total_doctors": DoctorProfile.objects.count(),
+    }
+    return render(request, "admin_accounts.html", context)
+
+
+@admin_required
+def admin_reports(request):
+    today = timezone.localdate()
+
+    week_start = today - timedelta(days=today.weekday())
+    raw_trends = []
+    for i in range(7, -1, -1):
+        ws = week_start - timedelta(weeks=i)
+        we = ws + timedelta(days=6)
+        count = Appointment.objects.filter(
+            appointment_date__range=(ws, we)
+        ).count()
+        raw_trends.append(count)
+
+    max_trend = max(raw_trends) if raw_trends else 0
+    appointment_trends = []
+    for index, count in enumerate(raw_trends):
+        height_pct = int((count / max_trend) * 100) if max_trend else 4
+        appointment_trends.append(
+            {"count": count, "height_pct": max(height_pct, 4), "label": f"W{index + 1}"}
+        )
+
+    department_distribution = (
+        Department.objects.annotate(appt_count=Count("appointments")).order_by(
+            "-appt_count"
+        )
+    )
+    total_dept = (
+        sum(d.appt_count for d in department_distribution) or 1
+    )
+
+    total_revenue = (
+        BillingInvoice.objects.filter(status=BillingInvoice.STATUS_PAID).aggregate(
+            total=Sum("amount")
+        )["total"]
+        or 0
+    )
+
+    context = {
+        "active_page": "reports",
+        "total_patients": PatientProfile.objects.count(),
+        "total_doctors": DoctorProfile.objects.count(),
+        "total_appointments": Appointment.objects.count(),
+        "total_records": MedicalRecord.objects.count(),
+        "total_prescriptions": Prescription.objects.count(),
+        "total_revenue": total_revenue,
+        "appointment_trends": appointment_trends,
+        "max_trend": max_trend,
+        "department_distribution": department_distribution,
+        "total_dept": total_dept,
+    }
+    return render(request, "admin_reports.html", context)
