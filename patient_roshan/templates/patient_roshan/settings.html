@@ -1,0 +1,96 @@
+{% extends 'patient_roshan/base.html' %}
+{% block title %}Settings{% endblock %}
+{% block page_title %}Settings{% endblock %}
+
+{% block content %}
+{% with active_page='settings' %}
+
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-lg">
+    <div>
+        <h1 class="font-headline-lg text-headline-lg text-on-surface">Settings</h1>
+        <p class="font-body-md text-on-surface-variant mt-xs">Manage your account preferences.</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-lg">
+
+    {# Change Password #}
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+        <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+            <h3 class="font-headline-sm text-headline-sm text-on-surface">Change Password</h3>
+            <span class="material-symbols-outlined text-on-surface-variant">lock</span>
+        </div>
+        <form method="POST" action="{% url 'patient_roshan:change_password' %}">
+            {% csrf_token %}
+            <div class="p-lg space-y-md">
+                <div class="space-y-xs">
+                    <label class="font-label-md text-label-md text-on-surface-variant">Current Password</label>
+                    <input type="password" name="old_password"
+                        class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"
+                        placeholder="••••••••"/>
+                </div>
+                <div class="space-y-xs">
+                    <label class="font-label-md text-label-md text-on-surface-variant">New Password</label>
+                    <input type="password" name="new_password"
+                        class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"
+                        placeholder="••••••••"/>
+                </div>
+                <div class="space-y-xs">
+                    <label class="font-label-md text-label-md text-on-surface-variant">Confirm New Password</label>
+                    <input type="password" name="confirm_password"
+                        class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"
+                        placeholder="••••••••"/>
+                </div>
+            </div>
+            <div class="px-lg py-md border-t border-outline-variant flex justify-end">
+                <button type="submit" class="bg-primary text-white py-sm px-md rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
+                    Update Password
+                </button>
+            </div>
+        </form>
+    </div>
+
+    {# Notification Preferences #}
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+        <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+            <h3 class="font-headline-sm text-headline-sm text-on-surface">Notification Preferences</h3>
+            <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+        </div>
+        <div class="p-lg space-y-md">
+            <label class="flex items-center gap-md cursor-pointer font-body-md text-body-md">
+                <input type="checkbox" checked class="rounded"> Email notifications
+            </label>
+            <label class="flex items-center gap-md cursor-pointer font-body-md text-body-md">
+                <input type="checkbox" checked class="rounded"> SMS reminders
+            </label>
+            <label class="flex items-center gap-md cursor-pointer font-body-md text-body-md">
+                <input type="checkbox" class="rounded"> Appointment alerts
+            </label>
+            <label class="flex items-center gap-md cursor-pointer font-body-md text-body-md">
+                <input type="checkbox" class="rounded"> Lab result notifications
+            </label>
+        </div>
+        <div class="px-lg py-md border-t border-outline-variant flex justify-end">
+            <button class="bg-primary text-white py-sm px-md rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
+                Save Preferences
+            </button>
+        </div>
+    </div>
+
+    {# Danger Zone #}
+    <div class="lg:col-span-2 border border-error/20 bg-error-container/10 rounded-xl p-lg flex flex-col md:flex-row items-center justify-between gap-lg">
+        <div class="space-y-xs">
+            <h4 class="font-label-md text-label-md text-error font-bold">Danger Zone</h4>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">
+                Deleting your account will permanently erase your clinical profile and appointment history. This action is irreversible.
+            </p>
+        </div>
+        <button class="whitespace-nowrap px-lg py-sm border border-error text-error rounded-lg font-label-md text-label-md hover:bg-error hover:text-on-error transition-all">
+            Request Data Deletion
+        </button>
+    </div>
+
+</div>
+
+{% endwith %}
+{% endblock %}

@@ -529,3 +529,70 @@ def change_password(request):
         update_session_auth_hash(request, request.user)
         messages.success(request, "Password updated successfully.")
     return redirect("patient_roshan:profile")
+
+@patient_required
+def prescriptions(request):
+    prescriptions = Prescription.objects.filter(
+        patient=request.user, is_active=True
+    ).select_related('doctor').order_by('-prescribed_on')
+    context = {
+        'active_page': 'prescriptions',
+        'patient': _patient_profile(request.user),
+        'prescriptions': prescriptions,
+    }
+    return render(request, 'patient_roshan/prescriptions.html', context)
+
+
+@patient_required
+def billing(request):
+    invoices = BillingInvoice.objects.filter(
+        patient=request.user
+    ).order_by('-created_at')
+    pending_count = invoices.filter(status='unpaid').count()
+    context = {
+        'active_page': 'billing',
+        'patient': _patient_profile(request.user),
+        'invoices': invoices,
+        'pending_count': pending_count,
+    }
+    return render(request, 'patient_roshan/billing.html', context)
+
+@patient_required
+def messages(request):
+    context = {
+        'active_page': 'messages',
+        'patient': _patient_profile(request.user),
+        'conversations': [],
+    }
+    return render(request, 'patient_roshan/messages.html', context)
+
+
+@patient_required
+def notifications(request):
+    notifs = Notification.objects.filter(
+        recipient=request.user
+    ).order_by('-created_at')
+    context = {
+        'active_page': 'notifications',
+        'patient': _patient_profile(request.user),
+        'notifications': notifs,
+    }
+    return render(request, 'patient_roshan/notifications.html', context)
+
+
+@patient_required
+def mark_all_read(request):
+    if request.method == 'POST':
+        Notification.objects.filter(
+            recipient=request.user, is_read=False
+        ).update(is_read=True)
+    return redirect('patient_roshan:notifications')
+
+
+@patient_required
+def settings(request):
+    context = {
+        'active_page': 'settings',
+        'patient': _patient_profile(request.user),
+    }
+    return render(request, 'patient_roshan/settings.html', context)

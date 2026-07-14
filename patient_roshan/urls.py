@@ -16,4 +16,10 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),
     path('profile/emergency-contact/', views.update_emergency_contact, name='update_emergency_contact'),
     path('profile/change-password/', views.change_password, name='change_password'),
+path('prescriptions/', views.prescriptions, name='prescriptions'),
+path('billing/', views.billing, name='billing'),
+path('messages/', views.messages, name='messages'),
+path('notifications/', views.notifications, name='notifications'),
+path('notifications/mark-all-read/', views.mark_all_read, name='mark_all_read'),
+path('settings/', views.settings, name='settings'),
 ]

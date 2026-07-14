@@ -16,18 +16,18 @@
 <div class="grid grid-cols-1 md:grid-cols-3 gap-md mb-lg">
     <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant flex flex-col gap-sm">
         <span class="material-symbols-outlined text-error p-xs bg-error/10 rounded-lg w-fit">receipt_long</span>
-        <p class="font-label-md text-label-md text-on-surface-variant">Total Due</p>
-        <p class="font-headline-lg text-headline-lg text-on-surface">Rs. 2,400</p>
+        <p class="font-label-md text-label-md text-on-surface-variant">Pending Invoices</p>
+        <p class="font-headline-lg text-headline-lg text-on-surface">{{ pending_count }}</p>
     </div>
     <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant flex flex-col gap-sm">
         <span class="material-symbols-outlined text-secondary p-xs bg-secondary/10 rounded-lg w-fit">payments</span>
-        <p class="font-label-md text-label-md text-on-surface-variant">Paid This Year</p>
-        <p class="font-headline-lg text-headline-lg text-on-surface">Rs. 9,800</p>
+        <p class="font-label-md text-label-md text-on-surface-variant">Total Invoices</p>
+        <p class="font-headline-lg text-headline-lg text-on-surface">{{ invoices.count }}</p>
     </div>
     <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant flex flex-col gap-sm">
         <span class="material-symbols-outlined text-tertiary p-xs bg-tertiary/10 rounded-lg w-fit">pending</span>
-        <p class="font-label-md text-label-md text-on-surface-variant">Pending Invoices</p>
-        <p class="font-headline-lg text-headline-lg text-on-surface">{{ pending_count }}</p>
+        <p class="font-label-md text-label-md text-on-surface-variant">Status</p>
+        <p class="font-headline-lg text-headline-lg text-on-surface">{% if pending_count > 0 %}Due{% else %}Clear{% endif %}</p>
     </div>
 </div>
 
@@ -51,12 +51,12 @@
             <tbody class="divide-y divide-outline-variant">
                 {% for invoice in invoices %}
                 <tr class="hover:bg-surface-bright transition-colors">
-                    <td class="px-lg py-md font-body-sm text-on-surface">{{ invoice.number }}</td>
-                    <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ invoice.date }}</td>
+                    <td class="px-lg py-md font-body-sm text-on-surface">{{ invoice.invoice_number }}</td>
+                    <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ invoice.created_at|date:"d M Y" }}</td>
                     <td class="px-lg py-md font-body-sm text-on-surface">{{ invoice.description }}</td>
-                    <td class="px-lg py-md font-body-md font-semibold text-on-surface">{{ invoice.amount }}</td>
+                    <td class="px-lg py-md font-body-md font-semibold text-on-surface">Rs. {{ invoice.amount }}</td>
                     <td class="px-lg py-md">
-                        {% if invoice.status == 'Unpaid' %}
+                        {% if invoice.status == 'unpaid' %}
                             <span class="inline-flex items-center gap-xs px-sm py-xs bg-red-100 text-red-700 rounded-lg font-label-sm">
                                 <span class="w-2 h-2 rounded-full bg-red-500"></span>Unpaid
                             </span>
@@ -67,7 +67,7 @@
                         {% endif %}
                     </td>
                     <td class="px-lg py-md text-right">
-                        {% if invoice.status == 'Unpaid' %}
+                        {% if invoice.status == 'unpaid' %}
                         <button class="bg-primary text-white px-md py-xs rounded-lg font-label-md text-label-md hover:opacity-90">Pay Now</button>
                         {% else %}
                         <button class="border border-outline-variant text-on-surface-variant px-md py-xs rounded-lg font-label-md text-label-md hover:bg-surface-container">Receipt</button>
