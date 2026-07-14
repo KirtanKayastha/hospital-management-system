@@ -156,7 +156,9 @@
                       {% if active_page == 'records' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
                 <span class="material-symbols-outlined">medical_services</span>Medical Records
             </a>
-            <a href="{% url 'patient_roshan:prescriptions' %}"
+            <div class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant font-label-md text-label-md">
+    <span class="material-symbols-outlined">prescriptions</span>Prescriptions
+</div>
    class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
           {% if active_page == 'prescriptions' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
     <span class="material-symbols-outlined">prescriptions</span>Prescriptions
@@ -194,11 +196,12 @@
                     {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
                 </div>
                 <div class="overflow-hidden">
-                    <p class="font-label-md text-label-md truncate">{{ request.user.get_full_name }}</p>
-                    <p class="font-body-sm text-body-sm text-on-surface-variant truncate">Patient ID: #HM-2024-089</p>
+                    <p class="font-label-md text-label-md truncate">{{ request.user.get_full_name|default:request.user.username }}</p>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant truncate">Patient ID: #HM-{{ request.user.id }}</p>
                 </div>
             </div>
-            <a href="{% url 'patient_roshan:logout' %}" class="flex items-center gap-md w-full px-md py-sm text-error font-label-md text-label-md hover:bg-error-container/10 rounded-lg transition-all mt-sm">
+            <a href="{% url 'auth_kirtan:logout' %}" class="flex items-center gap-md w-full px-md py-sm text-error font-label-md text-label-md hover:bg-error-container/10 rounded-lg transition-all mt-sm">
+
                 <span class="material-symbols-outlined">logout</span>Logout
             </a>
         </div>
@@ -217,8 +220,8 @@
                 </button>
                 <div class="flex items-center gap-md border-l border-outline-variant pl-lg">
                     <div class="text-right hidden sm:block">
-                        <p class="font-label-md text-label-md text-on-surface">{{ request.user.get_full_name }}</p>
-                        <p class="font-body-sm text-body-sm text-on-surface-variant">Patient ID: #HM-2024-089</p>
+                        <p class="font-label-md text-label-md text-on-surface">{{ request.user.get_full_name|default:request.user.username }}</p>
+                        <p class="font-body-sm text-body-sm text-on-surface-variant">Patient ID: #HM-{{ request.user.id }}</p>
                     </div>
                     <div class="w-10 h-10 rounded-full border-2 border-primary bg-primary flex items-center justify-center text-white font-bold text-sm">
                         {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}

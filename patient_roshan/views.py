@@ -1,358 +1,531 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
+import calendar
+from datetime import date, datetime, time, timedelta
+from types import SimpleNamespace
+
 from django.contrib import messages
-from django.contrib.auth import logout as auth_logout
+from django.contrib.auth import update_session_auth_hash
+from django.core.paginator import Paginator
+from django.db.models import Q
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 
-def patient_logout(request):
-    auth_logout(request)
-    return redirect('/patient/login/')
-def patient_login(request):
-    if request.user.is_authenticated:
-        return redirect('patient_roshan:dashboard')
-    error = None
-    if request.method == 'POST':
-        from django.contrib.auth import authenticate, login
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('patient_roshan:dashboard')
-        else:
-            error = 'Invalid username or password.'
-    return render(request, 'patient_roshan/login.html', {'error': error})
-
-# Real Nepali doctors from Neuro Hospital, Clinic One, OM Hospital - Kathmandu
-DOCTORS = [
-    {
-        'id': 1,
-        'initials': 'BKB',
-        'name': 'Dr. Birendra Kumar Bista',
-        'specialization': 'Senior Consultant Neurologist',
-        'nmc': '1636',
-        'hospital': 'Neuro Hospital, Biratnagar',
-        'experience': 20,
-        'rating': '4.9',
-        'review_count': 134,
-        'available_days': 'Sun – Fri',
-        'available_slots': ['09:00 AM', '10:30 AM', '02:00 PM'],
-        'department': 'Neurology',
-        'qualification': 'MBBS, MD (Neurology)',
-    },
-    {
-        'id': 2,
-        'initials': 'NKK',
-        'name': 'Prof. Dr. Navin Kumar Karna',
-        'specialization': 'Senior Consultant Orthopedic Surgeon',
-        'nmc': '3103',
-        'hospital': 'Neuro Hospital, Biratnagar',
-        'experience': 25,
-        'rating': '4.8',
-        'review_count': 98,
-        'available_days': 'Sun – Fri',
-        'available_slots': ['08:30 AM', '11:00 AM', '03:00 PM'],
-        'department': 'Orthopedics',
-        'qualification': 'MBBS, MS (Orthopedic Surgery)',
-    },
-    {
-        'id': 3,
-        'initials': 'NRS',
-        'name': 'Dr. Nikesh Raj Shrestha',
-        'specialization': 'Senior Consultant Interventional Cardiologist',
-        'nmc': '3195',
-        'hospital': 'Neuro Hospital, Biratnagar',
-        'experience': 18,
-        'rating': '4.9',
-        'review_count': 112,
-        'available_days': 'Sun – Fri',
-        'available_slots': ['09:00 AM', '10:00 AM', '04:00 PM'],
-        'department': 'Cardiology',
-        'qualification': 'MBBS, MD, DM (Cardiology)',
-    },
-    {
-        'id': 4,
-        'initials': 'ST',
-        'name': 'Dr. Sanjeev Thapa',
-        'specialization': 'Cardiologist',
-        'nmc': '',
-        'hospital': 'Clinic One, Lalitpur',
-        'experience': 15,
-        'rating': '4.7',
-        'review_count': 87,
-        'available_days': 'Mon only (5 PM onwards)',
-        'available_slots': ['05:00 PM', '05:30 PM', '06:00 PM'],
-        'department': 'Cardiology',
-        'qualification': 'MD (Internal Medicine, BPKIHS), DM (Cardiology, IOM, TU)',
-    },
-    {
-        'id': 5,
-        'initials': 'RK',
-        'name': 'Dr. Roshan Khatiwada',
-        'specialization': 'Senior Consultant Neurosurgeon',
-        'nmc': '8369',
-        'hospital': 'Neuro Hospital, Biratnagar',
-        'experience': 16,
-        'rating': '4.8',
-        'review_count': 76,
-        'available_days': 'Sun – Fri',
-        'available_slots': ['10:00 AM', '01:00 PM', '03:30 PM'],
-        'department': 'Neurology',
-        'qualification': 'MBBS, MCh (Neurosurgery)',
-    },
-]
-
-# Real patient data - Roshan Ansari
-PATIENT = {
-    'full_name': 'Roshan Ansari',
-    'email': 'PatientRoshan@gmail.com',
-    'phone': '+977 9800000000',
-    'dob': '2004-11-20',
-    'age': 20,
-    'gender': 'Male',
-    'blood_group': 'O+',
-    'address': 'Kathmandu, Bagmati Province, Nepal',
-    'patient_id': 'HM-2024-089',
-    'emergency_contact_name': 'Irfat Ansari',
-    'emergency_contact_relation': 'Brother',
-    'emergency_contact_phone': '+977 9800000001',
-}
+from admin_nishan.models import Appointment, BillingInvoice, Department, DoctorAvailability, LabReport, MedicalRecord, Notification, Prescription
+from doctor_siddhartha.models import DoctorProfile
+from hospital.access import ensure_patient_profile, patient_required
+from .models import PatientProfile
 
 
-@login_required
-def dashboard(request):
-    recent_appointments = [
-        {'date': '12 Jul 2025', 'time': '09:00 AM', 'doctor_initials': 'NRS', 'doctor_name': 'Dr. Nikesh Raj Shrestha', 'department': 'Cardiology', 'status': 'Confirmed'},
-        {'date': '18 Jul 2025', 'time': '10:30 AM', 'doctor_initials': 'BKB', 'doctor_name': 'Dr. Birendra Kumar Bista', 'department': 'Neurology', 'status': 'Pending'},
-        {'date': '24 Jul 2025', 'time': '08:30 AM', 'doctor_initials': 'NKK', 'doctor_name': 'Prof. Dr. Navin Kumar Karna', 'department': 'Orthopedics', 'status': 'Confirmed'},
-        {'date': '02 Aug 2025', 'time': '05:00 PM', 'doctor_initials': 'ST', 'doctor_name': 'Dr. Sanjeev Thapa', 'department': 'Cardiology', 'status': 'Completed'},
-    ]
-    prescriptions = [
-        {'medicine': 'Amlodipine 5mg', 'refill_date': 'Aug 01, 2025'},
-        {'medicine': 'Aspirin 75mg', 'refill_date': 'Aug 15, 2025'},
-    ]
-    context = {
-        'active_page': 'dashboard',
-        'upcoming_count': 3,
-        'total_visits': 12,
-        'records_count': 7,
-        'recent_appointments': recent_appointments,
-        'prescriptions': prescriptions,
-        'patient': PATIENT,
+WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+
+def _default_department():
+    department, _ = Department.objects.get_or_create(
+        slug="general-medicine",
+        defaults={"name": "General Medicine", "description": "General patient care and triage."},
+    )
+    return department
+
+
+def _initials(name):
+    parts = (name or "").split()
+    if not parts:
+        return "U"
+    if len(parts) == 1:
+        return parts[0][:2].upper()
+    return f"{parts[0][0]}{parts[-1][0]}".upper()
+
+
+def _doctor_card(profile):
+    user = profile.user
+    availability = profile.user.availability_slots.filter(is_active=True).order_by("day_of_week", "start_time")
+    review_count = user.doctor_appointments.filter(status=Appointment.STATUS_COMPLETED).count()
+    rating = round(min(5.0, 4.0 + (review_count * 0.1)), 1) if review_count else 0.0
+    available_slots = [f"{slot.day_label[:3]} {slot.start_time.strftime('%I:%M %p')} - {slot.end_time.strftime('%I:%M %p')}" for slot in availability]
+    available_days = ", ".join(dict(availability.model.DAY_CHOICES).get(slot.day_of_week, str(slot.day_of_week)) for slot in availability)
+    return {
+        "id": profile.user_id,
+        "initials": profile.initials,
+        "name": profile.display_name,
+        "specialization": profile.specialization or profile.department.name,
+        "experience": profile.experience_years,
+        "rating": rating,
+        "review_count": review_count,
+        "available_slots": available_slots,
+        "available_days": available_days or "No regular availability set",
+        "department_id": profile.department_id,
+        "department_name": profile.department.name,
     }
-    return render(request, 'patient_roshan/dashboard.html', context)
 
 
-@login_required
-def book_appointment(request):
-    if request.method == 'POST':
-        from .models import Appointment
-        Appointment.objects.create(
-            patient=request.user,
-            doctor_name=request.POST.get('doctor_name', 'Unknown'),
-            department=request.POST.get('department', 'Unknown'),
-            date=request.POST.get('appointment_date'),
-            time=request.POST.get('appointment_time'),
-            reason=request.POST.get('reason'),
-            status='Pending'
+def _availability_for_date(doctor_user, target_date):
+    return DoctorAvailability.objects.filter(
+        doctor=doctor_user,
+        is_active=True,
+        day_of_week=target_date.weekday(),
+    ).order_by("start_time")
+
+
+def _doctor_cards_for_booking(department_id="", search=""):
+    doctor_profiles = DoctorProfile.objects.select_related("user", "department").filter(
+        user__availability_slots__is_active=True,
+    )
+    if department_id:
+        doctor_profiles = doctor_profiles.filter(department_id=department_id)
+    if search:
+        doctor_profiles = doctor_profiles.filter(
+            Q(user__first_name__icontains=search)
+            | Q(user__last_name__icontains=search)
+            | Q(user__username__icontains=search)
+            | Q(specialization__icontains=search)
         )
-        messages.success(request, 'Appointment booked successfully!')
-        return redirect('patient_roshan:my_appointments')
+    return doctor_profiles.distinct()
 
-    departments = list({d['department'] for d in DOCTORS})
-    time_slots = [
-        {'label': '09:00 AM', 'value': '09:00', 'is_booked': False},
-        {'label': '09:30 AM', 'value': '09:30', 'is_booked': False},
-        {'label': '10:00 AM', 'value': '10:00', 'is_booked': False},
-        {'label': '10:30 AM', 'value': '10:30', 'is_booked': False},
-        {'label': '11:00 AM', 'value': '11:00', 'is_booked': False},
-        {'label': '11:30 AM', 'value': '11:30', 'is_booked': True},
-        {'label': '02:00 PM', 'value': '14:00', 'is_booked': False},
-        {'label': '03:30 PM', 'value': '15:30', 'is_booked': False},
-        {'label': '04:00 PM', 'value': '16:00', 'is_booked': False},
-    ]
-    calendar_days = [
-        {'number': 29, 'date': '', 'is_past': True, 'is_selected': False},
-        {'number': 30, 'date': '', 'is_past': True, 'is_selected': False},
-        {'number': 1,  'date': '2025-07-01', 'is_past': False, 'is_selected': False},
-        {'number': 2,  'date': '2025-07-02', 'is_past': False, 'is_selected': False},
-        {'number': 3,  'date': '2025-07-03', 'is_past': False, 'is_selected': False},
-        {'number': 4,  'date': '2025-07-04', 'is_past': False, 'is_selected': False},
-        {'number': 5,  'date': '2025-07-05', 'is_past': False, 'is_selected': False},
-        {'number': 6,  'date': '2025-07-06', 'is_past': False, 'is_selected': False},
-        {'number': 7,  'date': '2025-07-07', 'is_past': False, 'is_selected': False},
-        {'number': 8,  'date': '2025-07-08', 'is_past': False, 'is_selected': False},
-        {'number': 9,  'date': '2025-07-09', 'is_past': False, 'is_selected': False},
-        {'number': 10, 'date': '2025-07-10', 'is_past': False, 'is_selected': False},
-        {'number': 11, 'date': '2025-07-11', 'is_past': False, 'is_selected': False},
-        {'number': 12, 'date': '2025-07-12', 'is_past': False, 'is_selected': True},
-        {'number': 13, 'date': '2025-07-13', 'is_past': False, 'is_selected': False},
-        {'number': 14, 'date': '2025-07-14', 'is_past': False, 'is_selected': False},
-        {'number': 15, 'date': '2025-07-15', 'is_past': False, 'is_selected': False},
-    ]
+
+def _build_time_slots(doctor_user, target_date):
+    booked_times = set(
+        Appointment.objects.filter(
+            doctor=doctor_user,
+            appointment_date=target_date,
+            status__in=[Appointment.STATUS_PENDING, Appointment.STATUS_CONFIRMED],
+        ).values_list("appointment_time", flat=True)
+    )
+    slots = []
+    for availability in _availability_for_date(doctor_user, target_date):
+        current_time = datetime.combine(target_date, availability.start_time)
+        end_time = datetime.combine(target_date, availability.end_time)
+        while current_time + timedelta(minutes=30) <= end_time:
+            slot_time = current_time.time()
+            slot_value = slot_time.strftime("%H:%M")
+            slots.append(
+                {
+                    "value": slot_value,
+                    "label": slot_time.strftime("%I:%M %p"),
+                    "is_booked": slot_time in booked_times,
+                }
+            )
+            current_time += timedelta(minutes=30)
+    return slots
+
+
+def _calendar_days(selected_date):
+    year = selected_date.year
+    month = selected_date.month
+    first_day_weekday, days_in_month = calendar.monthrange(year, month)
+    days = []
+    today = timezone.localdate()
+
+    for day_number in range(1, days_in_month + 1):
+        current_date = date(year, month, day_number)
+        days.append(
+            {
+                "number": day_number,
+                "date": current_date.isoformat(),
+                "is_past": current_date < today,
+                "is_selected": current_date == selected_date,
+            }
+        )
+
+    padding = [{"number": "", "date": "", "is_past": True, "is_selected": False} for _ in range(first_day_weekday)]
+    return padding + days
+
+
+def _time_slots(selected_date, doctor_id=None):
+    if not doctor_id:
+        return []
+    doctor_profile = DoctorProfile.objects.filter(user_id=doctor_id).select_related("user", "department").first()
+    if not doctor_profile:
+        return []
+    return _build_time_slots(doctor_profile.user, selected_date)
+
+
+def _patient_profile(user):
+    return ensure_patient_profile(user)
+
+
+@patient_required
+def dashboard(request):
+    profile = _patient_profile(request.user)
+    today = timezone.localdate()
+
+    recent_appointments = (
+        Appointment.objects.filter(patient=request.user)
+        .select_related("doctor", "department")
+        .order_by("-appointment_date", "-appointment_time")[:4]
+    )
+    prescriptions = (
+        Prescription.objects.filter(patient=request.user, is_active=True)
+        .prefetch_related("items")
+        .select_related("doctor")
+        .order_by("-prescribed_on")[:4]
+    )
+
     context = {
-        'active_page': 'book',
-        'departments': [{'id': i, 'name': d} for i, d in enumerate(departments, 1)],
-        'doctors': DOCTORS,
-        'time_slots': time_slots,
-        'calendar_days': calendar_days,
-        'selected_date': '2025-07-12',
-        'selected_time': '10:00',
+        "active_page": "dashboard",
+        "patient": profile,
+        "upcoming_count": Appointment.objects.filter(
+            patient=request.user,
+            appointment_date__gte=today,
+            status__in=[Appointment.STATUS_PENDING, Appointment.STATUS_CONFIRMED],
+        ).count(),
+        "total_visits": Appointment.objects.filter(patient=request.user, status=Appointment.STATUS_COMPLETED).count(),
+        "records_count": MedicalRecord.objects.filter(patient=request.user).count(),
+        "recent_appointments": recent_appointments,
+        "prescriptions": prescriptions,
+        "notifications": Notification.objects.filter(recipient=request.user, is_read=False)[:5],
     }
-    return render(request, 'patient_roshan/book_appointment.html', context)
+    return render(request, "patient_roshan/dashboard.html", context)
 
 
-@login_required
+@patient_required
+def book_appointment(request):
+    profile = _patient_profile(request.user)
+    selected_doctor_id = request.POST.get("doctor_id") or request.GET.get("doctor") or ""
+    selected_date_value = request.POST.get("appointment_date") or request.GET.get("date")
+    selected_time_value = request.POST.get("appointment_time") or request.GET.get("time") or ""
+    department_id = request.GET.get("department", "")
+    search = (request.GET.get("search", "") or "").strip()
+    form_errors = []
+
+    if selected_date_value:
+        try:
+            selected_date = date.fromisoformat(selected_date_value)
+        except ValueError:
+            selected_date = timezone.localdate() + timedelta(days=1)
+    else:
+        selected_date = timezone.localdate() + timedelta(days=1)
+
+    if request.method == "POST":
+        doctor_id = request.POST.get("doctor_id")
+        appointment_date_value = request.POST.get("appointment_date")
+        appointment_time_value = request.POST.get("appointment_time")
+        reason = (request.POST.get("reason") or "").strip()
+
+        if not doctor_id:
+            form_errors.append("Select a doctor before booking.")
+        if not appointment_date_value:
+            form_errors.append("Select an appointment date.")
+        if not appointment_time_value:
+            form_errors.append("Select an appointment time.")
+        if not reason:
+            form_errors.append("Add a reason for the visit.")
+
+        try:
+            appointment_date = date.fromisoformat(appointment_date_value)
+        except (TypeError, ValueError):
+            appointment_date = None
+            if not form_errors:
+                form_errors.append("Select a valid appointment date.")
+
+        try:
+            appointment_time = datetime.strptime(appointment_time_value, "%H:%M").time()
+        except (TypeError, ValueError):
+            appointment_time = None
+            if not form_errors:
+                form_errors.append("Select a valid appointment time.")
+
+        doctor_profile = None
+        if doctor_id:
+            doctor_profile = DoctorProfile.objects.select_related("user", "department").filter(user_id=doctor_id).first()
+            if not doctor_profile:
+                form_errors.append("Selected doctor does not exist.")
+        else:
+            form_errors.append("Select a doctor before booking.")
+
+        if appointment_date and appointment_date < timezone.localdate():
+            form_errors.append("Appointment date cannot be in the past.")
+
+        if doctor_profile and appointment_date and appointment_time:
+            available_values = {slot["value"] for slot in _build_time_slots(doctor_profile.user, appointment_date)}
+            if appointment_time.strftime("%H:%M") not in available_values:
+                form_errors.append("Selected time is not available for that doctor.")
+            if Appointment.objects.filter(
+                doctor=doctor_profile.user,
+                appointment_date=appointment_date,
+                appointment_time=appointment_time,
+                status__in=[Appointment.STATUS_PENDING, Appointment.STATUS_CONFIRMED],
+            ).exists():
+                form_errors.append("That time slot is already booked.")
+
+        if not form_errors:
+            appointment = Appointment.objects.create(
+                patient=request.user,
+                doctor=doctor_profile.user,
+                department=doctor_profile.department,
+                appointment_date=appointment_date,
+                appointment_time=appointment_time,
+                reason=reason,
+                status=Appointment.STATUS_PENDING,
+            )
+            Notification.objects.create(
+                recipient=request.user,
+                title="Appointment booked",
+                message=f"Your appointment with {appointment.doctor_name} on {appointment.display_date} at {appointment.display_time} is pending confirmation.",
+                category=Notification.CATEGORY_APPOINTMENT,
+                action_url=f"/patient/appointments/{appointment.id}/",
+            )
+            Notification.objects.create(
+                recipient=appointment.doctor,
+                title="New appointment request",
+                message=f"{appointment.patient_name} requested an appointment on {appointment.display_date} at {appointment.display_time}.",
+                category=Notification.CATEGORY_APPOINTMENT,
+                action_url=f"/doctor/schedule/",
+            )
+            return redirect("/patient/appointments/?booked=1")
+
+    doctor_profiles = _doctor_cards_for_booking(department_id=department_id, search=search)
+    doctors = [_doctor_card(profile) for profile in doctor_profiles]
+    departments = Department.objects.filter(is_active=True).order_by("name")
+    selected_date = selected_date if selected_date else timezone.localdate() + timedelta(days=1)
+
+    if selected_doctor_id and not doctor_profiles.filter(user_id=selected_doctor_id).exists():
+        selected_doctor_id = ""
+    if not selected_doctor_id and doctor_profiles.exists():
+        selected_doctor_profile = doctor_profiles.filter(user__availability_slots__day_of_week=selected_date.weekday()).first()
+        if not selected_doctor_profile:
+            selected_doctor_profile = doctor_profiles.first()
+        selected_doctor_id = str(selected_doctor_profile.user_id)
+
+    selected_doctor_profile = None
+    if selected_doctor_id and str(selected_doctor_id).isdigit():
+        selected_doctor_profile = DoctorProfile.objects.select_related("user", "department").filter(user_id=selected_doctor_id).first()
+    if selected_doctor_profile and not _availability_for_date(selected_doctor_profile.user, selected_date).exists():
+        alternate_doctor = doctor_profiles.filter(user__availability_slots__day_of_week=selected_date.weekday()).first()
+        if alternate_doctor:
+            selected_doctor_profile = alternate_doctor
+            selected_doctor_id = str(alternate_doctor.user_id)
+
+    time_slots = _build_time_slots(selected_doctor_profile.user, selected_date) if selected_doctor_profile else []
+    available_time_values = {slot["value"] for slot in time_slots}
+    if selected_time_value and selected_time_value not in available_time_values:
+        selected_time_value = ""
+    if not selected_time_value and time_slots:
+        selected_time_value = time_slots[0]["value"]
+
+    context = {
+        "active_page": "book",
+        "patient": profile,
+        "departments": departments,
+        "doctors": doctors,
+        "time_slots": time_slots,
+        "calendar_days": _calendar_days(selected_date),
+        "selected_date": selected_date.isoformat(),
+        "selected_time": selected_time_value,
+        "selected_doctor_id": int(selected_doctor_id) if str(selected_doctor_id).isdigit() else "",
+        "search": search,
+        "selected_department_id": department_id,
+        "form_errors": form_errors,
+    }
+    return render(request, "patient_roshan/book_appointment.html", context)
+
+
+@patient_required
 def find_doctor(request):
+    department_id = request.GET.get("department", "")
+    search = (request.GET.get("search", "") or "").strip()
+    availability = request.GET.get("availability", "")
+
+    doctor_profiles = DoctorProfile.objects.select_related("user", "department").filter(
+        user__availability_slots__is_active=True,
+    )
+    if department_id:
+        doctor_profiles = doctor_profiles.filter(department_id=department_id)
+    if search:
+        doctor_profiles = doctor_profiles.filter(
+            Q(user__first_name__icontains=search)
+            | Q(user__last_name__icontains=search)
+            | Q(user__username__icontains=search)
+            | Q(specialization__icontains=search)
+        )
+
+    if availability in {"today", "week"}:
+        target_days = [timezone.localdate().weekday()]
+        if availability == "week":
+            target_days = list(range(7))
+        doctor_profiles = doctor_profiles.filter(user__availability_slots__day_of_week__in=target_days, user__availability_slots__is_active=True).distinct()
+
+    doctors = []
+    for profile in doctor_profiles.distinct():
+        doctor_card = _doctor_card(profile)
+        doctor_card["available_slots"] = [
+            f"{slot.get_day_of_week_display()[:3]} {slot.start_time.strftime('%I:%M %p')} - {slot.end_time.strftime('%I:%M %p')}"
+            for slot in profile.user.availability_slots.filter(is_active=True).order_by("day_of_week", "start_time")
+        ]
+        doctors.append(doctor_card)
+
     context = {
-        'active_page': 'finddoctor',
-        'doctors': DOCTORS,
-        'departments': list({d['department'] for d in DOCTORS}),
+        "active_page": "finddoctor",
+        "patient": _patient_profile(request.user),
+        "departments": Department.objects.filter(is_active=True).order_by("name"),
+        "doctors": doctors,
     }
-    return render(request, 'patient_roshan/find_doctor.html', context)
+    return render(request, "patient_roshan/find_doctor.html", context)
 
 
-@login_required
+@patient_required
 def my_appointments(request):
-    from .models import Appointment
-    appointments = Appointment.objects.filter(patient=request.user)
+    status_filter = request.GET.get("status", "")
+    search = (request.GET.get("search", "") or "").strip()
+    booking_success = request.GET.get("booked") == "1"
+
+    appointments = Appointment.objects.filter(patient=request.user).select_related("doctor", "department")
+    if status_filter:
+        appointments = appointments.filter(status=status_filter)
+    if search:
+        appointments = appointments.filter(
+            Q(doctor__first_name__icontains=search)
+            | Q(doctor__last_name__icontains=search)
+            | Q(doctor__username__icontains=search)
+            | Q(department__name__icontains=search)
+        )
+
+    paginator = Paginator(appointments, 10)
+    page_number = request.GET.get("page", 1)
+    appointments_page = paginator.get_page(page_number)
+
     status_filters = [
-        {'label': 'All', 'value': ''},
-        {'label': 'Confirmed', 'value': 'Confirmed'},
-        {'label': 'Pending', 'value': 'Pending'},
-        {'label': 'Completed', 'value': 'Completed'},
-        {'label': 'Cancelled', 'value': 'Cancelled'},
+        {"label": "All", "value": ""},
+        {"label": "Confirmed", "value": Appointment.STATUS_CONFIRMED},
+        {"label": "Pending", "value": Appointment.STATUS_PENDING},
+        {"label": "Completed", "value": Appointment.STATUS_COMPLETED},
+        {"label": "Cancelled", "value": Appointment.STATUS_CANCELLED},
     ]
+
     context = {
-        'active_page': 'appointments',
-        'appointments': appointments,
-        'status_filters': status_filters,
-        'current_status': '',
+        "active_page": "appointments",
+        "patient": _patient_profile(request.user),
+        "appointments": appointments_page,
+        "status_filters": status_filters,
+        "current_status": status_filter,
+        "booking_success": booking_success,
     }
-    return render(request, 'patient_roshan/my_appointments.html', context)
+    return render(request, "patient_roshan/my_appointments.html", context)
 
 
-@login_required
+@patient_required
 def cancel_appointment(request, appointment_id):
-    messages.success(request, 'Appointment cancelled.')
-    return redirect('patient_roshan:my_appointments')
+    appointment = get_object_or_404(Appointment, id=appointment_id, patient=request.user)
+    appointment.status = Appointment.STATUS_CANCELLED
+    appointment.save(update_fields=["status", "updated_at"])
+    Notification.objects.create(
+        recipient=request.user,
+        title="Appointment cancelled",
+        message=f"Your appointment with {appointment.doctor_name} on {appointment.display_date} was cancelled.",
+        category=Notification.CATEGORY_APPOINTMENT,
+        action_url=f"/patient/appointments/{appointment.id}/",
+    )
+    messages.success(request, "Appointment cancelled.")
+    return redirect("patient_roshan:my_appointments")
 
 
-@login_required
+@patient_required
 def reschedule_appointment(request, appointment_id):
-    return redirect('patient_roshan:book_appointment')
+    appointment = get_object_or_404(Appointment, id=appointment_id, patient=request.user)
+    return redirect(
+        f"/patient/book/?doctor={appointment.doctor_id}&date={appointment.appointment_date.isoformat()}&time={appointment.appointment_time.strftime('%H:%M')}"
+    )
 
 
-@login_required
+@patient_required
 def appointment_detail(request, appointment_id):
-    context = {'active_page': 'appointments'}
-    return render(request, 'patient_roshan/my_appointments.html', context)
+    appointment = get_object_or_404(Appointment.objects.select_related("doctor", "department"), id=appointment_id, patient=request.user)
+    medical_record = getattr(appointment, "medical_record", None)
+    prescription = getattr(appointment, "prescription", None)
+
+    context = {
+        "active_page": "appointments",
+        "patient": _patient_profile(request.user),
+        "appointment": appointment,
+        "medical_record": medical_record,
+        "prescription": prescription,
+    }
+    return render(request, "patient_roshan/appointment_detail.html", context)
 
 
-@login_required
+@patient_required
 def medical_records(request):
-    records = [
-        {
-            'date': '28 Jun 2025', 'time': '10:30 AM',
-            'diagnosis': 'Hypertension', 'color': '#ba1a1a',
-            'doctor_name': 'Dr. Nikesh Raj Shrestha',
-            'doctor_specialization': 'Interventional Cardiologist',
-            'status': 'STABLE', 'department': 'Cardiology',
-            'notes': 'BP recorded at 145/95. Adjustment to Amlodipine dosage recommended. Sodium intake to be reduced.',
-        },
-        {
-            'date': '15 Jun 2025', 'time': '02:15 PM',
-            'diagnosis': 'Seasonal Allergy', 'color': '#784b00',
-            'doctor_name': 'Dr. Birendra Kumar Bista',
-            'doctor_specialization': 'Senior Consultant Neurologist',
-            'status': 'RESOLVED', 'department': 'Neurology',
-            'notes': 'Prescribed antihistamines. Symptoms resolved. Follow-up in 4 weeks.',
-        },
-        {
-            'date': '02 May 2025', 'time': '09:00 AM',
-            'diagnosis': 'Routine Checkup', 'color': '#004ac6',
-            'doctor_name': 'Prof. Dr. Navin Kumar Karna',
-            'doctor_specialization': 'Senior Consultant Orthopedic Surgeon',
-            'status': 'CLEAR', 'department': 'Orthopedics',
-            'notes': 'All vitals normal. BMI 22.5. No abnormalities detected.',
-        },
-    ]
-
-    class FakePatient:
-        blood_group = 'O+'
-        age = 20
-        gender = 'Male'
-
+    profile = _patient_profile(request.user)
+    records = MedicalRecord.objects.filter(patient=request.user).select_related("doctor", "department").order_by("-visit_date", "-created_at")
     context = {
-        'active_page': 'records',
-        'records': records,
-        'patient': FakePatient(),
+        "active_page": "records",
+        "patient": profile,
+        "records": records,
     }
-    return render(request, 'patient_roshan/medical_records.html', context)
+    return render(request, "patient_roshan/medical_records.html", context)
 
 
-@login_required
+@patient_required
 def lab_reports(request):
-    reports = [
-        {'date': '15 Jun 2025', 'lab_name': 'Norvic Hospital Lab, Kathmandu', 'test_name': 'Complete Blood Count (CBC)', 'ordered_by': 'Dr. Nikesh Raj Shrestha', 'status': 'Ready', 'file_url': '#'},
-        {'date': '15 Jun 2025', 'lab_name': 'Norvic Hospital Lab, Kathmandu', 'test_name': 'Lipid Profile', 'ordered_by': 'Dr. Sanjeev Thapa', 'status': 'Ready', 'file_url': '#'},
-        {'date': '20 Jul 2025', 'lab_name': 'Clinic One Lab, Lalitpur', 'test_name': 'Blood Sugar (Fasting)', 'ordered_by': 'Dr. Birendra Kumar Bista', 'status': 'Pending', 'file_url': ''},
-        {'date': '20 Jul 2025', 'lab_name': 'Clinic One Lab, Lalitpur', 'test_name': 'Thyroid Function Test (TFT)', 'ordered_by': 'Dr. Sanjeev Thapa', 'status': 'Pending', 'file_url': ''},
-    ]
     context = {
-        'active_page': 'labreports',
-        'lab_reports': reports,
+        "active_page": "labreports",
+        "patient": _patient_profile(request.user),
+        "lab_reports": LabReport.objects.filter(patient=request.user).select_related("doctor", "appointment").order_by("-ordered_on", "-created_at"),
     }
-    return render(request, 'patient_roshan/lab_reports.html', context)
+    return render(request, "patient_roshan/lab_reports.html", context)
 
 
-@login_required
+@patient_required
 def profile(request):
-    if request.method == 'POST':
-        messages.success(request, 'Profile updated successfully!')
-        return redirect('patient_roshan:profile')
+    patient = _patient_profile(request.user)
+    if request.method == "POST":
+        full_name = (request.POST.get("full_name") or "").strip()
+        email = (request.POST.get("email") or "").strip()
+        phone = (request.POST.get("phone") or "").strip()
+        dob = request.POST.get("dob") or None
+        gender = request.POST.get("gender") or ""
+        blood_group = request.POST.get("blood_group") or ""
+        address = (request.POST.get("address") or "").strip()
 
-    class FakePatient:
-        blood_group = 'O+'
-        age = 20
-        gender = 'Male'
-        phone = '+977 9800000000'
-        address = 'Kathmandu, Bagmati Province, Nepal'
-        emergency_contact_name = 'Irfat Ansari'
-        emergency_contact_relation = 'Brother'
-        emergency_contact_phone = '+977 9800000001'
-        dob = None
+        if full_name:
+            name_parts = full_name.split(maxsplit=1)
+            request.user.first_name = name_parts[0]
+            request.user.last_name = name_parts[1] if len(name_parts) > 1 else ""
+        request.user.email = email or request.user.email
+        request.user.save(update_fields=["first_name", "last_name", "email"])
 
-    blood_groups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
+        patient.phone = phone
+        patient.gender = gender
+        patient.blood_group = blood_group
+        patient.address = address
+        patient.dob = dob or None
+        patient.save()
+
+        messages.success(request, "Profile updated successfully.")
+        return redirect("patient_roshan:profile")
+
+    blood_groups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"]
     context = {
-        'active_page': 'profile',
-        'patient': FakePatient(),
-        'blood_groups': blood_groups,
+        "active_page": "profile",
+        "patient": patient,
+        "blood_groups": blood_groups,
     }
-    return render(request, 'patient_roshan/profile.html', context)
+    return render(request, "patient_roshan/profile.html", context)
 
 
-@login_required
+@patient_required
 def update_emergency_contact(request):
-    if request.method == 'POST':
-        messages.success(request, 'Emergency contact updated.')
-    return redirect('patient_roshan:profile')
+    patient = _patient_profile(request.user)
+    if request.method == "POST":
+        patient.emergency_contact_name = request.POST.get("emergency_name", "").strip()
+        patient.emergency_contact_relation = request.POST.get("emergency_relation", "").strip()
+        patient.emergency_contact_phone = request.POST.get("emergency_phone", "").strip()
+        patient.save()
+        messages.success(request, "Emergency contact updated.")
+    return redirect("patient_roshan:profile")
 
 
-@login_required
+@patient_required
 def change_password(request):
-    if request.method == 'POST':
-        messages.success(request, 'Password updated successfully.')
-    return redirect('patient_roshan:profile')
-
-@login_required
-def prescriptions(request):
-    prescriptions = [
-        {'date': '28 Jun 2025', 'medicine': 'Amlodipine 5mg', 'dosage': '1 tab / day', 'doctor': 'Dr. Nikesh Raj Shrestha', 'status': 'Active'},
-        {'date': '28 Jun 2025', 'medicine': 'Aspirin 75mg', 'dosage': '1 tab / day', 'doctor': 'Dr. Sanjeev Thapa', 'status': 'Active'},
-        {'date': '15 Jun 2025', 'medicine': 'Paracetamol 500mg', 'dosage': 'As needed', 'doctor': 'Dr. Birendra Kumar Bista', 'status': 'Completed'},
-    ]
-    context = {
-        'active_page': 'prescriptions',
-        'prescriptions': prescriptions,
-    }
-    return render(request, 'patient_roshan/prescriptions.html', context)
+    if request.method == "POST":
+        old_password = request.POST.get("old_password") or ""
+        new_password = request.POST.get("new_password") or ""
+        if not request.user.check_password(old_password):
+            messages.error(request, "Current password is incorrect.")
+            return redirect("patient_roshan:profile")
+        if len(new_password) < 8:
+            messages.error(request, "New password must be at least 8 characters long.")
+            return redirect("patient_roshan:profile")
+        request.user.set_password(new_password)
+        request.user.save(update_fields=["password"])
+        update_session_auth_hash(request, request.user)
+        messages.success(request, "Password updated successfully.")
+    return redirect("patient_roshan:profile")

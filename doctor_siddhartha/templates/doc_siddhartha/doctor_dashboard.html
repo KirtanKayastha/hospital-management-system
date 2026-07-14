@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doctor Dashboard</title>
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+  <style>
+    body { font-family: Inter, sans-serif; background: #f7f9fb; color: #191c1e; }
+    .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+  </style>
+</head>
+<body>
+  <div class="min-h-screen flex">
+    <aside class="hidden lg:flex flex-col w-64 border-r border-slate-200 bg-white p-6">
+      <div class="mb-10">
+        <div class="text-xl font-bold text-blue-700">MedCore Portal</div>
+        <div class="text-sm text-slate-500">{{ doctor_profile.display_name|default:request.user.username }}</div>
+      </div>
+      <nav class="space-y-2 text-sm font-medium">
+        <a class="block rounded-lg px-4 py-3 bg-blue-50 text-blue-700" href="{% url 'doctor_siddhartha:dashboard' %}">Dashboard</a>
+        <a class="block rounded-lg px-4 py-3 hover:bg-slate-100" href="{% url 'doctor_siddhartha:schedule' %}">Schedule</a>
+        <a class="block rounded-lg px-4 py-3 hover:bg-slate-100" href="{% url 'doctor_siddhartha:patients' %}">Patients</a>
+        <a class="block rounded-lg px-4 py-3 hover:bg-slate-100" href="{% url 'doctor_siddhartha:prescriptions' %}">Prescriptions</a>
+        <a class="block rounded-lg px-4 py-3 text-red-600 hover:bg-red-50" href="{% url 'auth_kirtan:logout' %}">Logout</a>
+      </nav>
+    </aside>
+
+    <main class="flex-1 p-6 lg:p-10 space-y-6">
+      <header class="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+        <div>
+          <p class="text-sm uppercase tracking-[0.2em] text-blue-700">{{ today_label }}</p>
+          <h1 class="text-3xl font-bold text-slate-900">Doctor Dashboard</h1>
+          <p class="text-slate-600">Live overview of today's clinical workload.</p>
+        </div>
+        <div class="text-sm text-slate-500">{{ doctor_profile.specialization|default:'General Medicine' }}</div>
+      </header>
+
+      <section class="grid gap-4 md:grid-cols-3">
+        <div class="rounded-2xl border border-slate-200 bg-white p-5">
+          <div class="text-sm text-slate-500">Total Patients</div>
+          <div class="mt-2 text-3xl font-bold text-slate-900">{{ total_patients }}</div>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-5">
+          <div class="text-sm text-slate-500">Today's Appointments</div>
+          <div class="mt-2 text-3xl font-bold text-slate-900">{{ todays_appointments }}</div>
+        </div>
+        <div class="rounded-2xl border border-slate-200 bg-white p-5">
+          <div class="text-sm text-slate-500">Pending Prescriptions</div>
+          <div class="mt-2 text-3xl font-bold text-slate-900">{{ pending_prescriptions }}</div>
+        </div>
+      </section>
+
+      {% if pending_appointments %}
+      <section class="rounded-2xl border border-amber-200 bg-amber-50 p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold text-amber-900">Pending Approvals</h2>
+          <span class="px-3 py-1 rounded-full bg-amber-200 text-amber-800 text-xs font-semibold">{{ pending_appointments|length }} Pending</span>
+        </div>
+        <div class="space-y-3">
+          {% for appointment in pending_appointments %}
+          <div class="rounded-xl bg-white p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-amber-100">
+            <div class="flex-1">
+              <div class="font-semibold text-slate-900">{{ appointment.patient_name }}</div>
+              <div class="text-sm text-slate-500 mt-1">
+                {{ appointment.display_date }} at {{ appointment.display_time }} · {{ appointment.department_name }}
+              </div>
+              <div class="text-sm text-slate-500 mt-1">{{ appointment.reason|truncatechars:80 }}</div>
+            </div>
+            <div class="flex items-center gap-2">
+              <a href="{% url 'doctor_siddhartha:approve_appointment' appointment.id %}" class="inline-flex items-center gap-xs px-4 py-2 rounded-xl bg-green-600 text-white font-label-md text-label-md hover:bg-green-700 transition-colors">
+                <span class="material-symbols-outlined text-base">check</span>
+                Approve
+              </a>
+              <a href="{% url 'doctor_siddhartha:reject_appointment' appointment.id %}" class="inline-flex items-center gap-xs px-4 py-2 rounded-xl bg-red-600 text-white font-label-md text-label-md hover:bg-red-700 transition-colors">
+                <span class="material-symbols-outlined text-base">close</span>
+                Reject
+              </a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+      {% endif %}
+
+      <section class="grid gap-6 lg:grid-cols-2">
+        <div class="rounded-2xl border border-slate-200 bg-white p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold">Today's Schedule</h2>
+            <a class="text-sm text-blue-700" href="{% url 'doctor_siddhartha:schedule' %}">View all</a>
+          </div>
+          <div class="space-y-3">
+            {% for appointment in today_schedule %}
+              <div class="rounded-xl bg-slate-50 p-4 flex items-center justify-between gap-4">
+                <div>
+                  <div class="font-semibold">{{ appointment.patient_name }}</div>
+                  <div class="text-sm text-slate-500">{{ appointment.department_name }} · {{ appointment.reason|truncatechars:60 }}</div>
+                </div>
+                <div class="text-right text-sm">
+                  <div class="font-medium text-slate-900">{{ appointment.display_time }}</div>
+                  <div class="text-slate-500">{{ appointment.status }}</div>
+                </div>
+              </div>
+            {% empty %}
+              <div class="rounded-xl border border-dashed border-slate-300 p-6 text-center text-slate-500">No appointments scheduled for today.</div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-200 bg-white p-5">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-semibold">Recent Patients</h2>
+            <a class="text-sm text-blue-700" href="{% url 'doctor_siddhartha:patients' %}">Open records</a>
+          </div>
+          <div class="space-y-3">
+            {% for appointment in recent_patients %}
+              <div class="rounded-xl bg-slate-50 p-4 flex items-center justify-between gap-4">
+                <div>
+                  <div class="font-semibold">{{ appointment.patient_name }}</div>
+                  <div class="text-sm text-slate-500">Last visit: {{ appointment.display_date }}</div>
+                </div>
+                <div class="text-sm text-slate-500">{{ appointment.department_name }}</div>
+              </div>
+            {% empty %}
+              <div class="rounded-xl border border-dashed border-slate-300 p-6 text-center text-slate-500">No patients yet.</div>
+            {% endfor %}
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

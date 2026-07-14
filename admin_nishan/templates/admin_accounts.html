@@ -1,0 +1,89 @@
+{% extends 'admin_nishan/base.html' %}
+{% block title %}Accounts{% endblock %}
+{% block page_title %}Accounts Management{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-end mb-xl">
+    <div>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">Accounts Management</h2>
+        <p class="text-on-surface-variant">All system users ({{ total_accounts }} total).</p>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-lg mb-gutter">
+    <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center justify-between">
+        <div><p class="text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Total Accounts</p><h3 class="text-headline-md font-bold text-on-surface">{{ total_accounts }}</h3></div>
+        <div class="w-12 h-12 bg-primary-fixed rounded-lg flex items-center justify-center text-primary"><span class="material-symbols-outlined text-3xl">people</span></div>
+    </div>
+    <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center justify-between">
+        <div><p class="text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Patients</p><h3 class="text-headline-md font-bold text-on-surface">{{ total_patients }}</h3></div>
+        <div class="w-12 h-12 bg-secondary-container rounded-lg flex items-center justify-center text-on-secondary-container"><span class="material-symbols-outlined text-3xl">personal_injury</span></div>
+    </div>
+    <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center justify-between">
+        <div><p class="text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Doctors</p><h3 class="text-headline-md font-bold text-on-surface">{{ total_doctors }}</h3></div>
+        <div class="w-12 h-12 bg-tertiary-fixed rounded-lg flex items-center justify-center text-tertiary"><span class="material-symbols-outlined text-3xl">medical_services</span></div>
+    </div>
+    <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center justify-between">
+        <div><p class="text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Active</p><h3 class="text-headline-md font-bold text-on-surface">{{ accounts|length }}</h3></div>
+        <div class="w-12 h-12 bg-error-container rounded-lg flex items-center justify-center text-on-error-container"><span class="material-symbols-outlined text-3xl">hourglass_empty</span></div>
+    </div>
+</div>
+
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="border-b border-outline-variant bg-surface-container-low">
+                    <th class="p-lg text-label-md text-on-surface-variant">ID</th>
+                    <th class="p-lg text-label-md text-on-surface-variant">Profile</th>
+                    <th class="p-lg text-label-md text-on-surface-variant">Email</th>
+                    <th class="p-lg text-label-md text-on-surface-variant">Role</th>
+                    <th class="p-lg text-label-md text-on-surface-variant">Status</th>
+                    <th class="p-lg text-label-md text-on-surface-variant">Joined</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-outline-variant/30">
+                {% for user in accounts %}
+                <tr class="hover:bg-surface-container transition-colors group">
+                    <td class="p-lg text-label-sm text-on-surface-variant">USR-{{ user.id }}</td>
+                    <td class="p-lg">
+                        <div class="flex items-center gap-md">
+                            <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant font-bold">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+                            <span class="font-bold text-on-surface">{{ user.get_full_name|default:user.username }}</span>
+                        </div>
+                    </td>
+                    <td class="p-lg text-body-md text-on-surface-variant">{{ user.email|default:"—" }}</td>
+                    <td class="p-lg">
+                        {% if user.doctor_profile %}
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-primary-fixed text-on-primary-fixed-variant">Doctor</span>
+                        {% elif user.patient_profile %}
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-secondary-container text-on-secondary-container">Patient</span>
+                        {% elif user.is_superuser or user.is_staff %}
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-tertiary-fixed text-on-tertiary-fixed-variant">Admin</span>
+                        {% else %}
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-surface-container-high text-on-surface-variant">Staff</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-lg">
+                        {% if user.is_active %}
+                        <span class="flex items-center gap-xs text-secondary font-semibold text-sm"><span class="w-2 h-2 rounded-full bg-secondary"></span> Active</span>
+                        {% else %}
+                        <span class="flex items-center gap-xs text-error font-semibold text-sm"><span class="w-2 h-2 rounded-full bg-error"></span> Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-lg text-body-md text-on-surface-variant">{{ user.date_joined|date:"d M Y" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="p-lg text-center">
+                        <span class="material-symbols-outlined text-4xl text-on-surface-variant">manage_accounts</span>
+                        <p class="font-body-md text-on-surface mt-md">No accounts found</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

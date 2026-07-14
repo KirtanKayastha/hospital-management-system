@@ -108,17 +108,25 @@
     {# Right Column #}
     <div class="flex flex-col gap-lg">
 
-        {# Health Insights #}
+        {# Latest Notifications #}
         <div class="bg-primary text-white p-lg rounded-xl shadow-sm relative overflow-hidden group">
             <div class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-125 transition-transform duration-700"></div>
             <div class="relative z-10 space-y-md">
-                <h4 class="font-headline-sm text-headline-sm">Health Insights</h4>
+                <h4 class="font-headline-sm text-headline-sm">Notifications</h4>
+                {% if notifications %}
+                <ul class="space-y-sm">
+                    {% for note in notifications %}
+                    <li class="font-body-sm text-body-sm opacity-90 leading-relaxed">{{ note.title }}</li>
+                    {% endfor %}
+                </ul>
+                {% else %}
                 <p class="font-body-sm text-body-sm opacity-90 leading-relaxed">
-                    Your cholesterol levels have improved since your last visit. Keep up the routine!
+                    You have no new notifications.
                 </p>
-                <button class="bg-white text-primary px-md py-sm rounded-lg font-label-md text-label-md font-bold hover:bg-surface-container-lowest transition-colors">
-                    Detailed Report
-                </button>
+                {% endif %}
+                <a href="{% url 'patient_roshan:my_appointments' %}" class="inline-block bg-white text-primary px-md py-sm rounded-lg font-label-md text-label-md font-bold hover:bg-surface-container-lowest transition-colors">
+                    View Appointments
+                </a>
             </div>
         </div>
 
