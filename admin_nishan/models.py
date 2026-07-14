@@ -236,12 +236,12 @@ class Prescription(models.Model):
 		blank=True,
 		related_name="authored_prescriptions",
 	)
-	appointment = models.OneToOneField(
+	appointment = models.ForeignKey(  # ✅ FIXED: Changed from OneToOneField to ForeignKey
 		Appointment,
 		on_delete=models.SET_NULL,
 		null=True,
 		blank=True,
-		related_name="prescription",
+		related_name="prescriptions",  # ✅ FIXED: changed from "prescription" to "prescriptions"
 	)
 	diagnosis = models.CharField(max_length=200)
 	notes = models.TextField(blank=True)

@@ -117,29 +117,33 @@
             <p class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">System Portal</p>
         </div>
         <nav class="flex-1 space-y-base overflow-y-auto">
-            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'dashboard' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_dashboard' %}">
+            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'dashboard' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_nishan:admin_dashboard' %}">
                 <span class="material-symbols-outlined">dashboard</span>
                 <span>Dashboard</span>
             </a>
-            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'patients' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_manage_patients' %}">
+            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'patients' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_nishan:admin_manage_patients' %}">
                 <span class="material-symbols-outlined">group</span>
                 <span>Patients</span>
             </a>
-            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'doctor' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_manage_doctor' %}">
+            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'doctor' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_nishan:admin_manage_doctor' %}">
                 <span class="material-symbols-outlined">medical_services</span>
                 <span>Doctors</span>
             </a>
-            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'appointments' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_appointments' %}">
+            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'appointments' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_nishan:admin_appointments' %}">
                 <span class="material-symbols-outlined">event</span>
                 <span>Appointments</span>
             </a>
-            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'accounts' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_accounts' %}">
+            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'accounts' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_nishan:admin_accounts' %}">
                 <span class="material-symbols-outlined">manage_accounts</span>
                 <span>Accounts</span>
             </a>
-            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'reports' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_reports' %}">
+            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'reports' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_nishan:admin_reports' %}">
                 <span class="material-symbols-outlined">analytics</span>
                 <span>Reports</span>
+            </a>
+            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'pending_doctors' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_nishan:pending_doctors' %}">
+                <span class="material-symbols-outlined">how_to_reg</span>
+                <span>Pending Approvals</span>
             </a>
         </nav>
         <div class="pt-lg border-t border-outline-variant">

@@ -1,8 +1,9 @@
 from datetime import timedelta
 
+from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Count, Sum
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
 from admin_nishan.models import (
@@ -96,6 +97,39 @@ def admin_manage_doctor(request):
         "total_doctors": doctors.count(),
     }
     return render(request, "admin_manage_doctor.html", context)
+
+
+@admin_required
+def pending_doctors(request):
+    pending_doctors = (
+        DoctorProfile.objects.select_related("user", "department")
+        .filter(status=DoctorProfile.STATUS_PENDING)
+        .order_by("user__date_joined")
+    )
+    context = {
+        "active_page": "pending_doctors",
+        "pending_doctors": pending_doctors,
+        "total_pending": pending_doctors.count(),
+    }
+    return render(request, "admin_nishan/pending_doctors.html", context)
+
+
+@admin_required
+def approve_doctor(request, doctor_id):
+    profile = get_object_or_404(DoctorProfile, pk=doctor_id)
+    profile.status = DoctorProfile.STATUS_APPROVED
+    profile.save(update_fields=["status"])
+    messages.success(request, f"Dr. {profile.display_name} has been approved.")
+    return redirect("admin_nishan:pending_doctors")
+
+
+@admin_required
+def reject_doctor(request, doctor_id):
+    profile = get_object_or_404(DoctorProfile, pk=doctor_id)
+    profile.status = DoctorProfile.STATUS_REJECTED
+    profile.save(update_fields=["status"])
+    messages.warning(request, f"Dr. {profile.display_name} has been rejected.")
+    return redirect("admin_nishan:pending_doctors")
 
 
 @admin_required

@@ -105,10 +105,13 @@ def register_view(request):
         # Create role-specific profile
         if role == 'patient':
             ensure_patient_profile(user)
+            messages.success(request, 'Account created successfully! Please login.')
         elif role == 'doctor':
             _ensure_doctor_profile(user)
+            messages.success(request, 'Doctor account created! Waiting for admin approval.')
+        else:
+            messages.success(request, 'Account created successfully! Please login.')
 
-        messages.success(request, 'Account created successfully! Please login.')
         return redirect('/login/')
 
     return render(request, 'auth_kirtan/register.html')

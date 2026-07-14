@@ -1,7 +1,11 @@
 from functools import wraps
 
+from django.contrib import messages as django_messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.shortcuts import redirect
+
+from doctor_siddhartha.models import DoctorProfile
 
 
 ROLE_ADMIN = "admin"
@@ -48,7 +52,28 @@ def patient_required(view_func):
 
 
 def doctor_required(view_func):
-    return role_required(ROLE_DOCTOR)(view_func)
+    @wraps(view_func)
+    @login_required
+    def wrapped(request, *args, **kwargs):
+        role = get_user_role(request.user)
+        if role != ROLE_DOCTOR and not request.user.is_superuser:
+            raise PermissionDenied
+        if request.user.is_superuser:
+            return view_func(request, *args, **kwargs)
+        try:
+            profile = request.user.doctor_profile
+        except DoctorProfile.DoesNotExist:
+            django_messages.error(request, "Doctor profile not found.")
+            return redirect("/")
+        if profile.status == DoctorProfile.STATUS_PENDING:
+            django_messages.warning(request, "Your doctor account is pending admin approval.")
+            return redirect("/")
+        if profile.status == DoctorProfile.STATUS_REJECTED:
+            django_messages.error(request, "Your doctor account has been rejected. Contact admin.")
+            return redirect("/")
+        return view_func(request, *args, **kwargs)
+
+    return wrapped
 
 
 def admin_required(view_func):

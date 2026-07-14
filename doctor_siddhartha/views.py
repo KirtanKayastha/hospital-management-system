@@ -67,12 +67,41 @@ def _recent_patients(doctor_user):
 
 
 @doctor_required
+def approve_appointment(request, appointment_id):
+    appointment = get_object_or_404(Appointment, pk=appointment_id, doctor=request.user)
+    if appointment.status != Appointment.STATUS_PENDING:
+        messages.error(request, "This appointment is no longer pending.")
+        return redirect("doctor_siddhartha:dashboard")
+    appointment.status = Appointment.STATUS_CONFIRMED
+    appointment.save(update_fields=["status"])
+    messages.success(request, f"Appointment with {appointment.patient_name} has been confirmed.")
+    return redirect("doctor_siddhartha:dashboard")
+
+
+@doctor_required
+def reject_appointment(request, appointment_id):
+    appointment = get_object_or_404(Appointment, pk=appointment_id, doctor=request.user)
+    if appointment.status != Appointment.STATUS_PENDING:
+        messages.error(request, "This appointment is no longer pending.")
+        return redirect("doctor_siddhartha:dashboard")
+    appointment.status = Appointment.STATUS_CANCELLED
+    appointment.save(update_fields=["status"])
+    messages.warning(request, f"Appointment with {appointment.patient_name} has been rejected.")
+    return redirect("doctor_siddhartha:dashboard")
+
+
+@doctor_required
 def doctor_dashboard(request):
     doctor_profile = _doctor_profile(request.user)
     today = timezone.localdate()
     todays_appointments = _today_schedule(request.user)
     pending_prescriptions = Prescription.objects.filter(doctor=request.user, is_active=True).count()
     total_patients = Appointment.objects.filter(doctor=request.user).values("patient_id").distinct().count()
+    pending_appointments = (
+        Appointment.objects.filter(doctor=request.user, status=Appointment.STATUS_PENDING)
+        .select_related("patient", "department")
+        .order_by("appointment_date", "appointment_time")
+    )
 
     context = {
         "doctor_profile": doctor_profile,
@@ -83,6 +112,7 @@ def doctor_dashboard(request):
         "recent_patients": _recent_patients(request.user),
         "notifications": Notification.objects.filter(recipient=request.user, is_read=False)[:5],
         "today_label": today.strftime("%A, %B %d"),
+        "pending_appointments": pending_appointments,
     }
     return render(request, "doc_siddhartha/doctor_dashboard.html", context)
 
