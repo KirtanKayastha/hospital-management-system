@@ -31,9 +31,19 @@ class PatientProfile(models.Model):
     emergency_contact_relation = models.CharField(max_length=50, blank=True)
     emergency_contact_phone = models.CharField(max_length=20, blank=True)
 
+   # Notification preferences
+    email_notifications = models.BooleanField(default=True)
+    sms_reminders = models.BooleanField(default=True)
+    appointment_alerts = models.BooleanField(default=True)
+    lab_notifications = models.BooleanField(default=False)
+
+    # Language & Privacy
+    language = models.CharField(max_length=5, default='en')
+    profile_visibility = models.CharField(max_length=20, default='doctors')
+    share_records = models.BooleanField(default=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
     def __str__(self):
         return f"{self.user.get_full_name()} - Patient Profile"
 
@@ -71,4 +81,4 @@ class Appointment(models.Model):
     class Meta:
         ordering = ['-date']
         verbose_name = 'Appointment'
-        verbose_name_plural = 'Appointments'
+        verbose_name_plural = 'Appointments'	

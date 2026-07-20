@@ -5,89 +5,251 @@
 {% block content %}
 {% with active_page='settings' %}
 
-<div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-lg">
-    <div>
-        <h1 class="font-headline-lg text-headline-lg text-on-surface">Settings</h1>
-        <p class="font-body-md text-on-surface-variant mt-xs">Manage your account preferences.</p>
-    </div>
+<div class="mb-lg">
+    <h1 class="font-headline-lg text-headline-lg text-on-surface">Manage your account preferences.</h1>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-lg">
+{% if messages %}
+<div class="mb-lg space-y-sm">
+    {% for message in messages %}
+    <div class="px-lg py-sm rounded-lg font-body-sm text-body-sm
+        {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-200
+        {% else %}bg-red-100 text-red-700 border border-red-200{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 
-    {# Change Password #}
+<div class="space-y-lg">
+
+    <!-- Account Information -->
     <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
         <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
-            <h3 class="font-headline-sm text-headline-sm text-on-surface">Change Password</h3>
-            <span class="material-symbols-outlined text-on-surface-variant">lock</span>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface">Account Information</h3>
+            <span class="material-symbols-outlined text-on-surface-variant">info</span>
         </div>
-        <form method="POST" action="{% url 'patient_roshan:change_password' %}">
-            {% csrf_token %}
-            <div class="p-lg space-y-md">
-                <div class="space-y-xs">
-                    <label class="font-label-md text-label-md text-on-surface-variant">Current Password</label>
-                    <input type="password" name="old_password"
-                        class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"
-                        placeholder="••••••••"/>
-                </div>
-                <div class="space-y-xs">
-                    <label class="font-label-md text-label-md text-on-surface-variant">New Password</label>
-                    <input type="password" name="new_password"
-                        class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"
-                        placeholder="••••••••"/>
-                </div>
-                <div class="space-y-xs">
-                    <label class="font-label-md text-label-md text-on-surface-variant">Confirm New Password</label>
-                    <input type="password" name="confirm_password"
-                        class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"
-                        placeholder="••••••••"/>
-                </div>
+        <div class="p-lg grid grid-cols-1 md:grid-cols-3 gap-lg">
+            <div>
+                <p class="font-label-md text-label-md text-on-surface-variant mb-xs">Username</p>
+                <p class="font-body-md text-body-md text-on-surface">{{ request.user.username }}</p>
             </div>
-            <div class="px-lg py-md border-t border-outline-variant flex justify-end">
-                <button type="submit" class="bg-primary text-white py-sm px-md rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
-                    Update Password
+            <div>
+                <p class="font-label-md text-label-md text-on-surface-variant mb-xs">Account Created</p>
+                <p class="font-body-md text-body-md text-on-surface">{{ request.user.date_joined|date:"d M Y" }}</p>
+            </div>
+            <div>
+                <p class="font-label-md text-label-md text-on-surface-variant mb-xs">Last Login</p>
+                <p class="font-body-md text-body-md text-on-surface">{{ request.user.last_login|date:"d M Y, h:i A" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password + Notification Preferences -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-lg">
+
+        <!-- Change Password -->
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+            <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+                <h3 class="font-headline-sm text-headline-sm text-on-surface">Change Password</h3>
+                <span class="material-symbols-outlined text-on-surface-variant">lock</span>
+            </div>
+            <form method="POST" action="{% url 'patient_roshan:change_password' %}">
+                {% csrf_token %}
+                <div class="p-lg space-y-md">
+                    <div>
+                        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Current Password</label>
+                        <input type="password" name="old_password" required
+                            class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"
+                            placeholder="••••••••"/>
+                    </div>
+                    <div>
+                        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">New Password</label>
+                        <input type="password" name="new_password" required
+                            class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"
+                            placeholder="••••••••"/>
+                        <p class="font-label-sm text-label-sm text-on-surface-variant mt-xs">Minimum 8 characters.</p>
+                    </div>
+                    <div>
+                        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Confirm New Password</label>
+                        <input type="password" name="confirm_password" required
+                            class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"
+                            placeholder="••••••••"/>
+                    </div>
+                </div>
+                <div class="px-lg py-md border-t border-outline-variant flex justify-end">
+                    <button type="submit" class="bg-primary text-white py-sm px-md rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
+                        Update Password
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Notification Preferences -->
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+            <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+                <h3 class="font-headline-sm text-headline-sm text-on-surface">Notification Preferences</h3>
+                <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+            </div>
+            <form method="POST" action="{% url 'patient_roshan:save_notification_preferences' %}">
+                {% csrf_token %}
+                <div class="p-lg space-y-md">
+                    <label class="flex items-center gap-md cursor-pointer font-body-md text-body-md">
+                        <input type="checkbox" name="email_notifications" class="rounded"
+                            {% if preferences.email_notifications %}checked{% endif %}> Email notifications
+                    </label>
+                    <label class="flex items-center gap-md cursor-pointer font-body-md text-body-md">
+                        <input type="checkbox" name="sms_reminders" class="rounded"
+                            {% if preferences.sms_reminders %}checked{% endif %}> SMS reminders
+                    </label>
+                    <label class="flex items-center gap-md cursor-pointer font-body-md text-body-md">
+                        <input type="checkbox" name="appointment_alerts" class="rounded"
+                            {% if preferences.appointment_alerts %}checked{% endif %}> Appointment alerts
+                    </label>
+                    <label class="flex items-center gap-md cursor-pointer font-body-md text-body-md">
+                        <input type="checkbox" name="lab_notifications" class="rounded"
+                            {% if preferences.lab_notifications %}checked{% endif %}> Lab result notifications
+                    </label>
+                </div>
+                <div class="px-lg py-md border-t border-outline-variant flex justify-end">
+                    <button type="submit" class="bg-primary text-white py-sm px-md rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
+                        Save Preferences
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    <!-- Language + Privacy -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-lg">
+
+        <!-- Language Preference -->
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+            <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+                <h3 class="font-headline-sm text-headline-sm text-on-surface">Language Preference</h3>
+                <span class="material-symbols-outlined text-on-surface-variant">language</span>
+            </div>
+            <form method="POST" action="{% url 'patient_roshan:save_language' %}">
+                {% csrf_token %}
+                <div class="p-lg space-y-md">
+                    <label class="flex items-center gap-md cursor-pointer font-body-md text-body-md">
+                        <input type="radio" name="language" value="en"
+                            {% if preferences.language == 'en' or not preferences.language %}checked{% endif %}> English
+                    </label>
+                    <label class="flex items-center gap-md cursor-pointer font-body-md text-body-md">
+                        <input type="radio" name="language" value="np"
+                            {% if preferences.language == 'np' %}checked{% endif %}> नेपाली (Nepali)
+                    </label>
+                </div>
+                <div class="px-lg py-md border-t border-outline-variant flex justify-end">
+                    <button type="submit" class="bg-primary text-white py-sm px-md rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
+                        Save Language
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Privacy Settings -->
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+            <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+                <h3 class="font-headline-sm text-headline-sm text-on-surface">Privacy Settings</h3>
+                <span class="material-symbols-outlined text-on-surface-variant">privacy_tip</span>
+            </div>
+            <form method="POST" action="{% url 'patient_roshan:save_privacy' %}">
+                {% csrf_token %}
+                <div class="p-lg space-y-md">
+                    <div>
+                        <label class="font-label-md text-label-md text-on-surface-variant block mb-xs">Who can see my profile</label>
+                        <select name="profile_visibility"
+                            class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary transition-all font-body-md text-body-md">
+                            <option value="doctors" {% if preferences.profile_visibility == 'doctors' %}selected{% endif %}>My Doctors Only</option>
+                            <option value="all_staff" {% if preferences.profile_visibility == 'all_staff' %}selected{% endif %}>All Hospital Staff</option>
+                            <option value="private" {% if preferences.profile_visibility == 'private' %}selected{% endif %}>Private</option>
+                        </select>
+                    </div>
+                    <label class="flex items-center gap-md cursor-pointer font-body-md text-body-md">
+                        <input type="checkbox" name="share_records" class="rounded"
+                            {% if preferences.share_records %}checked{% endif %}> Allow doctors to share my records
+                    </label>
+                </div>
+                <div class="px-lg py-md border-t border-outline-variant flex justify-end">
+                    <button type="submit" class="bg-primary text-white py-sm px-md rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
+                        Save Privacy
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
+    <!-- Two Factor Authentication -->
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+        <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+            <h3 class="font-headline-sm text-headline-sm text-on-surface">Two-Factor Authentication</h3>
+            <span class="material-symbols-outlined text-on-surface-variant">security</span>
+        </div>
+        <div class="p-lg flex flex-col md:flex-row items-center justify-between gap-lg">
+            <div>
+                <p class="font-body-md text-body-md text-on-surface">Add an extra layer of security to your account.</p>
+                <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">When enabled, you will need your phone to sign in.</p>
+            </div>
+            <div class="flex items-center gap-md">
+                <span class="inline-flex items-center px-sm py-xs rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
+                    Not enabled
+                </span>
+                <button class="bg-primary text-white py-sm px-md rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
+                    Enable 2FA
                 </button>
             </div>
-        </form>
-    </div>
-
-    {# Notification Preferences #}
-    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
-        <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
-            <h3 class="font-headline-sm text-headline-sm text-on-surface">Notification Preferences</h3>
-            <span class="material-symbols-outlined text-on-surface-variant">notifications</span>
-        </div>
-        <div class="p-lg space-y-md">
-            <label class="flex items-center gap-md cursor-pointer font-body-md text-body-md">
-                <input type="checkbox" checked class="rounded"> Email notifications
-            </label>
-            <label class="flex items-center gap-md cursor-pointer font-body-md text-body-md">
-                <input type="checkbox" checked class="rounded"> SMS reminders
-            </label>
-            <label class="flex items-center gap-md cursor-pointer font-body-md text-body-md">
-                <input type="checkbox" class="rounded"> Appointment alerts
-            </label>
-            <label class="flex items-center gap-md cursor-pointer font-body-md text-body-md">
-                <input type="checkbox" class="rounded"> Lab result notifications
-            </label>
-        </div>
-        <div class="px-lg py-md border-t border-outline-variant flex justify-end">
-            <button class="bg-primary text-white py-sm px-md rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
-                Save Preferences
-            </button>
         </div>
     </div>
 
-    {# Danger Zone #}
-    <div class="lg:col-span-2 border border-error/20 bg-error-container/10 rounded-xl p-lg flex flex-col md:flex-row items-center justify-between gap-lg">
-        <div class="space-y-xs">
-            <h4 class="font-label-md text-label-md text-error font-bold">Danger Zone</h4>
-            <p class="font-body-sm text-body-sm text-on-surface-variant">
-                Deleting your account will permanently erase your clinical profile and appointment history. This action is irreversible.
-            </p>
+    <!-- Deactivate + Delete -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-lg">
+
+        <!-- Deactivate Account -->
+        <div class="border border-outline-variant bg-surface-container-lowest rounded-xl overflow-hidden">
+            <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+                <h3 class="font-headline-sm text-headline-sm text-on-surface">Deactivate Account</h3>
+                <span class="material-symbols-outlined text-on-surface-variant">pause_circle</span>
+            </div>
+            <div class="p-lg flex flex-col gap-md">
+                <p class="font-body-sm text-body-sm text-on-surface-variant">
+                    Temporarily disable your account. You can reactivate it anytime by logging in again.
+                </p>
+                <form method="POST" action="{% url 'patient_roshan:deactivate_account' %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                        onclick="return confirm('Are you sure you want to deactivate your account?')"
+                        class="border border-outline-variant text-on-surface py-sm px-md rounded-lg font-label-md text-label-md hover:bg-surface-container transition-colors">
+                        Deactivate Account
+                    </button>
+                </form>
+            </div>
         </div>
-        <button class="whitespace-nowrap px-lg py-sm border border-error text-error rounded-lg font-label-md text-label-md hover:bg-error hover:text-on-error transition-all">
-            Request Data Deletion
-        </button>
+
+        <!-- Request Data Deletion -->
+        <div class="border border-error/20 bg-error-container/10 rounded-xl overflow-hidden">
+            <div class="px-lg py-md border-b border-error/20 flex items-center justify-between">
+                <h3 class="font-headline-sm text-headline-sm text-error">Danger Zone</h3>
+                <span class="material-symbols-outlined text-error">warning</span>
+            </div>
+            <div class="p-lg flex flex-col gap-md">
+                <p class="font-body-sm text-body-sm text-on-surface-variant">
+                    Permanently delete your account and all health records. This requires admin approval.
+                </p>
+                <form method="POST" action="{% url 'patient_roshan:request_deletion' %}">
+                    {% csrf_token %}
+                    <button type="submit"
+                        onclick="return confirm('Are you sure? This will permanently delete all your data.')"
+                        class="border border-error text-error py-sm px-md rounded-lg font-label-md text-label-md hover:bg-error hover:text-on-error transition-all">
+                        Request Data Deletion
+                    </button>
+                </form>
+            </div>
+        </div>
+
     </div>
 
 </div>

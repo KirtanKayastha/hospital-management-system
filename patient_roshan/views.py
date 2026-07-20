@@ -96,13 +96,11 @@ def _build_time_slots(doctor_user, target_date):
         while current_time + timedelta(minutes=30) <= end_time:
             slot_time = current_time.time()
             slot_value = slot_time.strftime("%H:%M")
-            slots.append(
-                {
-                    "value": slot_value,
-                    "label": slot_time.strftime("%I:%M %p"),
-                    "is_booked": slot_time in booked_times,
-                }
-            )
+            slots.append({
+                "value": slot_value,
+                "label": slot_time.strftime("%I:%M %p"),
+                "is_booked": slot_time in booked_times,
+            })
             current_time += timedelta(minutes=30)
     return slots
 
@@ -113,18 +111,14 @@ def _calendar_days(selected_date):
     first_day_weekday, days_in_month = calendar.monthrange(year, month)
     days = []
     today = timezone.localdate()
-
     for day_number in range(1, days_in_month + 1):
         current_date = date(year, month, day_number)
-        days.append(
-            {
-                "number": day_number,
-                "date": current_date.isoformat(),
-                "is_past": current_date < today,
-                "is_selected": current_date == selected_date,
-            }
-        )
-
+        days.append({
+            "number": day_number,
+            "date": current_date.isoformat(),
+            "is_past": current_date < today,
+            "is_selected": current_date == selected_date,
+        })
     padding = [{"number": "", "date": "", "is_past": True, "is_selected": False} for _ in range(first_day_weekday)]
     return padding + days
 
@@ -142,11 +136,12 @@ def _patient_profile(user):
     return ensure_patient_profile(user)
 
 
+# ─── DASHBOARD ───────────────────────────────────────────────────────────────
+
 @patient_required
 def dashboard(request):
     profile = _patient_profile(request.user)
     today = timezone.localdate()
-
     recent_appointments = (
         Appointment.objects.filter(patient=request.user)
         .select_related("doctor", "department")
@@ -158,7 +153,6 @@ def dashboard(request):
         .select_related("doctor")
         .order_by("-prescribed_on")[:4]
     )
-
     context = {
         "active_page": "dashboard",
         "patient": profile,
@@ -175,6 +169,8 @@ def dashboard(request):
     }
     return render(request, "patient_roshan/dashboard.html", context)
 
+
+# ─── BOOK APPOINTMENT ────────────────────────────────────────────────────────
 
 @patient_required
 def book_appointment(request):
@@ -318,6 +314,8 @@ def book_appointment(request):
     return render(request, "patient_roshan/book_appointment.html", context)
 
 
+# ─── FIND DOCTOR ─────────────────────────────────────────────────────────────
+
 @patient_required
 def find_doctor(request):
     department_id = request.GET.get("department", "")
@@ -336,19 +334,21 @@ def find_doctor(request):
             | Q(user__username__icontains=search)
             | Q(specialization__icontains=search)
         )
-
     if availability in {"today", "week"}:
         target_days = [timezone.localdate().weekday()]
         if availability == "week":
             target_days = list(range(7))
-        doctor_profiles = doctor_profiles.filter(user__availability_slots__day_of_week__in=target_days, user__availability_slots__is_active=True).distinct()
+        doctor_profiles = doctor_profiles.filter(
+            user__availability_slots__day_of_week__in=target_days,
+            user__availability_slots__is_active=True
+        ).distinct()
 
     doctors = []
-    for profile in doctor_profiles.distinct():
-        doctor_card = _doctor_card(profile)
+    for prof in doctor_profiles.distinct():
+        doctor_card = _doctor_card(prof)
         doctor_card["available_slots"] = [
             f"{slot.get_day_of_week_display()[:3]} {slot.start_time.strftime('%I:%M %p')} - {slot.end_time.strftime('%I:%M %p')}"
-            for slot in profile.user.availability_slots.filter(is_active=True).order_by("day_of_week", "start_time")
+            for slot in prof.user.availability_slots.filter(is_active=True).order_by("day_of_week", "start_time")
         ]
         doctors.append(doctor_card)
 
@@ -360,6 +360,8 @@ def find_doctor(request):
     }
     return render(request, "patient_roshan/find_doctor.html", context)
 
+
+# ─── MY APPOINTMENTS ─────────────────────────────────────────────────────────
 
 @patient_required
 def my_appointments(request):
@@ -427,10 +429,13 @@ def reschedule_appointment(request, appointment_id):
 
 @patient_required
 def appointment_detail(request, appointment_id):
-    appointment = get_object_or_404(Appointment.objects.select_related("doctor", "department"), id=appointment_id, patient=request.user)
+    appointment = get_object_or_404(
+        Appointment.objects.select_related("doctor", "department"),
+        id=appointment_id,
+        patient=request.user
+    )
     medical_record = getattr(appointment, "medical_record", None)
     prescription = getattr(appointment, "prescription", None)
-
     context = {
         "active_page": "appointments",
         "patient": _patient_profile(request.user),
@@ -440,6 +445,8 @@ def appointment_detail(request, appointment_id):
     }
     return render(request, "patient_roshan/appointment_detail.html", context)
 
+
+# ─── MEDICAL RECORDS ─────────────────────────────────────────────────────────
 
 @patient_required
 def medical_records(request):
@@ -453,6 +460,8 @@ def medical_records(request):
     return render(request, "patient_roshan/medical_records.html", context)
 
 
+# ─── LAB REPORTS ─────────────────────────────────────────────────────────────
+
 @patient_required
 def lab_reports(request):
     context = {
@@ -462,6 +471,8 @@ def lab_reports(request):
     }
     return render(request, "patient_roshan/lab_reports.html", context)
 
+
+# ─── PROFILE ─────────────────────────────────────────────────────────────────
 
 @patient_required
 def profile(request):
@@ -518,36 +529,43 @@ def change_password(request):
     if request.method == "POST":
         old_password = request.POST.get("old_password") or ""
         new_password = request.POST.get("new_password") or ""
+        confirm_password = request.POST.get("confirm_password") or ""
         if not request.user.check_password(old_password):
             messages.error(request, "Current password is incorrect.")
-            return redirect("patient_roshan:profile")
+            return redirect("patient_roshan:settings")
         if len(new_password) < 8:
-            messages.error(request, "New password must be at least 8 characters long.")
-            return redirect("patient_roshan:profile")
+            messages.error(request, "New password must be at least 8 characters.")
+            return redirect("patient_roshan:settings")
+        if new_password != confirm_password:
+            messages.error(request, "Passwords do not match.")
+            return redirect("patient_roshan:settings")
         request.user.set_password(new_password)
         request.user.save(update_fields=["password"])
         update_session_auth_hash(request, request.user)
         messages.success(request, "Password updated successfully.")
-    return redirect("patient_roshan:profile")
+    return redirect("patient_roshan:settings")
+
+
+# ─── PRESCRIPTIONS ───────────────────────────────────────────────────────────
 
 @patient_required
 def prescriptions(request):
-    prescriptions = Prescription.objects.filter(
+    presc_list = Prescription.objects.filter(
         patient=request.user, is_active=True
     ).select_related('doctor').order_by('-prescribed_on')
     context = {
         'active_page': 'prescriptions',
         'patient': _patient_profile(request.user),
-        'prescriptions': prescriptions,
+        'prescriptions': presc_list,
     }
     return render(request, 'patient_roshan/prescriptions.html', context)
 
 
+# ─── BILLING ─────────────────────────────────────────────────────────────────
+
 @patient_required
 def billing(request):
-    invoices = BillingInvoice.objects.filter(
-        patient=request.user
-    ).order_by('-created_at')
+    invoices = BillingInvoice.objects.filter(patient=request.user).order_by('-created_at')
     pending_count = invoices.filter(status='unpaid').count()
     context = {
         'active_page': 'billing',
@@ -557,8 +575,11 @@ def billing(request):
     }
     return render(request, 'patient_roshan/billing.html', context)
 
+
+# ─── MESSAGES ────────────────────────────────────────────────────────────────
+
 @patient_required
-def messages(request):
+def patient_messages(request):
     context = {
         'active_page': 'messages',
         'patient': _patient_profile(request.user),
@@ -567,11 +588,11 @@ def messages(request):
     return render(request, 'patient_roshan/messages.html', context)
 
 
+# ─── NOTIFICATIONS ───────────────────────────────────────────────────────────
+
 @patient_required
 def notifications(request):
-    notifs = Notification.objects.filter(
-        recipient=request.user
-    ).order_by('-created_at')
+    notifs = Notification.objects.filter(recipient=request.user).order_by('-created_at')
     context = {
         'active_page': 'notifications',
         'patient': _patient_profile(request.user),
@@ -583,16 +604,75 @@ def notifications(request):
 @patient_required
 def mark_all_read(request):
     if request.method == 'POST':
-        Notification.objects.filter(
-            recipient=request.user, is_read=False
-        ).update(is_read=True)
+        Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
     return redirect('patient_roshan:notifications')
 
 
+# ─── SETTINGS ────────────────────────────────────────────────────────────────
+
 @patient_required
 def settings(request):
+    patient = _patient_profile(request.user)
     context = {
         'active_page': 'settings',
-        'patient': _patient_profile(request.user),
+        'patient': patient,
+        'preferences': patient,
     }
     return render(request, 'patient_roshan/settings.html', context)
+
+
+@patient_required
+def save_notification_preferences(request):
+    if request.method == 'POST':
+        patient = _patient_profile(request.user)
+        patient.email_notifications = 'email_notifications' in request.POST
+        patient.sms_reminders = 'sms_reminders' in request.POST
+        patient.appointment_alerts = 'appointment_alerts' in request.POST
+        patient.lab_notifications = 'lab_notifications' in request.POST
+        patient.save()
+        messages.success(request, 'Notification preferences saved.')
+    return redirect('patient_roshan:settings')
+
+
+@patient_required
+def save_language(request):
+    if request.method == 'POST':
+        patient = _patient_profile(request.user)
+        patient.language = request.POST.get('language', 'en')
+        patient.save()
+        messages.success(request, 'Language preference saved.')
+    return redirect('patient_roshan:settings')
+
+
+@patient_required
+def save_privacy(request):
+    if request.method == 'POST':
+        patient = _patient_profile(request.user)
+        patient.profile_visibility = request.POST.get('profile_visibility', 'doctors')
+        patient.share_records = 'share_records' in request.POST
+        patient.save()
+        messages.success(request, 'Privacy settings saved.')
+    return redirect('patient_roshan:settings')
+
+
+@patient_required
+def deactivate_account(request):
+    if request.method == 'POST':
+        request.user.is_active = False
+        request.user.save()
+        messages.success(request, 'Account deactivated.')
+        return redirect('auth_kirtan:logout')
+    return redirect('patient_roshan:settings')
+
+
+@patient_required
+def request_deletion(request):
+    if request.method == 'POST':
+        Notification.objects.create(
+            recipient=request.user,
+            title='Data deletion requested',
+            message=f'Patient {request.user.get_full_name()} has requested account deletion.',
+            category=Notification.CATEGORY_GENERAL,
+        )
+        messages.success(request, 'Your deletion request has been sent to admin.')
+    return redirect('patient_roshan:settings')
