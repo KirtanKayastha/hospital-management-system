@@ -497,6 +497,8 @@ def profile(request):
         patient.gender = gender
         patient.blood_group = blood_group
         patient.address = address
+        if request.FILES.get('profile_picture'):
+            patient.profile_picture = request.FILES['profile_picture']
         patient.dob = dob or None
         patient.save()
 

@@ -5,19 +5,37 @@
 {% block content %}
 {% with active_page='profile' %}
 
+{% if messages %}
+<div class="mb-lg space-y-sm">
+    {% for message in messages %}
+    <div class="px-lg py-sm rounded-lg font-body-sm text-body-sm
+        {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-200
+        {% else %}bg-red-100 text-red-700 border border-red-200{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
 {# Identity Card #}
 <section class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant mb-xl">
     <div class="flex flex-col md:flex-row items-center md:items-start gap-xl">
         <div class="relative group">
-            <div class="w-32 h-32 rounded-xl overflow-hidden border-2 border-outline-variant bg-primary flex items-center justify-center text-white font-bold text-4xl">
-                {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
-            </div>
-            <button class="absolute -bottom-2 -right-2 bg-primary text-on-primary p-2 rounded-lg shadow-md hover:scale-105 transition-transform flex items-center justify-center">
-                <span class="material-symbols-outlined text-[20px]">photo_camera</span>
-            </button>
-        </div>
+    {% if patient.profile_picture %}
+    <img src="{{ patient.profile_picture.url }}" alt="Profile"
+        class="w-32 h-32 rounded-xl object-cover border-2 border-outline-variant"/>
+    {% else %}
+    <div class="w-32 h-32 rounded-xl border-2 border-outline-variant bg-primary flex items-center justify-center text-white font-bold text-4xl">
+        {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+    </div>
+    {% endif %}
+    <label for="profile_picture_input" class="absolute -bottom-2 -right-2 bg-white text-primary border border-outline-variant p-2 rounded-lg shadow-md hover:scale-105 transition-transform flex items-center justify-center cursor-pointer">
+        <span class="material-symbols-outlined text-[20px]">photo_camera</span>
+    </label>
+</div>
         <div class="flex-1 text-center md:text-left space-y-sm">
-            <h2 class="font-headline-md text-headline-md text-on-surface">{{ request.user.get_full_name }}</h2>
+            <h2 class="font-headline-md text-headline-md text-on-surface">{{ request.user.get_full_name|default:request.user.username }}</h2>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">Patient ID: #HM-{{ request.user.id }}</p>
             <p class="font-body-md text-body-md text-on-surface-variant max-w-lg">
                 Managing your personal health data securely. Ensure your information is up to date for clinical accuracy.
             </p>
@@ -25,9 +43,21 @@
                 <span class="px-md py-xs bg-secondary-container text-on-secondary-container rounded-full font-label-sm text-label-sm flex items-center gap-xs">
                     <span class="material-symbols-outlined text-[16px]">check_circle</span>Verified Account
                 </span>
+                {% if patient.blood_group %}
                 <span class="px-md py-xs bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-full font-label-sm text-label-sm">
-                    Blood Group: {{ patient.blood_group|default:"—" }}
+                    Blood Group: {{ patient.blood_group }}
                 </span>
+                {% endif %}
+                {% if patient.age %}
+                <span class="px-md py-xs bg-surface-container text-on-surface-variant rounded-full font-label-sm text-label-sm">
+                    Age: {{ patient.age }}
+                </span>
+                {% endif %}
+                {% if patient.gender %}
+                <span class="px-md py-xs bg-surface-container text-on-surface-variant rounded-full font-label-sm text-label-sm">
+                    {{ patient.gender }}
+                </span>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -39,7 +69,8 @@
         <h3 class="font-headline-sm text-headline-sm text-on-surface">Personal Information</h3>
         <span class="material-symbols-outlined text-on-surface-variant">person_edit</span>
     </div>
-    <form method="POST" action="{% url 'patient_roshan:profile' %}">
+    <form method="POST" action="{% url 'patient_roshan:profile' %}" enctype="multipart/form-data">
+        <input type="file" id="profile_picture_input" name="profile_picture" accept="image/*" capture="user" class="hidden"/>
         {% csrf_token %}
         <div class="p-lg grid grid-cols-1 md:grid-cols-2 gap-lg">
 
@@ -71,10 +102,11 @@
                 <label class="font-label-md text-label-md text-on-surface-variant">Gender</label>
                 <select class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"
                         name="gender">
+                    <option value="">Select Gender</option>
                     <option value="Male" {% if patient.gender == 'Male' %}selected{% endif %}>Male</option>
                     <option value="Female" {% if patient.gender == 'Female' %}selected{% endif %}>Female</option>
                     <option value="Other" {% if patient.gender == 'Other' %}selected{% endif %}>Other</option>
-                    <option value="Prefer not to say">Prefer not to say</option>
+                    <option value="Prefer not to say" {% if patient.gender == 'Prefer not to say' %}selected{% endif %}>Prefer not to say</option>
                 </select>
             </div>
 
@@ -82,6 +114,7 @@
                 <label class="font-label-md text-label-md text-on-surface-variant">Blood Group</label>
                 <select class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"
                         name="blood_group">
+                    <option value="">Select Blood Group</option>
                     {% for bg in blood_groups %}
                     <option value="{{ bg }}" {% if patient.blood_group == bg %}selected{% endif %}>{{ bg }}</option>
                     {% endfor %}
@@ -90,14 +123,14 @@
 
             <div class="space-y-xs md:col-span-2">
                 <label class="font-label-md text-label-md text-on-surface-variant">Residential Address</label>
-                <textarea class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"
+                <textarea class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md resize-none"
                           name="address" rows="3">{{ patient.address|default:'' }}</textarea>
             </div>
 
             <div class="md:col-span-2 pt-md flex items-center justify-end gap-md border-t border-outline-variant mt-md">
-                <button class="px-xl py-sm border border-outline-variant text-on-surface rounded-lg font-label-md text-label-md hover:bg-surface-container-low transition-colors" type="button">
+                <a href="{% url 'patient_roshan:dashboard' %}" class="px-xl py-sm border border-outline-variant text-on-surface rounded-lg font-label-md text-label-md hover:bg-surface-container-low transition-colors">
                     Cancel
-                </button>
+                </a>
                 <button class="px-xl py-sm bg-primary text-on-primary rounded-lg font-label-md text-label-md shadow-sm hover:opacity-90 transition-opacity" type="submit">
                     Save Changes
                 </button>
@@ -119,17 +152,17 @@
             <div class="space-y-xs">
                 <label class="font-label-md text-label-md text-on-surface-variant">Contact Name</label>
                 <input class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary transition-all font-body-md text-body-md"
-                       type="text" name="emergency_name" value="{{ patient.emergency_contact_name|default:'Irfat Ansari' }}"/>
+                       type="text" name="emergency_name" value="{{ patient.emergency_contact_name|default:'' }}" placeholder="Full name"/>
             </div>
             <div class="space-y-xs">
                 <label class="font-label-md text-label-md text-on-surface-variant">Relationship</label>
                 <input class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary transition-all font-body-md text-body-md"
-                       type="text" name="emergency_relation" value="{{ patient.emergency_contact_relation|default:'Brother' }}"/>
+                       type="text" name="emergency_relation" value="{{ patient.emergency_contact_relation|default:'' }}" placeholder="e.g. Brother, Mother"/>
             </div>
             <div class="space-y-xs">
                 <label class="font-label-md text-label-md text-on-surface-variant">Phone Number</label>
                 <input class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary transition-all font-body-md text-body-md"
-                       type="tel" name="emergency_phone" value="{{ patient.emergency_contact_phone|default:'' }}"/>
+                       type="tel" name="emergency_phone" value="{{ patient.emergency_contact_phone|default:'' }}" placeholder="+977 98XXXXXXXX"/>
             </div>
             <div class="md:col-span-3 flex justify-end border-t border-outline-variant pt-md mt-md">
                 <button class="px-xl py-sm bg-primary text-on-primary rounded-lg font-label-md text-label-md shadow-sm hover:opacity-90 transition-opacity" type="submit">
@@ -140,49 +173,33 @@
     </form>
 </section>
 
-{# Security #}
-<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden mb-lg">
-    <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
-        <h3 class="font-headline-sm text-headline-sm text-on-surface">Security &amp; Password</h3>
-        <span class="material-symbols-outlined text-on-surface-variant">lock</span>
+{# Quick Links #}
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+    <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low">
+        <h3 class="font-headline-sm text-headline-sm text-on-surface">Quick Links</h3>
     </div>
-    <div class="p-lg">
-        <p class="font-body-sm text-body-sm text-on-surface-variant mb-xl">
-            We recommend using a unique password. Update regularly to keep your health records secure.
-        </p>
-        <form method="POST" action="{% url 'patient_roshan:change_password' %}" class="grid grid-cols-1 md:grid-cols-3 gap-lg items-end">
-            {% csrf_token %}
-            <div class="space-y-xs">
-                <label class="font-label-md text-label-md text-on-surface-variant">Current Password</label>
-                <input class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary transition-all font-body-md text-body-md"
-                       placeholder="••••••••" type="password" name="old_password"/>
-            </div>
-            <div class="space-y-xs">
-                <label class="font-label-md text-label-md text-on-surface-variant">New Password</label>
-                <input class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary transition-all font-body-md text-body-md"
-                       placeholder="••••••••" type="password" name="new_password"/>
-            </div>
-            <div>
-                <button class="w-full px-xl py-sm bg-secondary text-on-secondary rounded-lg font-label-md text-label-md shadow-sm hover:opacity-90 transition-opacity" type="submit">
-                    Update Password
-                </button>
-            </div>
-        </form>
+    <div class="p-lg flex flex-wrap gap-md">
+        <a href="{% url 'patient_roshan:settings' %}" class="flex items-center gap-sm px-md py-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors">
+            <span class="material-symbols-outlined text-[18px]">lock</span> Change Password
+        </a>
+        <a href="{% url 'patient_roshan:settings' %}" class="flex items-center gap-sm px-md py-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors">
+            <span class="material-symbols-outlined text-[18px]">notifications</span> Notification Preferences
+        </a>
+        <a href="{% url 'patient_roshan:settings' %}" class="flex items-center gap-sm px-md py-sm border border-outline-variant rounded-lg font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors">
+            <span class="material-symbols-outlined text-[18px]">security</span> Account Settings
+        </a>
     </div>
-</section>
-
-{# Danger Zone #}
-<section class="border border-error/20 bg-error-container/10 rounded-xl p-lg flex flex-col md:flex-row items-center justify-between gap-lg">
-    <div class="space-y-xs">
-        <h4 class="font-label-md text-label-md text-error font-bold">Privacy Control</h4>
-        <p class="font-body-sm text-body-sm text-on-surface-variant">
-            Deleting your account will permanently erase your clinical profile and appointment history. This action is irreversible.
-        </p>
-    </div>
-    <button class="whitespace-nowrap px-lg py-sm border border-error text-error rounded-lg font-label-md text-label-md hover:bg-error hover:text-on-error transition-all">
-        Request Data Deletion
-    </button>
 </section>
 
 {% endwith %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('profile_picture_input').addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            this.closest('form').submit();
+        }
+    });
+</script>
 {% endblock %}
