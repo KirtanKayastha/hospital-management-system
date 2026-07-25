@@ -3,7 +3,6 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
-
 from django.http import HttpResponse
 from django.db import connection
 
@@ -13,9 +12,9 @@ def db_check(request):
         db_name = cursor.fetchone()
     return HttpResponse(f"✅ Connected to database: {db_name[0]}")
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('db-check/', db_check),  # ⬅️ ADD THIS LINE
     
     # Home page (root URL)
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
