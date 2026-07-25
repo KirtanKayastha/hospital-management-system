@@ -41,6 +41,7 @@
                     <th class="p-lg text-label-md text-on-surface-variant">Role</th>
                     <th class="p-lg text-label-md text-on-surface-variant">Status</th>
                     <th class="p-lg text-label-md text-on-surface-variant">Joined</th>
+                    <th class="p-lg text-label-md text-on-surface-variant text-right">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-outline-variant/30">
@@ -73,10 +74,23 @@
                         {% endif %}
                     </td>
                     <td class="p-lg text-body-md text-on-surface-variant">{{ user.date_joined|date:"d M Y" }}</td>
+                    <td class="p-lg text-right">
+                        {% if user.id != request.user.id %}
+                        <form method="POST" action="{% url 'admin_nishan:delete_account' user.id %}" class="inline" onsubmit="return confirm('Are you sure you want to delete the account of {{ user.get_full_name|default:user.username }}? This action cannot be undone.');">
+                            {% csrf_token %}
+                            <button type="submit" class="px-sm py-xs rounded-lg bg-error-container text-error font-label-sm text-label-sm hover:bg-error hover:text-on-error transition-colors">
+                                <span class="material-symbols-outlined text-sm align-middle">delete</span>
+                                Delete
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="px-sm py-xs rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">You</span>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" class="p-lg text-center">
+                    <td colspan="7" class="p-lg text-center">
                         <span class="material-symbols-outlined text-4xl text-on-surface-variant">manage_accounts</span>
                         <p class="font-body-md text-on-surface mt-md">No accounts found</p>
                     </td>
