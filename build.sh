@@ -27,6 +27,6 @@ if not User.objects.filter(username='admin').exists():
     print('[SUPERUSER] Created admin user')
 else:
     print('[SUPERUSER] Admin user already exists, skipping')
-" | python manage.py shell --no-input
+" | python manage.py shell
 
 echo "[BUILD] Build complete!"
