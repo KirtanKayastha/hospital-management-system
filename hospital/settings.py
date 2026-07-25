@@ -1,12 +1,26 @@
+import os
+import dj_database_url
+
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-wpk!9)59onq%^01logxbyu2dmz5w^1cw75l$sda%x6lqxtqbkl'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-wpk!9)59onq%^01logxbyu2dmz5w^1cw75l$sda%x6lqxtqbkl')
 
-DEBUG = True
+# Database
+# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-ALLOWED_HOSTS = []
+DATABASES = {
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL'),
+        conn_max_age=600,
+        ssl_require=True
+    )
+}
+
+DEBUG = False
+
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
