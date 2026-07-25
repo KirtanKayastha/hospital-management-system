@@ -6,11 +6,16 @@ from django.views.generic import TemplateView
 from django.http import HttpResponse
 from django.db import connection
 
+import traceback
+
 def db_check(request):
-    with connection.cursor() as cursor:
-        cursor.execute("SELECT current_database();")
-        db_name = cursor.fetchone()
-    return HttpResponse(f"✅ Connected to database: {db_name[0]}")
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("SELECT current_database();")
+            db_name = cursor.fetchone()
+        return HttpResponse(f"✅ Connected to database: {db_name[0]}")
+    except Exception as e:
+        return HttpResponse(f"❌ Database error: {e}\n\n{traceback.format_exc()}")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
