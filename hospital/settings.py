@@ -7,30 +7,26 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', '[REDACTED SECRET_KEY]')
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+# TEMPORARY: Hardcode DATABASE_URL for testing
+DATABASE_URL = "postgresql://[REDACTED NEON DB USER]:[REDACTED NEON DB PASSWORD]@[REDACTED NEON DB HOST]/neondb?sslmode=require"
 
-DATABASE_URL = os.environ.get('DATABASE_URL')
-
-if DATABASE_URL:
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=DATABASE_URL,
-            conn_max_age=600,
-            ssl_require=True
-        )
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'neondb',
+        'USER': '[REDACTED NEON DB USER]',
+        'PASSWORD': '[REDACTED NEON DB PASSWORD]',
+        'HOST': '[REDACTED NEON DB HOST]',
+        'PORT': '5432',
+        'OPTIONS': {
+            'sslmode': 'require',
+        },
     }
-else:
-    # Fallback for local development only
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
-    }
+}
 
-# Print database engine to Render logs (for debugging)
-print(f"🔍 Using database engine: {DATABASES['default']['ENGINE']}")
+# Print to logs for debugging
+print(f"🔍 Using database: PostgreSQL")
+print(f"🔍 Host: {DATABASES['default']['HOST']}")
 
 DEBUG = False
 
