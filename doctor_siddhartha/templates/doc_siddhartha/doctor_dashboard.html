@@ -122,13 +122,54 @@
         <div class="text-sm text-slate-500">{{ doctor_profile.display_name|default:request.user.username }}</div>
       </div>
       <nav class="space-y-2 text-sm font-medium">
-        <a class="block rounded-lg px-4 py-3 bg-blue-50 text-blue-700" href="{% url 'doctor_siddhartha:dashboard' %}">Dashboard</a>
-        <a class="block rounded-lg px-4 py-3 hover:bg-slate-100" href="{% url 'doctor_siddhartha:schedule' %}">Schedule</a>
+      <a class="block rounded-lg px-4 py-3 bg-blue-50 text-blue-700" href="{% url 'doctor_siddhartha:doctor_dashboard' %}">
+      Dashboard</a>  
+      <a class="block rounded-lg px-4 py-3 hover:bg-slate-100" href="{% url 'doctor_siddhartha:schedule' %}">Schedule</a>
         <a class="block rounded-lg px-4 py-3 hover:bg-slate-100" href="{% url 'doctor_siddhartha:patients' %}">Patients</a>
         <a class="block rounded-lg px-4 py-3 hover:bg-slate-100" href="{% url 'doctor_siddhartha:prescriptions' %}">Prescriptions</a>
         <a class="block rounded-lg px-4 py-3 text-red-600 hover:bg-red-50" href="{% url 'auth_kirtan:logout' %}">Logout</a>
       </nav>
     </aside>
+
+<aside class="hidden lg:flex flex-col w-64 h-screen sticky top-0 left-0 shrink-0 border-r border-outline-variant bg-surface-container-lowest shadow-sm">
+<div class="p-lg flex flex-col h-full">
+<h1 class="font-headline-md text-headline-md font-bold text-primary mb-xl">MedCore Portal</h1>
+
+<div class="flex items-center gap-md mb-xl p-md rounded-xl bg-surface-container-low">
+    <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg shrink-0">
+        {{ doctor_profile.user.first_name|first|upper }}{{ doctor_profile.user.last_name|first|upper }}
+    </div>
+    <div class="overflow-hidden">
+        <p class="font-label-md text-label-md text-primary truncate">Dr. {{ doctor_profile.display_name }}</p>
+        <p class="text-label-sm text-on-surface-variant truncate">{{ doctor_profile.specialization|default:"General Medicine" }}</p>
+    </div>
+</div>
+
+<nav class="flex flex-col gap-xs flex-1">
+    <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-primary font-bold border-r-4 border-primary bg-surface-container-low transition-colors duration-150" href="{% url 'doctor_siddhartha:dashboard' %}">
+        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+        Dashboard
+    </a>
+    <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors duration-150" href="{% url 'doctor_siddhartha:schedule' %}">
+        <span class="material-symbols-outlined text-[22px]">calendar_month</span>
+        Schedule
+    </a>
+    <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors duration-150" href="{% url 'doctor_siddhartha:patients' %}">
+        <span class="material-symbols-outlined text-[22px]">group</span>
+        Patients
+    </a>
+    <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors duration-150" href="{% url 'doctor_siddhartha:prescriptions' %}">
+        <span class="material-symbols-outlined text-[22px]">medication</span>
+        Prescriptions
+    </a>
+</nav>
+
+<a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-error hover:bg-error-container/10 transition-colors duration-150" href="{% url 'auth_kirtan:logout' %}">
+    <span class="material-symbols-outlined text-[22px]">logout</span>
+    Logout
+</a>
+</div>
+</aside>
 
 <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
 
