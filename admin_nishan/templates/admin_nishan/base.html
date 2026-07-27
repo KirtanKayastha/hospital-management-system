@@ -1,196 +1,84 @@
-{% load static %}
+{% extends 'base.html' %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Admin Panel{% endblock %} - MediCare Admin</title>
+{% block title %}Admin Panel - MediCare Admin{% endblock %}
 
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+{% block content %}
+<div class="flex flex-1 min-h-0">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-surface-container-lowest border-r border-outline-variant flex-col hidden md:flex flex-shrink-0">
+        <div class="px-lg py-xl">
+            <span class="font-headline-md text-headline-md font-bold text-primary">MediCare</span>
+            <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Admin Panel</p>
+        </div>
 
-    <script id="tailwind-config">
-    tailwind.config = {
-        darkMode: "class",
-        theme: {
-            extend: {
-                colors: {
-                    "on-tertiary-container": "#ffeedd",
-                    "on-secondary-fixed-variant": "#005236",
-                    "on-secondary-fixed": "#002113",
-                    "on-secondary-container": "#00714d",
-                    "surface-tint": "#0053db",
-                    "surface-container": "#eceef0",
-                    "on-primary-container": "#eeefff",
-                    "inverse-surface": "#2d3133",
-                    "on-surface-variant": "#434655",
-                    "surface": "#f7f9fb",
-                    "secondary": "#006c49",
-                    "on-background": "#191c1e",
-                    "surface-bright": "#f7f9fb",
-                    "primary": "#004ac6",
-                    "error-container": "#ffdad6",
-                    "secondary-fixed": "#6ffbbe",
-                    "on-primary-fixed": "#00174b",
-                    "outline-variant": "#c3c6d7",
-                    "error": "#ba1a1a",
-                    "outline": "#737686",
-                    "on-error-container": "#93000a",
-                    "on-primary": "#ffffff",
-                    "background": "#f7f9fb",
-                    "secondary-fixed-dim": "#4edea3",
-                    "surface-container-low": "#f2f4f6",
-                    "primary-fixed": "#dbe1ff",
-                    "on-error": "#ffffff",
-                    "surface-container-highest": "#e0e3e5",
-                    "tertiary-fixed-dim": "#ffb95f",
-                    "surface-container-lowest": "#ffffff",
-                    "on-surface": "#191c1e",
-                    "on-tertiary-fixed-variant": "#653e00",
-                    "primary-fixed-dim": "#b4c5ff",
-                    "inverse-primary": "#b4c5ff",
-                    "inverse-on-surface": "#eff1f3",
-                    "surface-variant": "#e0e3e5",
-                    "surface-dim": "#d8dadc",
-                    "surface-container-high": "#e6e8ea",
-                    "on-tertiary": "#ffffff",
-                    "primary-container": "#2563eb",
-                    "tertiary": "#784b00",
-                    "secondary-container": "#6cf8bb",
-                    "tertiary-fixed": "#ffddb8",
-                    "on-tertiary-fixed": "#2a1700",
-                    "tertiary-container": "#996100",
-                    "on-primary-fixed-variant": "#003ea8",
-                    "on-secondary": "#ffffff"
-                },
-                borderRadius: {
-                    DEFAULT: "0.25rem",
-                    lg: "0.5rem",
-                    xl: "0.75rem",
-                    full: "9999px"
-                },
-                spacing: {
-                    xs: "4px",
-                    sm: "8px",
-                    md: "16px",
-                    lg: "24px",
-                    xl: "32px",
-                    xxl: "48px",
-                    gutter: "24px",
-                    base: "4px",
-                    "container-max": "1280px"
-                },
-                fontFamily: {
-                    sans: ["Inter", "sans-serif"],
-                },
-                fontSize: {
-                    "label-md": ["14px", { lineHeight: "20px", letterSpacing: "0.05em", fontWeight: "600" }],
-                    "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }],
-                    "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }],
-                    "headline-lg-mobile": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "700" }],
-                    "label-sm": ["12px", { lineHeight: "16px", fontWeight: "500" }],
-                    "headline-md": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "600" }],
-                    "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
-                    "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
-                    "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }]
-                }
-            }
-        }
-    }
-    </script>
+        <nav class="flex-1 px-md space-y-xs overflow-y-auto pb-md">
+            <!-- MAIN -->
+            <p class="px-md pt-md pb-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Main</p>
+            <a href="{% url 'admin_nishan:admin_dashboard' %}"
+               class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
+                      {% if active_page == 'dashboard' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                <span class="material-symbols-outlined">dashboard</span>Dashboard
+            </a>
+            <a href="{% url 'admin_nishan:admin_manage_patients' %}"
+               class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
+                      {% if active_page == 'patients' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                <span class="material-symbols-outlined">group</span>Manage Patients
+            </a>
+            <a href="{% url 'admin_nishan:admin_manage_doctor' %}"
+               class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
+                      {% if active_page == 'doctor' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                <span class="material-symbols-outlined">medical_services</span>Manage Doctors
+            </a>
+            <a href="{% url 'admin_nishan:admin_appointments' %}"
+               class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
+                      {% if active_page == 'appointments' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                <span class="material-symbols-outlined">event</span>Manage Appointments
+            </a>
+            <a href="{% url 'admin_nishan:admin_accounts' %}"
+               class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
+                      {% if active_page == 'accounts' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                <span class="material-symbols-outlined">manage_accounts</span>Manage Accounts
+            </a>
+            <a href="{% url 'admin_nishan:admin_reports' %}"
+               class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
+                      {% if active_page == 'reports' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                <span class="material-symbols-outlined">analytics</span>Reports
+            </a>
+            <a href="{% url 'admin_nishan:pending_doctors' %}"
+               class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
+                      {% if active_page == 'pending_doctors' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                <span class="material-symbols-outlined">how_to_reg</span>Pending Approvals
+            </a>
+        </nav>
+    </aside>
 
-    <style>
-        body { font-family: 'Inter', system-ui, sans-serif; background-color: #f7f9fb; }
-        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
-        .chart-bar-transition { transition: height 1s ease-out; }
-        .sidebar-transition { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
-    </style>
-</head>
-<body class="text-on-surface bg-surface">
-    <div class="min-h-screen lg:pl-72">
-        <aside class="bg-surface-container-lowest border-r border-outline-variant sidebar-transition lg:fixed lg:inset-y-0 lg:left-0 lg:w-72 w-full lg:h-screen flex flex-col z-40 shadow-sm">
-            <div class="p-lg border-b border-outline-variant bg-gradient-to-br from-surface-container-lowest via-surface-container-lowest to-primary/5">
-                <div class="flex items-center gap-md">
-                    <div class="w-11 h-11 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-sm">
-                        <span class="material-symbols-outlined">shield_person</span>
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col">
+        <!-- App Header (with page title and user actions) -->
+        <header class="bg-surface-container-lowest border-b border-outline-variant px-lg md:px-xxl py-md flex items-center justify-between">
+            <h1 class="font-headline-md text-headline-md text-on-surface">{% block page_title %}Dashboard{% endblock %}</h1>
+            <div class="flex items-center gap-lg">
+                <div class="flex items-center gap-md border-l border-outline-variant pl-lg">
+                    <div class="text-right hidden sm:block">
+                        <p class="font-label-md text-label-md text-on-surface">{{ request.user.get_full_name|default:request.user.username }}</p>
+                        <p class="font-body-sm text-body-sm text-on-surface-variant">Employee ID: #{{ request.user.id }}</p>
                     </div>
-                    <div>
-                        <p class="text-label-sm text-on-surface-variant uppercase tracking-[0.2em]">Admin Portal</p>
-                        <h1 class="font-headline-sm text-headline-sm text-on-surface">MediCare</h1>
-                    </div>
-                </div>
-            </div>
-
-            <nav class="flex-1 p-lg space-y-xs overflow-y-auto">
-                <a href="{% url 'admin_nishan:admin_dashboard' %}" class="flex items-center gap-md px-md py-3 rounded-xl sidebar-transition {% if active_page == 'dashboard' %}bg-primary-container text-on-primary-container shadow-sm{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}">
-                    <span class="material-symbols-outlined">dashboard</span>
-                    <span class="font-label-md text-label-md">Dashboard</span>
-                </a>
-                <a href="{% url 'admin_nishan:admin_manage_patients' %}" class="flex items-center gap-md px-md py-3 rounded-xl sidebar-transition {% if active_page == 'patients' %}bg-primary-container text-on-primary-container shadow-sm{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}">
-                    <span class="material-symbols-outlined">group</span>
-                    <span class="font-label-md text-label-md">Manage Patients</span>
-                </a>
-                <a href="{% url 'admin_nishan:admin_manage_doctor' %}" class="flex items-center gap-md px-md py-3 rounded-xl sidebar-transition {% if active_page == 'doctor' %}bg-primary-container text-on-primary-container shadow-sm{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}">
-                    <span class="material-symbols-outlined">medical_services</span>
-                    <span class="font-label-md text-label-md">Manage Doctors</span>
-                </a>
-                <a href="{% url 'admin_nishan:admin_appointments' %}" class="flex items-center gap-md px-md py-3 rounded-xl sidebar-transition {% if active_page == 'appointments' %}bg-primary-container text-on-primary-container shadow-sm{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}">
-                    <span class="material-symbols-outlined">event</span>
-                    <span class="font-label-md text-label-md">Manage Appointments</span>
-                </a>
-                <a href="{% url 'admin_nishan:admin_accounts' %}" class="flex items-center gap-md px-md py-3 rounded-xl sidebar-transition {% if active_page == 'accounts' %}bg-primary-container text-on-primary-container shadow-sm{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}">
-                    <span class="material-symbols-outlined">manage_accounts</span>
-                    <span class="font-label-md text-label-md">Manage Accounts</span>
-                </a>
-                <a href="{% url 'admin_nishan:admin_reports' %}" class="flex items-center gap-md px-md py-3 rounded-xl sidebar-transition {% if active_page == 'reports' %}bg-primary-container text-on-primary-container shadow-sm{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}">
-                    <span class="material-symbols-outlined">analytics</span>
-                    <span class="font-label-md text-label-md">Reports</span>
-                </a>
-                <a href="{% url 'admin_nishan:pending_doctors' %}" class="flex items-center gap-md px-md py-3 rounded-xl sidebar-transition {% if active_page == 'pending_doctors' %}bg-primary-container text-on-primary-container shadow-sm{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}">
-                    <span class="material-symbols-outlined">how_to_reg</span>
-                    <span class="font-label-md text-label-md">Pending Approvals</span>
-                </a>
-            </nav>
-
-            <div class="p-lg border-t border-outline-variant space-y-md bg-surface-container-lowest">
-                <div class="flex items-center gap-md">
-                    <div class="w-11 h-11 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold">
+                    <div class="w-10 h-10 rounded-full border-2 border-primary bg-primary flex items-center justify-center text-white font-bold text-sm">
                         {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
                     </div>
-                    <div class="min-w-0">
-                        <p class="font-label-md text-label-md text-on-surface truncate">{{ request.user.get_full_name|default:request.user.username }}</p>
-                        <p class="text-label-sm text-on-surface-variant truncate">Administrator</p>
-                    </div>
                 </div>
-                <a href="{% url 'auth_kirtan:logout' %}" class="flex items-center justify-center gap-md px-md py-3 rounded-xl text-error border border-error-container bg-error-container/20 hover:bg-error-container sidebar-transition font-label-md text-label-md">
-                    <span class="material-symbols-outlined">logout</span>
-                    <span>Logout</span>
+                <a href="{% url 'auth_kirtan:logout' %}" class="bg-error text-white px-md py-sm rounded-md font-label-md text-label-md hover:opacity-80 transition-all duration-200">
+                    Logout
                 </a>
             </div>
-        </aside>
+        </header>
 
-        <main class="min-h-screen bg-surface">
-            <div class="border-b border-outline-variant bg-surface/90 backdrop-blur sticky top-0 z-30">
-                <div class="px-lg py-md flex items-center justify-between gap-lg">
-                    <div>
-                        <p class="text-label-sm text-on-surface-variant uppercase tracking-[0.2em]">Admin Panel</p>
-                        <h2 class="font-headline-sm text-headline-sm text-on-surface">{% block page_title %}Dashboard{% endblock %}</h2>
-                    </div>
-                    <a href="{% url 'auth_kirtan:logout' %}" class="lg:hidden inline-flex items-center gap-sm px-md py-2 rounded-xl bg-surface-container-lowest border border-outline-variant text-on-surface-variant">
-                        <span class="material-symbols-outlined">logout</span>
-                        <span class="text-label-md font-label-md">Logout</span>
-                    </a>
-                </div>
+        <!-- Page Content -->
+        <section class="flex-1 overflow-y-auto">
+            <div class="p-lg md:p-xxl">
+                {% block page_content %}{% endblock %}
             </div>
-
-            <div class="p-lg max-w-7xl mx-auto space-y-lg">
-                {% block content %}{% endblock %}
-            </div>
-        </main>
-    </div>
-
-    {% block scripts %}{% endblock %}
-</body>
-</html>
+        </section>
+    </main>
+</div>
+{% endblock %}
