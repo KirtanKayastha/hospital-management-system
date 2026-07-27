@@ -132,6 +132,24 @@ def _time_slots(selected_date, doctor_id=None):
     return _build_time_slots(doctor_profile.user, selected_date)
 
 
+@patient_required
+def get_time_slots(request):
+    doctor_id = request.GET.get("doctor_id", "")
+    date_str = request.GET.get("date", "")
+    if not doctor_id or not date_str:
+        return render(request, "patient_roshan/_time_slots.html", {"time_slots": [], "selected_time": ""})
+    try:
+        selected_date = date.fromisoformat(date_str)
+    except (ValueError, TypeError):
+        return render(request, "patient_roshan/_time_slots.html", {"time_slots": [], "selected_time": ""})
+    time_slots = _time_slots(selected_date, doctor_id)
+    selected_time = request.GET.get("time", "")
+    return render(request, "patient_roshan/_time_slots.html", {
+        "time_slots": time_slots,
+        "selected_time": selected_time,
+    })
+
+
 def _patient_profile(user):
     return ensure_patient_profile(user)
 

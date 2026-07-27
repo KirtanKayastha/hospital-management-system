@@ -185,52 +185,141 @@
 
 {% block extra_js %}
 <script>
-    const selectedDoctorInput = document.getElementById('selectedDoctor');
-    const bookingFilterForm = document.getElementById('bookingFilterForm');
-    const filterDoctorInput = document.getElementById('filterDoctor');
-    const filterDateInput = document.getElementById('filterDate');
-    const filterTimeInput = document.getElementById('filterTime');
-    const doctorCards = document.querySelectorAll('.doctor-card');
-    doctorCards.forEach(card => {
-        card.addEventListener('click', () => {
-            doctorCards.forEach(item => item.classList.remove('ring-2', 'ring-primary'));
-            card.classList.add('ring-2', 'ring-primary');
-            selectedDoctorInput.value = card.dataset.doctorId;
-            filterDoctorInput.value = card.dataset.doctorId;
-            filterTimeInput.value = '';
-            bookingFilterForm.submit();
-        });
-    });
+(function() {
+    var selectedDoctorInput = document.getElementById('selectedDoctor');
+    var selectedDateInput = document.getElementById('selectedDate');
+    var selectedTimeInput = document.getElementById('selectedTime');
+    var filterDoctorInput = document.getElementById('filterDoctor');
+    var filterDateInput = document.getElementById('filterDate');
+    var filterTimeInput = document.getElementById('filterTime');
+    var bookingFilterForm = document.getElementById('bookingFilterForm');
+    var timeSlotContainer = document.getElementById('time-slot-container');
+    var timeSlotLoading = null;
 
-    // Time slot selection
-    const timeSlots = document.querySelectorAll('.time-slot:not(.cursor-not-allowed)');
-    const selectedTimeInput = document.getElementById('selectedTime');
-    timeSlots.forEach(slot => {
-        slot.addEventListener('click', () => {
-            timeSlots.forEach(s => s.classList.remove('slot-selected'));
-            slot.classList.add('slot-selected');
-            selectedTimeInput.value = slot.dataset.time;
-            filterTimeInput.value = slot.dataset.time;
-            bookingFilterForm.submit();
-        });
-    });
+    function getTimeSlotsUrl(doctorId, dateStr, timeVal) {
+        var url = '?doctor_id=' + encodeURIComponent(doctorId || '') + '&date=' + encodeURIComponent(dateStr || '') + '&time=' + encodeURIComponent(timeVal || '');
+        return "{% url 'patient_roshan:get_time_slots' %}" + url;
+    }
 
-    // Calendar day selection
-    const calDays = document.querySelectorAll('.cal-day:not(.cursor-not-allowed)');
-    const selectedDateInput = document.getElementById('selectedDate');
-    calDays.forEach(day => {
-        day.addEventListener('click', () => {
-            calDays.forEach(d => {
-                d.classList.remove('bg-primary', 'text-white', 'font-bold', 'shadow-md');
-                d.classList.add('hover:bg-surface-container');
+    function showLoading() {
+        if (timeSlotContainer) {
+            timeSlotContainer.innerHTML = '<div class="col-span-3 text-center py-md"><span class="text-on-surface-variant font-body-md text-body-md">Loading time slots...</span></div>';
+        }
+    }
+
+    function loadTimeSlots(doctorId, dateStr, currentTime) {
+        if (!doctorId || !dateStr) {
+            if (timeSlotContainer) {
+                timeSlotContainer.innerHTML = '<div class="col-span-3 text-center py-md font-body-md text-body-md text-on-surface-variant">Select a doctor and date to see available time slots.</div>';
+            }
+            return;
+        }
+        showLoading();
+        fetch(getTimeSlotsUrl(doctorId, dateStr, currentTime || ''))
+            .then(function(response) { return response.text(); })
+            .then(function(html) {
+                if (timeSlotContainer) {
+                    timeSlotContainer.innerHTML = html;
+                }
+            })
+            .catch(function() {
+                if (timeSlotContainer) {
+                    timeSlotContainer.innerHTML = '<div class="col-span-3 text-center py-md font-body-md text-body-md text-error">Failed to load time slots. Please try again.</div>';
+                }
             });
-            day.classList.add('bg-primary', 'text-white', 'font-bold', 'shadow-md');
-            day.classList.remove('hover:bg-surface-container');
-            selectedDateInput.value = day.dataset.date;
-            filterDateInput.value = day.dataset.date;
-            filterTimeInput.value = '';
-            bookingFilterForm.submit();
+    }
+
+    function updateSelectedDate(dayEl, dateStr) {
+        var calDays = document.querySelectorAll('.cal-day');
+        calDays.forEach(function(d) {
+            d.classList.remove('bg-primary', 'text-white', 'font-bold', 'shadow-md');
+            d.classList.add('hover:bg-surface-container');
+        });
+        dayEl.classList.add('bg-primary', 'text-white', 'font-bold', 'shadow-md');
+        dayEl.classList.remove('hover:bg-surface-container');
+        selectedDateInput.value = dateStr;
+        filterDateInput.value = dateStr;
+        filterTimeInput.value = '';
+        selectedTimeInput.value = '';
+    }
+
+    function selectDoctor(cardEl, doctorId) {
+        var cards = document.querySelectorAll('.doctor-card');
+        cards.forEach(function(item) { item.classList.remove('ring-2', 'ring-primary'); });
+        cardEl.classList.add('ring-2', 'ring-primary');
+        selectedDoctorInput.value = doctorId;
+        filterDoctorInput.value = doctorId;
+        filterTimeInput.value = '';
+        selectedTimeInput.value = '';
+    }
+
+    function selectTimeSlot(slotEl, timeVal) {
+        var slots = document.querySelectorAll('.time-slot');
+        slots.forEach(function(s) { s.classList.remove('slot-selected'); });
+        slotEl.classList.add('slot-selected');
+        selectedTimeInput.value = timeVal;
+        filterTimeInput.value = timeVal;
+    }
+
+    // Doctor card click
+    var doctorCards = document.querySelectorAll('.doctor-card');
+    doctorCards.forEach(function(card) {
+        card.addEventListener('click', function() {
+            var doctorId = card.dataset.doctorId;
+            selectDoctor(card, doctorId);
+            var dateStr = selectedDateInput.value;
+            if (dateStr) {
+                loadTimeSlots(doctorId, dateStr, '');
+            } else {
+                if (timeSlotContainer) {
+                    timeSlotContainer.innerHTML = '<div class="col-span-3 text-center py-md font-body-md text-body-md text-on-surface-variant">Select a date to see available time slots.</div>';
+                }
+            }
         });
     });
+
+    // Calendar day click
+    var calDays = document.querySelectorAll('.cal-day:not(.cursor-not-allowed)');
+    calDays.forEach(function(day) {
+        day.addEventListener('click', function() {
+            var dateStr = day.dataset.date;
+            updateSelectedDate(day, dateStr);
+            var doctorId = selectedDoctorInput.value;
+            if (doctorId) {
+                loadTimeSlots(doctorId, dateStr, '');
+            } else {
+                if (timeSlotContainer) {
+                    timeSlotContainer.innerHTML = '<div class="col-span-3 text-center py-md font-body-md text-body-md text-on-surface-variant">Select a doctor to see available time slots.</div>';
+                }
+            }
+        });
+    });
+
+    // Time slot click (no form submit)
+    var timeSlots = document.querySelectorAll('.time-slot:not(.cursor-not-allowed)');
+    timeSlots.forEach(function(slot) {
+        slot.addEventListener('click', function() {
+            selectTimeSlot(slot, slot.dataset.time);
+        });
+    });
+
+    // Initial load: if doctor and date are already selected, update time slots
+    document.addEventListener('DOMContentLoaded', function() {
+        var doctorId = selectedDoctorInput.value;
+        var dateStr = selectedDateInput.value;
+        var timeVal = selectedTimeInput.value;
+        if (doctorId && dateStr) {
+            loadTimeSlots(doctorId, dateStr, timeVal);
+        } else if (doctorId) {
+            if (timeSlotContainer) {
+                timeSlotContainer.innerHTML = '<div class="col-span-3 text-center py-md font-body-md text-body-md text-on-surface-variant">Select a date to see available time slots.</div>';
+            }
+        } else {
+            if (timeSlotContainer) {
+                timeSlotContainer.innerHTML = '<div class="col-span-3 text-center py-md font-body-md text-body-md text-on-surface-variant">Select a doctor and date to see available time slots.</div>';
+            }
+        }
+    });
+})();
 </script>
 {% endblock %}

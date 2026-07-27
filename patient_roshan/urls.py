@@ -28,4 +28,5 @@ path('settings/privacy/', views.save_privacy, name='save_privacy'),
 path('settings/deactivate/', views.deactivate_account, name='deactivate_account'),
 path('settings/request-deletion/', views.request_deletion, name='request_deletion'),
     path('settings/delete-account/', views.delete_account, name='delete_account'),
+    path('get-time-slots/', views.get_time_slots, name='get_time_slots'),
 ]
