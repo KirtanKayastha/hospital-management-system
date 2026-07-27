@@ -322,12 +322,14 @@ def book_appointment(request):
         "doctors": doctors,
         "time_slots": time_slots,
         "calendar_days": _calendar_days(selected_date),
-        "selected_date": selected_date.isoformat(),
+        "selected_date": selected_date if isinstance(selected_date, str) else selected_date.isoformat(),
         "selected_time": selected_time_value,
         "selected_doctor_id": int(selected_doctor_id) if str(selected_doctor_id).isdigit() else "",
         "search": search,
         "selected_department_id": department_id,
         "form_errors": form_errors,
+        "min_date": timezone.localdate().isoformat(),
+        "max_date": (timezone.localdate() + timedelta(days=30)).isoformat(),
     }
     return render(request, "patient_roshan/book_appointment.html", context)
 
