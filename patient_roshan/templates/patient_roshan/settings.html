@@ -230,7 +230,7 @@
             </div>
         </div>
 
-        <!-- Request Data Deletion -->
+        <!-- Delete Account -->
         <div class="border border-error/20 bg-error-container/10 rounded-xl overflow-hidden">
             <div class="px-lg py-md border-b border-error/20 flex items-center justify-between">
                 <h3 class="font-headline-sm text-headline-sm text-error">Danger Zone</h3>
@@ -238,21 +238,57 @@
             </div>
             <div class="p-lg flex flex-col gap-md">
                 <p class="font-body-sm text-body-sm text-on-surface-variant">
-                    Permanently delete your account and all health records. This requires admin approval.
+                    Permanently delete your account and all associated data. This action cannot be undone.
                 </p>
-                <form method="POST" action="{% url 'patient_roshan:request_deletion' %}">
-                    {% csrf_token %}
-                    <button type="submit"
-                        onclick="return confirm('Are you sure? This will permanently delete all your data.')"
-                        class="border border-error text-error py-sm px-md rounded-lg font-label-md text-label-md hover:bg-error hover:text-on-error transition-all">
-                        Request Data Deletion
-                    </button>
-                </form>
+                <button type="button"
+                    onclick="document.getElementById('deleteModal').classList.remove('hidden')"
+                    class="border border-error text-error py-sm px-md rounded-lg font-label-md text-label-md hover:bg-error hover:text-on-error transition-all">
+                    Delete Account Permanently
+                </button>
             </div>
         </div>
 
     </div>
 
+</div>
+
+<!-- Delete Account Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 z-[60] hidden">
+    <div class="absolute inset-0 bg-on-surface/40 backdrop-blur-sm" onclick="document.getElementById('deleteModal').classList.add('hidden')"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-surface-container-lowest rounded-xl shadow-xl overflow-hidden">
+        <div class="p-lg border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
+            <h3 class="text-headline-sm font-bold text-error">Delete Account</h3>
+            <button class="p-2 hover:bg-surface-container-high rounded-full transition-colors" onclick="document.getElementById('deleteModal').classList.add('hidden')">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <form method="POST" action="{% url 'patient_roshan:delete_account' %}">
+            {% csrf_token %}
+            <div class="p-lg space-y-md">
+                <p class="font-body-sm text-body-sm text-on-surface-variant">
+                    Are you sure? This action cannot be undone. All your data will be permanently deleted.
+                </p>
+                <div class="flex items-start gap-md">
+                    <input type="checkbox" id="deleteConfirm" class="mt-1 rounded" required>
+                    <label for="deleteConfirm" class="font-body-md text-body-md text-on-surface">I understand my data will be permanently deleted and this action cannot be undone.</label>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Type <strong>DELETE</strong> to confirm</label>
+                    <input type="text" name="delete_confirm" id="deleteInput" required
+                        class="w-full px-md py-sm bg-surface-container-lowest border border-outline-variant rounded-lg focus:ring-2 focus:ring-error focus:border-error transition-all font-body-md text-body-md"
+                        placeholder="Type DELETE here" autocomplete="off"/>
+                </div>
+            </div>
+            <div class="px-lg py-md border-t border-outline-variant flex justify-end gap-md">
+                <button type="button" class="px-lg py-2.5 rounded-lg font-label-md text-label-md text-on-surface-variant border border-outline-variant hover:bg-surface-container-high transition-all" onclick="document.getElementById('deleteModal').classList.add('hidden')">
+                    Cancel
+                </button>
+                <button type="submit" class="px-lg py-2.5 rounded-lg font-label-md text-label-md bg-error text-on-error hover:bg-red-700 transition-all shadow-sm">
+                    Delete My Account
+                </button>
+            </div>
+        </form>
+    </div>
 </div>
 
 {% endwith %}
