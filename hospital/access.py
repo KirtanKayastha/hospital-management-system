@@ -64,13 +64,13 @@ def doctor_required(view_func):
             profile = request.user.doctor_profile
         except DoctorProfile.DoesNotExist:
             django_messages.error(request, "Doctor profile not found.")
-            return redirect("/")
+            return redirect("auth_kirtan:login")
         if profile.status == DoctorProfile.STATUS_PENDING:
             django_messages.warning(request, "Your doctor account is pending admin approval.")
-            return redirect("/")
+            return redirect("auth_kirtan:login")
         if profile.status == DoctorProfile.STATUS_REJECTED:
             django_messages.error(request, "Your doctor account has been rejected. Contact admin.")
-            return redirect("/")
+            return redirect("auth_kirtan:login")
         return view_func(request, *args, **kwargs)
 
     return wrapped

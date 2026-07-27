@@ -1,7 +1,7 @@
-from django.contrib import admin
-from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
+from django.urls import include, path
 from django.views.generic import TemplateView
 from django.http import HttpResponse
 from django.db import connection
@@ -48,10 +48,18 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('db-check/', db_check),
     path('', TemplateView.as_view(template_name='home.html'), name='home'),
-    path('', include('auth_kirtan.urls')),
-    path('patient/', include('patient_roshan.urls')),
-    path('doctor/', include('doctor_siddhartha.urls')),
-    path('admin-panel/', include('admin_nishan.urls')),
+
+    # Auth routes (Kirtan)
+    path('', include('auth_kirtan.urls', namespace='auth_kirtan')),
+
+    # Admin routes (Nishan)
+    path('admin-panel/', include('admin_nishan.urls', namespace='admin_nishan')),
+
+    # Patient routes (Roshan)
+    path('patient/', include('patient_roshan.urls', namespace='patient_roshan')),
+
+    # Doctor routes (Siddhartha)
+    path('doctor/', include('doctor_siddhartha.urls', namespace='doctor_siddhartha')),
 ]
 
 if settings.DEBUG:
