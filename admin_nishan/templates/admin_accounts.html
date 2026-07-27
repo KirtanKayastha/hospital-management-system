@@ -1,552 +1,103 @@
-<!DOCTYPE html>
+{% extends 'admin_nishan/base.html' %}
+{% block title %}Accounts{% endblock %}
+{% block page_title %}Accounts Management{% endblock %}
 
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>MediCare Admin - Accounts Management</title>
-<!-- Tailwind CSS -->
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<!-- Google Fonts: Inter -->
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
-<!-- Material Symbols Outlined -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<!-- Design System Tokens -->
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                "primary-fixed": "#dbe1ff",
-                "on-primary-fixed-variant": "#003ea8",
-                "on-primary-container": "#eeefff",
-                "surface-container-low": "#f2f4f6",
-                "on-tertiary-container": "#ffeedd",
-                "surface-container-highest": "#e0e3e5",
-                "secondary-fixed-dim": "#4edea3",
-                "tertiary": "#784b00",
-                "surface": "#f7f9fb",
-                "background": "#f7f9fb",
-                "on-primary-fixed": "#00174b",
-                "inverse-surface": "#2d3133",
-                "surface-tint": "#0053db",
-                "outline-variant": "#c3c6d7",
-                "surface-bright": "#f7f9fb",
-                "on-tertiary": "#ffffff",
-                "on-surface": "#191c1e",
-                "on-secondary-fixed": "#002113",
-                "on-error": "#ffffff",
-                "outline": "#737686",
-                "inverse-on-surface": "#eff1f3",
-                "primary-container": "#2563eb",
-                "tertiary-fixed-dim": "#ffb95f",
-                "inverse-primary": "#b4c5ff",
-                "on-tertiary-fixed": "#2a1700",
-                "on-error-container": "#93000a",
-                "on-background": "#191c1e",
-                "surface-container-high": "#e6e8ea",
-                "tertiary-fixed": "#ffddb8",
-                "secondary-fixed": "#6ffbbe",
-                "tertiary-container": "#996100",
-                "surface-dim": "#d8dadc",
-                "on-primary": "#ffffff",
-                "on-secondary-fixed-variant": "#005236",
-                "on-tertiary-fixed-variant": "#653e00",
-                "secondary": "#006c49",
-                "primary": "#004ac6",
-                "on-secondary-container": "#00714d",
-                "error-container": "#ffdad6",
-                "primary-fixed-dim": "#b4c5ff",
-                "on-secondary": "#ffffff",
-                "error": "#ba1a1a",
-                "on-surface-variant": "#434655",
-                "surface-container": "#eceef0",
-                "surface-variant": "#e0e3e5",
-                "secondary-container": "#6cf8bb",
-                "surface-container-lowest": "#ffffff"
-            },
-            "borderRadius": {
-                "DEFAULT": "0.25rem",
-                "lg": "0.5rem",
-                "xl": "0.75rem",
-                "full": "9999px"
-            },
-            "spacing": {
-                "sm": "8px",
-                "gutter": "24px",
-                "xs": "4px",
-                "md": "16px",
-                "xl": "32px",
-                "lg": "24px",
-                "xxl": "48px",
-                "container-max": "1280px",
-                "base": "4px"
-            },
-            "fontFamily": {
-                "body": ["Inter", "sans-serif"],
-                "headline-lg": ["Inter", "sans-serif"],
-                "label-md": ["Inter", "sans-serif"],
-                "label-sm": ["Inter", "sans-serif"],
-                "body-md": ["Inter", "sans-serif"],
-                "headline-md": ["Inter", "sans-serif"],
-                "headline-sm": ["Inter", "sans-serif"]
-            },
-            "fontSize": {
-                "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
-                "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
-                "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
-                "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
-                "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
-                "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
-            }
-          }
-        }
-      }
-    </script>
-<style>
-        body { font-family: 'Inter', sans-serif; }
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        .shadow-sm { box-shadow: 0px 1px 2px 0px rgba(15, 23, 42, 0.05); }
-        .shadow-md { box-shadow: 0px 4px 6px -1px rgba(15, 23, 42, 0.1); }
-    </style>
-</head>
-<body class="bg-surface text-on-surface">
-<!-- SideNavBar (from JSON Shared Components) -->
-<aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest dark:bg-inverse-surface border-r border-outline-variant dark:border-outline shadow-sm flex flex-col p-lg z-50">
-<div class="mb-xl">
-<h1 class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed-dim">MediCare Admin</h1>
-<p class="text-label-sm text-on-surface-variant">System Portal</p>
+{% block content %}
+<div class="flex justify-between items-end mb-xl">
+    <div>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">Accounts Management</h2>
+        <p class="text-on-surface-variant">All system users ({{ total_accounts }} total).</p>
+    </div>
 </div>
-<nav class="flex-grow space-y-xs overflow-y-auto">
-<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-md text-label-md rounded-lg" href="#">
-<span class="material-symbols-outlined">dashboard</span>
-                Dashboard
-            </a>
-<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-md text-label-md rounded-lg" href="#">
-<span class="material-symbols-outlined">group</span>
-                Patients
-            </a>
-<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-md text-label-md rounded-lg" href="#">
-<span class="material-symbols-outlined">medical_services</span>
-                Doctors
-            </a>
-<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-md text-label-md rounded-lg" href="#">
-<span class="material-symbols-outlined">event</span>
-                Appointments
-            </a>
-<!-- Active Tab -->
-<a class="flex items-center gap-md p-md bg-primary-container text-on-primary-container font-bold rounded-lg font-label-md text-label-md" href="#">
-<span class="material-symbols-outlined">manage_accounts</span>
-                Accounts Management
-            </a>
-<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-md text-label-md rounded-lg" href="#">
-<span class="material-symbols-outlined">analytics</span>
-                Reports
-            </a>
-<a class="flex items-center gap-md p-md text-on-surface-variant hover:bg-surface-container-high transition-colors font-label-md text-label-md rounded-lg" href="#">
-<span class="material-symbols-outlined">settings</span>
-                Settings
-            </a>
-</nav>
-<div class="pt-lg mt-auto border-t border-outline-variant">
-<a class="flex items-center gap-md p-md text-error hover:bg-error-container transition-colors font-label-md text-label-md rounded-lg" href="#">
-<span class="material-symbols-outlined">logout</span>
-                Logout
-            </a>
-</div>
-</aside>
-<!-- TopNavBar (from JSON Shared Components) -->
-<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-surface dark:bg-background border-b border-outline-variant dark:border-outline flex justify-between items-center px-lg ml-64 z-40">
-<div class="flex items-center gap-lg flex-1">
-<h2 class="font-headline-sm text-headline-sm font-bold text-primary dark:text-primary-fixed-dim">Accounts Management</h2>
-<div class="relative w-96">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
-<input class="w-full bg-white border border-outline-variant rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="Search patients, doctors or staff..." type="text"/>
-</div>
-</div>
-<div class="flex items-center gap-md">
-<button class="p-2 text-on-surface-variant hover:text-primary transition-colors relative">
-<span class="material-symbols-outlined">notifications</span>
-<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
-</button>
-<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
-<span class="material-symbols-outlined">help</span>
-</button>
-<div class="h-8 w-[1px] bg-outline-variant mx-sm"></div>
-<div class="flex items-center gap-sm cursor-pointer group">
-<div class="text-right">
-<p class="text-label-md font-bold text-on-surface">Admin </p>
-<p class="text-xs text-on-surface-variant">System Administrator</p>
-</div>
-<img class="w-10 h-10 rounded-full border-2 border-primary-container object-cover" data-alt="A professional studio portrait of a senior hospital administrator wearing a sharp charcoal suit and a light blue tie. The background is a clean, out-of-focus modern medical office with soft natural lighting and a minimalist aesthetic. The image conveys leadership, trust, and clinical expertise, using a high-key color palette of whites and cool grays." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmSefWQ6skIlfCAsbj9SNjcnnr4kuSs8Vc62gH9uk7AmjLjBo0g-syTZhMcW1JrR4hGVFhT9B09XYixBzgVGh57RATm-bnx0M3DS7q6Z9uXPXHTIBY67zBxsarY462hCph9r4p4uPSbXh0PrkuijnefI9DDw7M1-gv6n-I1pawuEOAAnFQNFYNOje3Ioa6OpHYnBH2ayhnxRca2ECcU5huLskgpEEyawN1Ii0SIrNEHrxyK1IQ4vR9lrdJSQqL2vgNZEr2lLQSHg"/>
-</div>
-</div>
-</header>
-<!-- Main Content -->
-<main class="ml-64 pt-16 min-h-screen">
-<div class="p-gutter">
+
 <!-- Statistics Cards -->
 <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-lg mb-gutter">
-<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center justify-between">
-<div>
-<p class="text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Total Accounts</p>
-<h3 class="text-headline-md font-bold text-on-surface">12,930</h3>
+    <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center justify-between">
+        <div><p class="text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Total Accounts</p><h3 class="text-headline-md font-bold text-on-surface">{{ total_accounts }}</h3></div>
+        <div class="w-12 h-12 bg-primary-fixed rounded-lg flex items-center justify-center text-primary"><span class="material-symbols-outlined text-3xl">people</span></div>
+    </div>
+    <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center justify-between">
+        <div><p class="text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Patients</p><h3 class="text-headline-md font-bold text-on-surface">{{ total_patients }}</h3></div>
+        <div class="w-12 h-12 bg-secondary-container rounded-lg flex items-center justify-center text-on-secondary-container"><span class="material-symbols-outlined text-3xl">personal_injury</span></div>
+    </div>
+    <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center justify-between">
+        <div><p class="text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Doctors</p><h3 class="text-headline-md font-bold text-on-surface">{{ total_doctors }}</h3></div>
+        <div class="w-12 h-12 bg-tertiary-fixed rounded-lg flex items-center justify-center text-tertiary"><span class="material-symbols-outlined text-3xl">medical_services</span></div>
+    </div>
+    <div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center justify-between">
+        <div><p class="text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Active</p><h3 class="text-headline-md font-bold text-on-surface">{{ accounts|length }}</h3></div>
+        <div class="w-12 h-12 bg-error-container rounded-lg flex items-center justify-center text-on-error-container"><span class="material-symbols-outlined text-3xl">hourglass_empty</span></div>
+    </div>
 </div>
-<div class="w-12 h-12 bg-primary-fixed rounded-lg flex items-center justify-center text-primary">
-<span class="material-symbols-outlined text-3xl">people</span>
-</div>
-</div>
-<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center justify-between">
-<div>
-<p class="text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Patients</p>
-<h3 class="text-headline-md font-bold text-on-surface">12,480</h3>
-</div>
-<div class="w-12 h-12 bg-secondary-container rounded-lg flex items-center justify-center text-on-secondary-container">
-<span class="material-symbols-outlined text-3xl">personal_injury</span>
-</div>
-</div>
-<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center justify-between">
-<div>
-<p class="text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Doctors</p>
-<h3 class="text-headline-md font-bold text-on-surface">450</h3>
-</div>
-<div class="w-12 h-12 bg-tertiary-fixed rounded-lg flex items-center justify-center text-tertiary">
-<span class="material-symbols-outlined text-3xl">medical_services</span>
-</div>
-</div>
-<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 flex items-center justify-between">
-<div>
-<p class="text-label-sm text-on-surface-variant uppercase tracking-wider mb-xs">Pending Approval</p>
-<h3 class="text-headline-md font-bold text-error">18</h3>
-</div>
-<div class="w-12 h-12 bg-error-container rounded-lg flex items-center justify-center text-on-error-container">
-<span class="material-symbols-outlined text-3xl">hourglass_empty</span>
-</div>
-</div>
-</div>
-<!-- Filters and Search -->
-<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant/30 mb-lg flex flex-col lg:flex-row lg:items-center justify-between gap-lg">
-<div class="flex flex-wrap items-center gap-md">
-<div class="relative w-full lg:w-72">
-<label class="block text-label-sm mb-1 text-on-surface-variant">Quick Search</label>
-<div class="relative">
-<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-body-md">search</span>
-<input class="w-full bg-surface border border-outline-variant rounded-lg pl-10 pr-4 py-2 focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="Name, Email, or ID" type="text"/>
-</div>
-</div>
-<div class="w-full lg:w-40">
-<label class="block text-label-sm mb-1 text-on-surface-variant">Role</label>
-<select class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary transition-all">
-<option>All</option>
-<option>Patient</option>
-<option>Doctor</option>
-<option>Admin</option>
-<option>Staff</option>
-</select>
-</div>
-<div class="w-full lg:w-40">
-<label class="block text-label-sm mb-1 text-on-surface-variant">Status</label>
-<select class="w-full bg-surface border border-outline-variant rounded-lg px-4 py-2 focus:ring-2 focus:ring-primary transition-all">
-<option>All</option>
-<option>Active</option>
-<option>Inactive</option>
-<option>Pending</option>
-</select>
-</div>
-</div>
-<div class="flex items-end h-full">
-<button class="bg-primary text-white px-lg py-2.5 rounded-lg font-bold flex items-center gap-sm hover:opacity-90 transition-all shadow-sm" onclick="toggleModal('accountModal')">
-<span class="material-symbols-outlined">add</span>
-                        Add New Account
-                    </button>
-</div>
-</div>
-<!-- Table Card -->
-<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
-<div class="overflow-x-auto">
-<table class="w-full text-left border-collapse">
-<thead>
-<tr class="border-b border-outline-variant bg-surface-container-low">
-<th class="p-lg text-label-md text-on-surface-variant">ID</th>
-<th class="p-lg text-label-md text-on-surface-variant">Profile</th>
-<th class="p-lg text-label-md text-on-surface-variant">Email</th>
-<th class="p-lg text-label-md text-on-surface-variant">Role</th>
-<th class="p-lg text-label-md text-on-surface-variant">Status</th>
-<th class="p-lg text-label-md text-on-surface-variant">Joined Date</th>
-<th class="p-lg text-label-md text-on-surface-variant text-right">Actions</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-outline-variant/30">
-<!-- Row 1 -->
-<tr class="hover:bg-surface-container transition-colors group">
-<td class="p-lg text-label-sm text-on-surface-variant">USR-8821</td>
-<td class="p-lg">
-<div class="flex items-center gap-md">
-<img class="w-10 h-10 rounded-full object-cover" data-alt="A detailed closeup of a middle-aged male doctor with a warm, approachable smile, wearing a white lab coat and a stethoscope around his neck. The lighting is soft and professional, capturing a high-end clinical environment. The color palette is composed of clean whites, soft grays, and professional blues." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCHQiXeNmG-h4_983CRRCXaW9IFhsI8JXVnn885rnGFbKzoH-PvTxxhJno_EZnG4J3X1ggBezFZJgqRJwZnV_eLUF8_M5VE3yBIuVrXFy-62hqbVrO_J895qiyBGAOlLBgZrPKO0-ktTVJncA01Qjr2j6aOerLKRlAaMPYoTC1fau5epFm57QG-9AR8WOtaEAhuPW-Iw89fldpvC2RXFfG5zguKlyEGg2NaNhuTSNcdTPuLvVf7zlyUTNrTEx4TY2tm7wNdxlt2gg"/>
-<span class="font-bold text-on-surface">Dr. Nishan Maharjan</span>
-</div>
-</td>
-<td class="p-lg text-body-md text-on-surface-variant">nishan.maharjan@medicare.com</td>
-<td class="p-lg">
-<span class="px-3 py-1 rounded-full text-xs font-bold bg-primary-fixed text-on-primary-fixed-variant">Doctor</span>
-</td>
-<td class="p-lg">
-<span class="flex items-center gap-xs text-secondary font-semibold text-sm">
-<span class="w-2 h-2 rounded-full bg-secondary"></span> Active
-                                    </span>
-</td>
-<td class="p-lg text-body-md text-on-surface-variant">12 Oct 2023</td>
-<td class="p-lg text-right">
-<div class="flex justify-end gap-md">
-<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">edit</span></button>
-<button class="text-on-surface-variant hover:text-error transition-colors"><span class="material-symbols-outlined">delete</span></button>
-</div>
-</td>
-</tr>
-<!-- Row 2 -->
-<tr class="hover:bg-surface-container transition-colors group">
-<td class="p-lg text-label-sm text-on-surface-variant">USR-9412</td>
-<td class="p-lg">
-<div class="flex items-center gap-md">
-<img class="w-10 h-10 rounded-full object-cover" data-alt="A portrait of a young woman with a friendly and calm expression, styled for a professional patient portal. She is wearing a simple cream sweater against a bright, airy background that suggests a modern medical lobby with large windows and lush indoor plants. The image has a clean, light-mode aesthetic with a focus on trust and wellbeing." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmRyPZmWapqjFV-kKtJGiZ1I7hnLfkPVa3HQF2Kh0Rwucse8b8gIZMQBGJS2B4BcVFmp2b5kB6zWoYnM2bsug_-cyb0M2_J8Yi8g8SjLydm10ZgoK6Abe95B0nf_q4zdXtNrx6APfiKHAi4gsgcRnlWC_X0suZFY7EKtO32O53pYu4AHVlj5a0VV2r7_ZgDaSBtkf-f2mXr03sZDt5vywqJiDY-Y6to5uDZU_jF0nipM-Rq5pOCtzlj4sJ_qyEL84NIFdB02DTtA"/>
-<span class="font-bold text-on-surface">Elena Baidar</span>
-</div>
-</td>
-<td class="p-lg text-body-md text-on-surface-variant">elena.baidar@gmail.com</td>
-<td class="p-lg">
-<span class="px-3 py-1 rounded-full text-xs font-bold bg-secondary-container text-on-secondary-container">Patient</span>
-</td>
-<td class="p-lg">
-<span class="flex items-center gap-xs text-secondary font-semibold text-sm">
-<span class="w-2 h-2 rounded-full bg-secondary"></span> Active
-                                    </span>
-</td>
-<td class="p-lg text-body-md text-on-surface-variant">15 Nov 2023</td>
-<td class="p-lg text-right">
-<div class="flex justify-end gap-md">
-<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">edit</span></button>
-<button class="text-on-surface-variant hover:text-error transition-colors"><span class="material-symbols-outlined">delete</span></button>
-</div>
-</td>
-</tr>
-<!-- Row 3 -->
-<tr class="hover:bg-surface-container transition-colors group">
-<td class="p-lg text-label-sm text-on-surface-variant">USR-7732</td>
-<td class="p-lg">
-<div class="flex items-center gap-md">
-<img class="w-10 h-10 rounded-full object-cover" data-alt="A professional headshot of a mature woman in business attire, looking confident and professional. She is positioned against a clean, minimalist office background with soft neutral lighting. The overall style is modern corporate, emphasizing reliability and administrative leadership for a healthcare system portal." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDT0fxmqt7CIFGjMFNCimUsohrSgsXMTuEBXEgqInH_rlJ1FsKZIJZTi-VuerKaD5IJgmqSpn0_tPi02JcW2EsEg9fnqgCGM3GNOjKY1nvISirBesqoSDo_CquBJt0Dc-TN6Ec-yarUvbw2LT--7_bU6IOUZpJ8PGtMRyXOD8SgYVfd1J4MH5ervDvvtgbBZTlE72rsTGE4lrls70mTogFHlC_QZBRL1Tm70CrEZMZcorlH1VAesO5G2nA0oQZT5JfLhGi_fCp8LQ"/>
-<span class="font-bold text-on-surface">Sita</span>
-</div>
-</td>
-<td class="p-lg text-body-md text-on-surface-variant">sita@medicare.com</td>
-<td class="p-lg">
-<span class="px-3 py-1 rounded-full text-xs font-bold bg-tertiary-fixed text-on-tertiary-fixed-variant">Admin</span>
-</td>
-<td class="p-lg">
-<span class="flex items-center gap-xs text-secondary font-semibold text-sm">
-<span class="w-2 h-2 rounded-full bg-secondary"></span> Active
-                                    </span>
-</td>
-<td class="p-lg text-body-md text-on-surface-variant">02 Jan 2024</td>
-<td class="p-lg text-right">
-<div class="flex justify-end gap-md">
-<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">edit</span></button>
-<button class="text-on-surface-variant hover:text-error transition-colors"><span class="material-symbols-outlined">delete</span></button>
-</div>
-</td>
-</tr>
-<!-- Row 4 -->
-<tr class="hover:bg-surface-container transition-colors group">
-<td class="p-lg text-label-sm text-on-surface-variant">USR-3391</td>
-<td class="p-lg">
-<div class="flex items-center gap-md">
-<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant font-bold">MK</div>
-<span class="font-bold text-on-surface">Kirtan Kayastha</span>
-</div>
-</td>
-<td class="p-lg text-body-md text-on-surface-variant">kirtankayastha@outlook.com</td>
-<td class="p-lg">
-<span class="px-3 py-1 rounded-full text-xs font-bold bg-primary-fixed text-on-primary-fixed-variant">Doctor</span>
-</td>
-<td class="p-lg">
-<span class="flex items-center gap-xs text-tertiary font-semibold text-sm">
-<span class="w-2 h-2 rounded-full bg-tertiary"></span> Pending
-                                    </span>
-</td>
-<td class="p-lg text-body-md text-on-surface-variant">20 Feb 2024</td>
-<td class="p-lg text-right">
-<div class="flex justify-end gap-md">
-<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">edit</span></button>
-<button class="text-on-surface-variant hover:text-error transition-colors"><span class="material-symbols-outlined">delete</span></button>
-</div>
-</td>
-</tr>
-<!-- Row 5 -->
-<tr class="hover:bg-surface-container transition-colors group">
-<td class="p-lg text-label-sm text-on-surface-variant">USR-1102</td>
-<td class="p-lg">
-<div class="flex items-center gap-md">
-<img class="w-10 h-10 rounded-full object-cover" data-alt="A portrait of an elderly gentleman with a kind expression, wearing a polo shirt, looking at the camera. The background is a brightly lit, modern hospital garden with greenery and soft sunlight. This patient profile image emphasizes trust, accessibility, and high-quality geriatric care in a modern healthcare environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCF8UKcO02u0pVvH-nwCqnRObTn54li3md7Mrubd2avI-DL_6bg0ab1dJ2KoiVlCctzOKUzSyMorsn707pKdMvOr1R2uj4SUrpM7slM37Q-fEcvXiJY3i5IrowDN5Zg7tmSkGHd8iTxFEx02MMTcQ-tBG6OYs6e2AUDPMXsZGvX3uBZhWZqkWMPv8CTWukxtQZqPcTpBVIw4yFedqSFwX-7b02lSsFJIHxYwI3sKE7R6oiDmWaB3UUyLs8Plz8rJyB0mOYe7vlV2Q"/>
-<span class="font-bold text-on-surface">Roshan Ansari</span>
-</div>
-</td>
-<td class="p-lg text-body-md text-on-surface-variant">roshan@webmail.com</td>
-<td class="p-lg">
-<span class="px-3 py-1 rounded-full text-xs font-bold bg-secondary-container text-on-secondary-container">Patient</span>
-</td>
-<td class="p-lg">
-<span class="flex items-center gap-xs text-error font-semibold text-sm">
-<span class="w-2 h-2 rounded-full bg-error"></span> Inactive
-                                    </span>
-</td>
-<td class="p-lg text-body-md text-on-surface-variant">10 Dec 2022</td>
-<td class="p-lg text-right">
-<div class="flex justify-end gap-md">
-<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">edit</span></button>
-<button class="text-on-surface-variant hover:text-error transition-colors"><span class="material-symbols-outlined">delete</span></button>
-</div>
-</td>
-</tr>
-<!-- Row 6 -->
-<tr class="hover:bg-surface-container transition-colors group">
-<td class="p-lg text-label-sm text-on-surface-variant">USR-5022</td>
-<td class="p-lg">
-<div class="flex items-center gap-md">
-<img class="w-10 h-10 rounded-full object-cover" data-alt="A professional headshot of a friendly young man wearing a professional badge and a light blue scrub top, smiling. He is in a brightly lit medical hallway with modern glass architecture. The aesthetic is clean and professional, using a palette of crisp whites and hospital blues, conveying a sense of helpfulness and administrative efficiency." src="https://lh3.googleusercontent.com/aida-public/AB6AXuADGadeCriG--uW-Wr2QMZLWMruEHy5qolpXEf7nA2dCPWCi9YBFltKA8mRHrWrCl-si6-mUQvRgJ1bpsCOzAIvDGW2COiy-TkxJZlYQ32trSAn5WImCEdqG0LOk05dwT4taNchogfY_V_oJMHA3nsl8YG47xonCvzPFdBM7xvekmoOghKnTc_-S1rQ9QqV1ggjHY7C-O09Fs9aFQ1KpCf6g37cCzTVx9WAumwLbj-n_do2-LRwR5Q4HoabSGQHKG4ChU-mPhw7cg"/>
-<span class="font-bold text-on-surface">siddhartha</span>
-</div>
-</td>
-<td class="p-lg text-body-md text-on-surface-variant">siddhartha@medicare.com</td>
-<td class="p-lg">
-<span class="px-3 py-1 rounded-full text-xs font-bold bg-surface-container-high text-on-surface-variant">Staff</span>
-</td>
-<td class="p-lg">
-<span class="flex items-center gap-xs text-secondary font-semibold text-sm">
-<span class="w-2 h-2 rounded-full bg-secondary"></span> Active
-                                    </span>
-</td>
-<td class="p-lg text-body-md text-on-surface-variant">18 Mar 2024</td>
-<td class="p-lg text-right">
-<div class="flex justify-end gap-md">
-<button class="text-on-surface-variant hover:text-primary transition-colors"><span class="material-symbols-outlined">edit</span></button>
-<button class="text-on-surface-variant hover:text-error transition-colors"><span class="material-symbols-outlined">delete</span></button>
-</div>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<!-- Pagination -->
-<div class="p-lg border-t border-outline-variant flex items-center justify-between">
-<p class="text-label-sm text-on-surface-variant">Showing 1 to 6 of 12,930 accounts</p>
-<div class="flex items-center gap-sm">
-<button class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container transition-colors disabled:opacity-30" disabled="">
-<span class="material-symbols-outlined">chevron_left</span>
-</button>
-<div class="flex items-center">
-<button class="w-10 h-10 bg-primary text-white rounded-lg font-bold">1</button>
-<button class="w-10 h-10 hover:bg-surface-container rounded-lg">2</button>
-<button class="w-10 h-10 hover:bg-surface-container rounded-lg">3</button>
-<span class="px-2">...</span>
-<button class="w-10 h-10 hover:bg-surface-container rounded-lg">2,155</button>
-</div>
-<button class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container transition-colors">
-<span class="material-symbols-outlined">chevron_right</span>
-</button>
-</div>
-</div>
-</div>
-</div>
-</main>
-<!-- Modal: Add/Edit Account -->
-<div class="fixed inset-0 z-[60] hidden" id="accountModal">
-<!-- Backdrop -->
-<div class="absolute inset-0 bg-on-surface/40 backdrop-blur-sm" onclick="toggleModal('accountModal')"></div>
-<!-- Modal Content -->
-<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-surface-container-lowest rounded-xl shadow-xl overflow-hidden transform transition-all">
-<div class="p-lg border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
-<h3 class="text-headline-sm font-bold text-on-surface">Add New Account</h3>
-<button class="p-2 hover:bg-surface-container-high rounded-full transition-colors" onclick="toggleModal('accountModal')">
-<span class="material-symbols-outlined">close</span>
-</button>
-</div>
-<div class="p-lg">
-<form class="space-y-lg">
-<div class="grid grid-cols-1 md:grid-cols-2 gap-lg">
-<div class="md:col-span-2">
-<label class="block text-label-md mb-xs text-on-surface-variant">Full Name</label>
-<input class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="e.g. John Doe" type="text"/>
-</div>
-<div>
-<label class="block text-label-md mb-xs text-on-surface-variant">Email Address</label>
-<input class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="john.doe@email.com" type="email"/>
-</div>
-<div>
-<label class="block text-label-md mb-xs text-on-surface-variant">Phone Number</label>
-<input class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="+1 (555) 000-0000" type="tel"/>
-</div>
-<div>
-<label class="block text-label-md mb-xs text-on-surface-variant">Account Role</label>
-<select class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary transition-all">
-<option>Patient</option>
-<option>Doctor</option>
-<option>Admin</option>
-<option>Staff</option>
-</select>
-</div>
-<div>
-<label class="block text-label-md mb-xs text-on-surface-variant">Initial Status</label>
-<select class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary transition-all">
-<option>Active</option>
-<option>Inactive</option>
-<option>Pending Approval</option>
-</select>
-</div>
-<div>
-<label class="block text-label-md mb-xs text-on-surface-variant">Password</label>
-<input class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="••••••••" type="password"/>
-</div>
-<div>
-<label class="block text-label-md mb-xs text-on-surface-variant">Confirm Password</label>
-<input class="w-full bg-white border border-outline-variant rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-primary focus:border-primary transition-all" placeholder="••••••••" type="password"/>
-</div>
-</div>
-</form>
-</div>
-<div class="p-lg bg-surface-container-low flex justify-end gap-md">
-<button class="px-lg py-2.5 rounded-lg font-bold text-on-surface-variant border border-outline-variant hover:bg-surface-container-high transition-all" onclick="toggleModal('accountModal')">
-                    Cancel
-                </button>
-<button class="px-xl py-2.5 bg-primary text-white rounded-lg font-bold hover:opacity-90 transition-all shadow-sm">
-                    Create Account
-                </button>
-</div>
-</div>
-</div>
-<script>
-        function toggleModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal.classList.contains('hidden')) {
-                modal.classList.remove('hidden');
-                document.body.style.overflow = 'hidden';
-            } else {
-                modal.classList.add('hidden');
-                document.body.style.overflow = 'auto';
-            }
-        }
 
-        // Search Bar Focus micro-interaction
-        const searchInputs = document.querySelectorAll('input[type="text"]');
-        searchInputs.forEach(input => {
-            input.addEventListener('focus', () => {
-                input.parentElement.querySelector('.material-symbols-outlined').classList.add('text-primary');
-            });
-            input.addEventListener('blur', () => {
-                input.parentElement.querySelector('.material-symbols-outlined').classList.remove('text-primary');
-            });
-        });
-    </script>
-</body></html>
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/30 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="border-b border-outline-variant bg-surface-container-low">
+                    <th class="p-lg text-label-md text-on-surface-variant">ID</th>
+                    <th class="p-lg text-label-md text-on-surface-variant">Profile</th>
+                    <th class="p-lg text-label-md text-on-surface-variant">Email</th>
+                    <th class="p-lg text-label-md text-on-surface-variant">Role</th>
+                    <th class="p-lg text-label-md text-on-surface-variant">Status</th>
+                    <th class="p-lg text-label-md text-on-surface-variant">Joined</th>
+                    <th class="p-lg text-label-md text-on-surface-variant text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-outline-variant/30">
+                {% for user in accounts %}
+                <tr class="hover:bg-surface-container transition-colors group">
+                    <td class="p-lg text-label-sm text-on-surface-variant">USR-{{ user.id }}</td>
+                    <td class="p-lg">
+                        <div class="flex items-center gap-md">
+                            <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant font-bold">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+                            <span class="font-bold text-on-surface">{{ user.get_full_name|default:user.username }}</span>
+                        </div>
+                    </td>
+                    <td class="p-lg text-body-md text-on-surface-variant">{{ user.email|default:"—" }}</td>
+                    <td class="p-lg">
+                        {% if user.doctor_profile %}
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-primary-fixed text-on-primary-fixed-variant">Doctor</span>
+                        {% elif user.patient_profile %}
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-secondary-container text-on-secondary-container">Patient</span>
+                        {% elif user.is_superuser or user.is_staff %}
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-tertiary-fixed text-on-tertiary-fixed-variant">Admin</span>
+                        {% else %}
+                        <span class="px-3 py-1 rounded-full text-xs font-bold bg-surface-container-high text-on-surface-variant">Staff</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-lg">
+                        {% if user.is_active %}
+                        <span class="flex items-center gap-xs text-secondary font-semibold text-sm"><span class="w-2 h-2 rounded-full bg-secondary"></span> Active</span>
+                        {% else %}
+                        <span class="flex items-center gap-xs text-error font-semibold text-sm"><span class="w-2 h-2 rounded-full bg-error"></span> Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td class="p-lg text-body-md text-on-surface-variant">{{ user.date_joined|date:"d M Y" }}</td>
+                    <td class="p-lg text-right">
+                        {% if user.id != request.user.id %}
+                        <form method="POST" action="{% url 'admin_nishan:delete_account' user.id %}" class="inline" onsubmit="return confirm('Are you sure you want to delete the account of {{ user.get_full_name|default:user.username }}? This action cannot be undone.');">
+                            {% csrf_token %}
+                            <button type="submit" class="px-sm py-xs rounded-lg bg-error-container text-error font-label-sm text-label-sm hover:bg-error hover:text-on-error transition-colors">
+                                <span class="material-symbols-outlined text-sm align-middle">delete</span>
+                                Delete
+                            </button>
+                        </form>
+                        {% else %}
+                        <span class="px-sm py-xs rounded-full bg-surface-container-high text-on-surface-variant font-label-sm text-label-sm">You</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="p-lg text-center">
+                        <span class="material-symbols-outlined text-4xl text-on-surface-variant">manage_accounts</span>
+                        <p class="font-body-md text-on-surface mt-md">No accounts found</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
