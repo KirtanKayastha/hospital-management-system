@@ -1,0 +1,13 @@
+{% for slot in time_slots %}
+<button type="button"
+    class="time-slot px-md py-sm border border-outline-variant rounded-lg text-label-md font-label-md transition-all
+    {% if slot.is_booked %}opacity-40 cursor-not-allowed{% else %}hover:border-primary hover:text-primary{% endif %}
+    {% if slot.value == selected_time %}slot-selected{% endif %}"
+    {% if not slot.is_booked %}data-time="{{ slot.value }}"{% endif %}>
+    {{ slot.label }}
+</button>
+{% empty %}
+<div class="col-span-3 text-center py-md font-body-md text-body-md text-on-surface-variant">
+    No time slots available for this date and doctor.
+</div>
+{% endfor %}
