@@ -6,8 +6,6 @@
 <title>MedCore Portal - Patient Records</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/>
 <style>
         .material-symbols-outlined {
             font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
@@ -118,56 +116,65 @@
         }
     </script>
 </head>
-<body class="bg-background text-on-surface font-body-md min-h-screen flex flex-col">
-<!-- TopNavBar -->
-<header class="flex justify-between items-center px-lg w-full sticky top-0 z-50 bg-surface/95 backdrop-blur-sm w-full h-16 border-b border-outline-variant">
-<div class="flex items-center gap-md">
-<span class="font-headline-sm text-headline-sm font-extrabold text-primary">MedCore Portal</span>
-<form class="hidden md:flex items-center ml-xl bg-surface-container-high rounded-full px-md py-1 border border-outline-variant focus-within:ring-2 focus-within:ring-primary transition-all" method="get" action="">
-<span class="material-symbols-outlined text-outline">search</span>
-<input class="bg-transparent border-none focus:ring-0 text-body-sm w-64 placeholder:text-outline" placeholder="Search patients..." type="text" name="search"/>
+<body class="bg-background text-on-surface font-body-md h-screen flex overflow-hidden">
+
+<aside class="hidden lg:flex flex-col w-64 h-screen sticky top-0 left-0 shrink-0 border-r border-outline-variant bg-surface-container-lowest shadow-sm">
+<div class="p-lg flex flex-col h-full">
+<h1 class="font-headline-md text-headline-md font-bold text-primary mb-xl">MedCore Portal</h1>
+
+<div class="flex items-center gap-md mb-xl p-md rounded-xl bg-surface-container-low">
+    <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg shrink-0">
+        {{ doctor_profile.user.first_name|first|upper }}{{ doctor_profile.user.last_name|first|upper }}
+    </div>
+    <div class="overflow-hidden">
+        <p class="font-label-md text-label-md text-primary truncate">Dr. {{ doctor_profile.display_name }}</p>
+        <p class="text-label-sm text-on-surface-variant truncate">{{ doctor_profile.specialization|default:"General Medicine" }}</p>
+    </div>
+</div>
+
+<nav class="flex flex-col gap-xs flex-1">
+    <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors duration-150" href="{% url 'doctor_siddhartha:dashboard' %}">
+        <span class="material-symbols-outlined text-[22px]">dashboard</span>
+        Dashboard
+    </a>
+    <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors duration-150" href="{% url 'doctor_siddhartha:schedule' %}">
+        <span class="material-symbols-outlined text-[22px]">calendar_month</span>
+        Schedule
+    </a>
+    <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-primary font-bold border-r-4 border-primary bg-surface-container-low transition-colors duration-150" href="{% url 'doctor_siddhartha:patients' %}">
+        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">group</span>
+        Patients
+    </a>
+    <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors duration-150" href="{% url 'doctor_siddhartha:prescriptions' %}">
+        <span class="material-symbols-outlined text-[22px]">medication</span>
+        Prescriptions
+    </a>
+</nav>
+
+<a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-error hover:bg-error-container/10 transition-colors duration-150" href="{% url 'auth_kirtan:logout' %}">
+    <span class="material-symbols-outlined text-[22px]">logout</span>
+    Logout
+</a>
+</div>
+</aside>
+
+<div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+<header class="flex items-center justify-between px-lg h-16 sticky top-0 z-40 bg-surface/95 backdrop-blur-sm border-b border-outline-variant">
+<form class="relative w-full max-w-md" method="get" action="{% url 'doctor_siddhartha:patients' %}">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+<input class="w-full pl-xl pr-md py-2 bg-surface-container-low border-none rounded-full text-body-sm focus:ring-2 focus:ring-primary/20 focus:outline-none" placeholder="Search patients..." type="text" name="search"/>
 </form>
-</div>
-<div class="flex items-center gap-md">
-<button class="material-symbols-outlined p-2 rounded-full hover:bg-surface-container-high text-on-surface-variant transition-all">notifications</button>
-<button class="material-symbols-outlined p-2 rounded-full hover:bg-surface-container-high text-on-surface-variant transition-all">settings</button>
-<div class="flex items-center gap-sm ml-sm">
-<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">
-    {{ doctor_profile.user.first_name|first|upper }}{{ doctor_profile.user.last_name|first|upper }}
-</div>
-<span class="font-label-md text-label-md text-on-surface hidden lg:block">Dr. {{ doctor_profile.display_name }}</span>
-</div>
+<div class="flex items-center gap-md shrink-0 ml-lg">
+    <button class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container-high transition-all"><span class="material-symbols-outlined text-[22px]">notifications</span></button>
+    <button class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container-high transition-all"><span class="material-symbols-outlined text-[22px]">settings</span></button>
+    <div class="h-8 w-px bg-outline-variant mx-xs"></div>
+    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm shrink-0">
+        {{ doctor_profile.user.first_name|first|upper }}{{ doctor_profile.user.last_name|first|upper }}
+    </div>
 </div>
 </header>
-<div class="flex flex-1 overflow-hidden">
-<!-- SideNavBar -->
-<aside class="hidden lg:flex flex-col h-full sticky top-0 left-0 h-screen w-64 border-r border-outline-variant bg-surface-container-lowest transition-colors shadow-sm">
-<nav class="flex-1 px-sm py-md space-y-1">
-<a class="flex items-center gap-md px-md py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors" href="/doctor/dashboard/">
-    <span class="material-symbols-outlined">dashboard</span>
-    <span class="font-body-md text-body-md">Dashboard</span>
-</a>
-<a class="flex items-center gap-md px-md py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors" href="/doctor/schedule/">
-    <span class="material-symbols-outlined">calendar_month</span>
-    <span class="font-body-md text-body-md">Schedule</span>
-</a>
-<a class="flex items-center gap-md px-md py-3 rounded-lg text-primary font-bold border-r-4 border-primary bg-surface-container-low" href="/doctor/patients/">
-    <span class="material-symbols-outlined">group</span>
-    <span class="font-body-md text-body-md">Patients</span>
-</a>
-<a class="flex items-center gap-md px-md py-3 rounded-lg text-on-surface-variant hover:bg-surface-container-low transition-colors" href="/doctor/prescriptions/">
-    <span class="material-symbols-outlined">medication</span>
-    <span class="font-body-md text-body-md">Prescriptions</span>
-</a>
-<a class="flex items-center gap-md px-md py-3 rounded-lg text-error hover:bg-error-container/10 transition-colors" href="{% url 'auth_kirtan:logout' %}">
-    <span class="material-symbols-outlined">logout</span>
-    <span class="font-body-md text-body-md">Logout</span>
-</a>
-</nav>
-</aside>
-<!-- Main Content Area -->
+
 <main class="flex-1 overflow-hidden flex flex-col md:flex-row p-md lg:p-lg gap-lg">
-<!-- Patient List Section (Assigned Patients) -->
 <section class="w-full md:w-1/3 lg:w-[400px] flex flex-col gap-md">
 <div class="flex justify-between items-end mb-sm">
 <div>
@@ -208,7 +215,6 @@
 </div>
 </div>
 </section>
-<!-- Patient Detail Section -->
 <section class="flex-1 flex flex-col gap-md overflow-hidden">
 {% if selected_patient %}
 <div class="flex flex-col md:flex-row md:items-center justify-between gap-md mb-sm">
@@ -224,9 +230,7 @@
 </div>
 <div class="flex-1 overflow-y-auto custom-scrollbar pr-1">
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-lg">
-<!-- Left Column: Personal Info & History -->
 <div class="lg:col-span-2 space-y-lg">
-<!-- Bento Info Card -->
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
 <div class="bg-white p-lg rounded-xl card-shadow border-l-4 border-primary">
 <p class="text-label-sm text-outline uppercase tracking-wider mb-2">Age / Gender</p>
@@ -240,10 +244,13 @@
 <h4 class="font-headline-sm text-on-surface">{% if selected_patient_profile.blood_group %}{{ selected_patient_profile.blood_group }}{% else %}--{% endif %}</h4>
 </div>
 </div>
-<!-- Medical Records -->
 <div class="bg-white rounded-xl card-shadow overflow-hidden">
 <div class="p-lg border-b border-outline-variant flex justify-between items-center">
 <h3 class="font-bold text-on-surface">Medical Records</h3>
+<button type="button" class="flex items-center gap-xs text-primary font-label-md text-label-sm hover:underline" onclick="document.getElementById('add-record-modal').classList.remove('hidden')">
+    <span class="material-symbols-outlined text-[18px]">add_circle</span>
+    Add Record
+</button>
 </div>
 <div class="divide-y divide-outline-variant">
 {% if patient_records %}
@@ -259,6 +266,9 @@
                 <p class="text-body-sm text-outline">{{ record.status }} &middot; {{ record.department.name|default:"General" }}</p>
             </div>
         </div>
+        <a href="?patient={{ selected_patient.id }}&edit_record={{ record.id }}" class="p-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant transition-colors">
+            <span class="material-symbols-outlined text-[18px]">edit</span>
+        </a>
     </div>
     {% endfor %}
 {% else %}
@@ -269,7 +279,6 @@
 </div>
 </div>
 </div>
-<!-- Right Column: Prescriptions -->
 <div class="space-y-lg">
 <div class="bg-white rounded-xl card-shadow overflow-hidden">
 <div class="p-lg border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest">
@@ -313,6 +322,117 @@
 </section>
 </main>
 </div>
+
+<div class="fixed inset-0 z-[100] hidden" id="add-record-modal">
+<div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="document.getElementById('add-record-modal').classList.add('hidden')"></div>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl card-shadow overflow-hidden max-h-[90vh] overflow-y-auto">
+{% if selected_patient %}
+<form method="post" action="{% url 'doctor_siddhartha:add_medical_record' selected_patient.id %}">
+{% csrf_token %}
+<div class="p-lg border-b border-outline-variant flex items-center justify-between bg-surface-container-lowest">
+<h3 class="font-headline-sm text-headline-sm">Add Medical Record</h3>
+<button type="button" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high rounded-full p-1" onclick="document.getElementById('add-record-modal').classList.add('hidden')">close</button>
+</div>
+<div class="p-lg space-y-md">
+<div>
+    <label class="block font-label-md text-on-surface-variant mb-xs">Diagnosis</label>
+    <input type="text" name="diagnosis" required class="w-full border border-outline-variant rounded-lg p-md"/>
+</div>
+<div class="grid grid-cols-2 gap-md">
+    <div>
+        <label class="block font-label-md text-on-surface-variant mb-xs">Visit Date</label>
+        <input type="date" name="visit_date" value="{% now 'Y-m-d' %}" class="w-full border border-outline-variant rounded-lg p-md"/>
+    </div>
+    <div>
+        <label class="block font-label-md text-on-surface-variant mb-xs">Status</label>
+        <select name="status" class="w-full border border-outline-variant rounded-lg p-md">
+            {% for value, label in status_choices %}
+            <option value="{{ value }}">{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+<div>
+    <label class="block font-label-md text-on-surface-variant mb-xs">Symptoms</label>
+    <textarea name="symptoms" rows="2" class="w-full border border-outline-variant rounded-lg p-md"></textarea>
+</div>
+<div>
+    <label class="block font-label-md text-on-surface-variant mb-xs">Treatment</label>
+    <textarea name="treatment" rows="2" class="w-full border border-outline-variant rounded-lg p-md"></textarea>
+</div>
+<div>
+    <label class="block font-label-md text-on-surface-variant mb-xs">Notes</label>
+    <textarea name="notes" rows="2" class="w-full border border-outline-variant rounded-lg p-md"></textarea>
+</div>
+<div>
+    <label class="block font-label-md text-on-surface-variant mb-xs">Follow-up Date (optional)</label>
+    <input type="date" name="follow_up_date" class="w-full border border-outline-variant rounded-lg p-md"/>
+</div>
+</div>
+<div class="p-lg bg-surface-container-low border-t border-outline-variant flex justify-end gap-md">
+<button type="button" class="px-6 py-2 border border-outline-variant rounded-lg font-bold hover:bg-white transition-colors" onclick="document.getElementById('add-record-modal').classList.add('hidden')">Cancel</button>
+<button type="submit" class="px-8 py-2 bg-primary text-white rounded-lg font-bold transition-transform active:scale-95">Save Record</button>
+</div>
+</form>
+{% endif %}
+</div>
+</div>
+
+<div class="fixed inset-0 z-[100] {% if not editing_record %}hidden{% endif %}" id="edit-record-modal">
+<a href="?patient={{ selected_patient.id }}" class="absolute inset-0 bg-black/40 backdrop-blur-sm"></a>
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl card-shadow overflow-hidden max-h-[90vh] overflow-y-auto">
+{% if editing_record %}
+<form method="post" action="{% url 'doctor_siddhartha:edit_medical_record' editing_record.id %}">
+{% csrf_token %}
+<div class="p-lg border-b border-outline-variant flex items-center justify-between bg-surface-container-lowest">
+<h3 class="font-headline-sm text-headline-sm">Edit Medical Record</h3>
+<a href="?patient={{ selected_patient.id }}" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high rounded-full p-1">close</a>
+</div>
+<div class="p-lg space-y-md">
+<div>
+    <label class="block font-label-md text-on-surface-variant mb-xs">Diagnosis</label>
+    <input type="text" name="diagnosis" value="{{ editing_record.diagnosis }}" required class="w-full border border-outline-variant rounded-lg p-md"/>
+</div>
+<div class="grid grid-cols-2 gap-md">
+    <div>
+        <label class="block font-label-md text-on-surface-variant mb-xs">Visit Date</label>
+        <input type="date" name="visit_date" value="{{ editing_record.visit_date|date:'Y-m-d' }}" class="w-full border border-outline-variant rounded-lg p-md"/>
+    </div>
+    <div>
+        <label class="block font-label-md text-on-surface-variant mb-xs">Status</label>
+        <select name="status" class="w-full border border-outline-variant rounded-lg p-md">
+            {% for value, label in status_choices %}
+            <option value="{{ value }}" {% if editing_record.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+<div>
+    <label class="block font-label-md text-on-surface-variant mb-xs">Symptoms</label>
+    <textarea name="symptoms" rows="2" class="w-full border border-outline-variant rounded-lg p-md">{{ editing_record.symptoms }}</textarea>
+</div>
+<div>
+    <label class="block font-label-md text-on-surface-variant mb-xs">Treatment</label>
+    <textarea name="treatment" rows="2" class="w-full border border-outline-variant rounded-lg p-md">{{ editing_record.treatment }}</textarea>
+</div>
+<div>
+    <label class="block font-label-md text-on-surface-variant mb-xs">Notes</label>
+    <textarea name="notes" rows="2" class="w-full border border-outline-variant rounded-lg p-md">{{ editing_record.notes }}</textarea>
+</div>
+<div>
+    <label class="block font-label-md text-on-surface-variant mb-xs">Follow-up Date (optional)</label>
+    <input type="date" name="follow_up_date" value="{{ editing_record.follow_up_date|date:'Y-m-d' }}" class="w-full border border-outline-variant rounded-lg p-md"/>
+</div>
+</div>
+<div class="p-lg bg-surface-container-low border-t border-outline-variant flex justify-end gap-md">
+<a href="?patient={{ selected_patient.id }}" class="px-6 py-2 border border-outline-variant rounded-lg font-bold hover:bg-white transition-colors inline-block">Cancel</a>
+<button type="submit" class="px-8 py-2 bg-primary text-white rounded-lg font-bold transition-transform active:scale-95">Update Record</button>
+</div>
+</form>
+{% endif %}
+</div>
+</div>
+
 <script>
         function filterPatients(value) {
             const term = value.toLowerCase();

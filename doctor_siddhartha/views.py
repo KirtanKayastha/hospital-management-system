@@ -5,7 +5,16 @@ from django.db.models import Count, Max, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from admin_nishan.models import Appointment, Department, DoctorAvailability, LabReport, MedicalRecord, Notification, Prescription, PrescriptionItem
+from admin_nishan.models import (
+    Appointment,
+    Department,
+    DoctorAvailability,
+    LabReport,
+    MedicalRecord,
+    Notification,
+    Prescription,
+    PrescriptionItem,
+)
 from hospital.access import doctor_required
 from patient_roshan.models import PatientProfile
 from .models import DoctorProfile
@@ -139,16 +148,48 @@ def schedule(request):
 
     week_start = timezone.localdate() - timedelta(days=timezone.localdate().weekday())
     week_days = [week_start + timedelta(days=offset) for offset in range(7)]
+    week_end = week_start + timedelta(days=6)
+    week_days = [week_start + timedelta(days=offset) for offset in range(7)]
     appointments = Appointment.objects.filter(doctor=request.user, appointment_date__range=(week_start, week_start + timedelta(days=6))).select_related("patient", "department").order_by("appointment_date", "appointment_time")
 
     context = {
         "doctor_profile": doctor_profile,
         "week_start": week_start,
+        "week_end": week_end,
         "week_days": week_days,
         "appointments": appointments,
         "availability_slots": DoctorAvailability.objects.filter(doctor=request.user).order_by("day_of_week", "start_time"),
     }
     return render(request, "doc_siddhartha/schedule.html", context)
+
+
+@doctor_required
+def edit_availability(request, slot_id):
+    slot = get_object_or_404(DoctorAvailability, pk=slot_id, doctor=request.user)
+    if request.method == "POST":
+        day_of_week = request.POST.get("day_of_week")
+        start_time = request.POST.get("start_time")
+        end_time = request.POST.get("end_time")
+        is_active = request.POST.get("is_active") == "on"
+        if day_of_week and start_time and end_time:
+            slot.day_of_week = int(day_of_week)
+            slot.start_time = datetime.strptime(start_time, "%H:%M").time()
+            slot.end_time = datetime.strptime(end_time, "%H:%M").time()
+            slot.is_active = is_active
+            slot.save(update_fields=["day_of_week", "start_time", "end_time", "is_active"])
+            messages.success(request, "Availability updated.")
+        else:
+            messages.error(request, "Please complete the availability form.")
+    return redirect("doctor_siddhartha:schedule")
+
+
+@doctor_required
+def delete_availability(request, slot_id):
+    slot = get_object_or_404(DoctorAvailability, pk=slot_id, doctor=request.user)
+    if request.method == "POST":
+        slot.delete()
+        messages.success(request, "Availability slot removed.")
+    return redirect("doctor_siddhartha:schedule")
 
 
 @doctor_required
@@ -182,6 +223,11 @@ def patients_records(request):
         PatientProfile.objects.filter(user=selected_patient).first() if selected_patient else None
     )
 
+    editing_record = None
+    edit_record_id = request.GET.get("edit_record")
+    if edit_record_id:
+        editing_record = MedicalRecord.objects.filter(pk=edit_record_id, doctor=request.user).first()
+
     context = {
         "doctor_profile": doctor_profile,
         "patients": recent_patients,
@@ -190,8 +236,60 @@ def patients_records(request):
         "selected_appointment": selected_patient_appointment,
         "patient_records": patient_records,
         "patient_prescriptions": patient_prescriptions,
+        "editing_record": editing_record,
+        "status_choices": MedicalRecord.STATUS_CHOICES,
     }
     return render(request, "doc_siddhartha/patients_records.html", context)
+
+
+@doctor_required
+def add_medical_record(request, patient_id):
+    if request.method == "POST":
+        diagnosis = (request.POST.get("diagnosis") or "").strip()
+        symptoms = (request.POST.get("symptoms") or "").strip()
+        treatment = (request.POST.get("treatment") or "").strip()
+        notes = (request.POST.get("notes") or "").strip()
+        status = request.POST.get("status") or MedicalRecord.STATUS_STABLE
+        visit_date = request.POST.get("visit_date") or timezone.localdate().isoformat()
+        follow_up_date = request.POST.get("follow_up_date") or None
+
+        if diagnosis:
+            doctor_profile = _doctor_profile(request.user)
+            MedicalRecord.objects.create(
+                patient_id=patient_id,
+                doctor=request.user,
+                department=doctor_profile.department,
+                diagnosis=diagnosis,
+                symptoms=symptoms,
+                treatment=treatment,
+                notes=notes,
+                status=status,
+                visit_date=visit_date,
+                follow_up_date=follow_up_date or None,
+            )
+            messages.success(request, "Medical record added.")
+        else:
+            messages.error(request, "Diagnosis is required to save a medical record.")
+    return redirect(f"/doctor/patients/?patient={patient_id}")
+
+
+@doctor_required
+def edit_medical_record(request, record_id):
+    record = get_object_or_404(MedicalRecord, pk=record_id, doctor=request.user)
+    if request.method == "POST":
+        record.diagnosis = (request.POST.get("diagnosis") or record.diagnosis).strip()
+        record.symptoms = (request.POST.get("symptoms") or "").strip()
+        record.treatment = (request.POST.get("treatment") or "").strip()
+        record.notes = (request.POST.get("notes") or "").strip()
+        record.status = request.POST.get("status") or record.status
+        visit_date = request.POST.get("visit_date")
+        if visit_date:
+            record.visit_date = visit_date
+        follow_up_date = request.POST.get("follow_up_date")
+        record.follow_up_date = follow_up_date or None
+        record.save()
+        messages.success(request, "Medical record updated.")
+    return redirect(f"/doctor/patients/?patient={record.patient_id}")
 
 
 @doctor_required
@@ -204,22 +302,36 @@ def prescription(request):
         if selected_patient:
             selected_patient = selected_patient.patient
 
+    editing_prescription = None
+    edit_id = request.GET.get("edit")
+    if edit_id:
+        editing_prescription = Prescription.objects.filter(pk=edit_id, doctor=request.user).prefetch_related("items").first()
+
     if request.method == "POST":
         diagnosis = (request.POST.get("diagnosis") or "").strip()
         notes = (request.POST.get("notes") or "").strip()
         patient_id = request.POST.get("patient_id")
+        prescription_id = request.POST.get("prescription_id")
+
         if patient_id and diagnosis:
             patient_appointment = Appointment.objects.filter(doctor=request.user, patient_id=patient_id).select_related("patient").first()
             if patient_appointment:
-                prescription = Prescription.objects.create(
-                    patient=patient_appointment.patient,
-                    doctor=request.user,
-                    appointment=patient_appointment,
-                    diagnosis=diagnosis,
-                    notes=notes,
-                    prescribed_on=timezone.localdate(),
-                    is_active=True,
-                )
+                if prescription_id:
+                    rx = get_object_or_404(Prescription, pk=prescription_id, doctor=request.user)
+                    rx.diagnosis = diagnosis
+                    rx.notes = notes
+                    rx.save(update_fields=["diagnosis", "notes", "updated_at"])
+                    rx.items.all().delete()
+                else:
+                    rx = Prescription.objects.create(
+                        patient=patient_appointment.patient,
+                        doctor=request.user,
+                        appointment=patient_appointment,
+                        diagnosis=diagnosis,
+                        notes=notes,
+                        prescribed_on=timezone.localdate(),
+                        is_active=True,
+                    )
                 medicines = request.POST.getlist("medicine_name")
                 dosages = request.POST.getlist("dosage")
                 frequencies = request.POST.getlist("frequency")
@@ -230,7 +342,7 @@ def prescription(request):
                     if not medicine_name:
                         continue
                     PrescriptionItem.objects.create(
-                        prescription=prescription,
+                        prescription=rx,
                         medicine_name=medicine_name,
                         dosage=(dosages[index] if index < len(dosages) else "").strip(),
                         frequency=(frequencies[index] if index < len(frequencies) else "").strip(),
@@ -254,5 +366,23 @@ def prescription(request):
         "patients": Appointment.objects.filter(doctor=request.user).values("patient_id", "patient__first_name", "patient__last_name", "patient__username").distinct().order_by("patient__first_name", "patient__last_name"),
         "past_prescriptions": past_prescriptions,
         "selected_patient_prescription_count": selected_patient_prescription_count,
+        "editing_prescription": editing_prescription,
     }
     return render(request, "doc_siddhartha/prescription.html", context)
+
+
+@doctor_required
+def edit_prescription(request, prescription_id):
+    rx = get_object_or_404(Prescription, pk=prescription_id, doctor=request.user)
+    return redirect(f"/doctor/prescriptions/?patient={rx.patient_id}&edit={prescription_id}")
+
+
+@doctor_required
+def delete_prescription(request, prescription_id):
+    rx = get_object_or_404(Prescription, pk=prescription_id, doctor=request.user)
+    if request.method == "POST":
+        patient_id = rx.patient_id
+        rx.delete()
+        messages.success(request, "Prescription deleted.")
+        return redirect(f"/doctor/prescriptions/?patient={patient_id}")
+    return redirect("doctor_siddhartha:prescriptions")
