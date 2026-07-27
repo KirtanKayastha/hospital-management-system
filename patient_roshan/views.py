@@ -678,3 +678,13 @@ def request_deletion(request):
         )
         messages.success(request, 'Your deletion request has been sent to admin.')
     return redirect('patient_roshan:settings')
+
+
+@patient_required
+def delete_account(request):
+    if request.method == 'POST':
+        username = request.user.username
+        request.user.delete()
+        messages.success(request, f'Account "{username}" has been permanently deleted.')
+        return redirect('auth_kirtan:logout')
+    return redirect('patient_roshan:settings')
