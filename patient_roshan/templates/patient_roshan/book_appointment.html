@@ -98,40 +98,16 @@
                     </div>
                     {% endif %}
 
-                    {# Calendar #}
+                    {# Date Picker #}
                     <section>
-                        <div class="flex items-center justify-between mb-md">
-                            <h3 class="font-headline-sm text-headline-sm">Select Date</h3>
-                            <div class="flex gap-sm">
-                                <button type="button" class="p-xs hover:bg-surface-container rounded transition-colors">
-                                    <span class="material-symbols-outlined">chevron_left</span>
-                                </button>
-                                <span class="font-label-md text-label-md py-xs" id="calMonthLabel">July 2025</span>
-                                <button type="button" class="p-xs hover:bg-surface-container rounded transition-colors">
-                                    <span class="material-symbols-outlined">chevron_right</span>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="calendar-grid text-center">
-                            <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">Su</span>
-                            <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">Mo</span>
-                            <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">Tu</span>
-                            <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">We</span>
-                            <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">Th</span>
-                            <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">Fr</span>
-                            <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">Sa</span>
-                            {% for day in calendar_days %}
-                            <button type="button"
-                                class="py-md rounded-lg font-body-md text-body-md cal-day
-                                {% if day.is_past %}text-on-surface-variant/40 cursor-not-allowed
-                                {% elif day.is_selected %}bg-primary text-white font-bold shadow-md
-                                {% else %}hover:bg-surface-container transition-colors{% endif %}"
-                                {% if not day.is_past %}data-date="{{ day.date }}"{% endif %}>
-                                {{ day.number }}
-                            </button>
-                            {% endfor %}
-                        </div>
+                        <h3 class="font-headline-sm text-headline-sm mb-md">Select Date</h3>
+                        <input type="date" id="datePicker"
+                            class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm focus:ring-2 focus:ring-primary focus:border-primary font-body-md text-body-md transition-all"
+                            min="{{ min_date }}" max="{{ max_date }}" value="{{ selected_date }}"/>
                         <input type="hidden" name="appointment_date" id="selectedDate" value="{{ selected_date }}"/>
+                        <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">
+                            Select a date within the next 30 days.
+                        </p>
                     </section>
 
                     {# Time Slots #}
@@ -192,9 +168,8 @@
     var filterDoctorInput = document.getElementById('filterDoctor');
     var filterDateInput = document.getElementById('filterDate');
     var filterTimeInput = document.getElementById('filterTime');
-    var bookingFilterForm = document.getElementById('bookingFilterForm');
     var timeSlotContainer = document.getElementById('time-slot-container');
-    var timeSlotLoading = null;
+    var datePicker = document.getElementById('datePicker');
 
     function getTimeSlotsUrl(doctorId, dateStr, timeVal) {
         var url = '?doctor_id=' + encodeURIComponent(doctorId || '') + '&date=' + encodeURIComponent(dateStr || '') + '&time=' + encodeURIComponent(timeVal || '');
@@ -229,28 +204,44 @@
             });
     }
 
-    function updateSelectedDate(dayEl, dateStr) {
-        var calDays = document.querySelectorAll('.cal-day');
-        calDays.forEach(function(d) {
-            d.classList.remove('bg-primary', 'text-white', 'font-bold', 'shadow-md');
-            d.classList.add('hover:bg-surface-container');
-        });
-        dayEl.classList.add('bg-primary', 'text-white', 'font-bold', 'shadow-md');
-        dayEl.classList.remove('hover:bg-surface-container');
+    function selectDate(dateStr) {
         selectedDateInput.value = dateStr;
         filterDateInput.value = dateStr;
         filterTimeInput.value = '';
         selectedTimeInput.value = '';
+        var doctorId = selectedDoctorInput.value;
+        if (doctorId && dateStr) {
+            loadTimeSlots(doctorId, dateStr, '');
+        } else if (dateStr) {
+            if (timeSlotContainer) {
+                timeSlotContainer.innerHTML = '<div class="col-span-3 text-center py-md font-body-md text-body-md text-on-surface-variant">Select a doctor to see available time slots.</div>';
+            }
+        } else {
+            if (timeSlotContainer) {
+                timeSlotContainer.innerHTML = '<div class="col-span-3 text-center py-md font-body-md text-body-md text-on-surface-variant">Select a doctor and date to see available time slots.</div>';
+            }
+        }
     }
 
-    function selectDoctor(cardEl, doctorId) {
+    function selectDoctor(doctorId) {
         var cards = document.querySelectorAll('.doctor-card');
         cards.forEach(function(item) { item.classList.remove('ring-2', 'ring-primary'); });
-        cardEl.classList.add('ring-2', 'ring-primary');
+        var card = document.querySelector('[data-doctor-id="' + doctorId + '"]');
+        if (card) {
+            card.classList.add('ring-2', 'ring-primary');
+        }
         selectedDoctorInput.value = doctorId;
         filterDoctorInput.value = doctorId;
         filterTimeInput.value = '';
         selectedTimeInput.value = '';
+        var dateStr = selectedDateInput.value;
+        if (dateStr) {
+            loadTimeSlots(doctorId, dateStr, '');
+        } else {
+            if (timeSlotContainer) {
+                timeSlotContainer.innerHTML = '<div class="col-span-3 text-center py-md font-body-md text-body-md text-on-surface-variant">Select a date to see available time slots.</div>';
+            }
+        }
     }
 
     function selectTimeSlot(slotEl, timeVal) {
@@ -265,35 +256,16 @@
     var doctorCards = document.querySelectorAll('.doctor-card');
     doctorCards.forEach(function(card) {
         card.addEventListener('click', function() {
-            var doctorId = card.dataset.doctorId;
-            selectDoctor(card, doctorId);
-            var dateStr = selectedDateInput.value;
-            if (dateStr) {
-                loadTimeSlots(doctorId, dateStr, '');
-            } else {
-                if (timeSlotContainer) {
-                    timeSlotContainer.innerHTML = '<div class="col-span-3 text-center py-md font-body-md text-body-md text-on-surface-variant">Select a date to see available time slots.</div>';
-                }
-            }
+            selectDoctor(card.dataset.doctorId);
         });
     });
 
-    // Calendar day click
-    var calDays = document.querySelectorAll('.cal-day:not(.cursor-not-allowed)');
-    calDays.forEach(function(day) {
-        day.addEventListener('click', function() {
-            var dateStr = day.dataset.date;
-            updateSelectedDate(day, dateStr);
-            var doctorId = selectedDoctorInput.value;
-            if (doctorId) {
-                loadTimeSlots(doctorId, dateStr, '');
-            } else {
-                if (timeSlotContainer) {
-                    timeSlotContainer.innerHTML = '<div class="col-span-3 text-center py-md font-body-md text-body-md text-on-surface-variant">Select a doctor to see available time slots.</div>';
-                }
-            }
+    // Native date picker change
+    if (datePicker) {
+        datePicker.addEventListener('change', function() {
+            selectDate(datePicker.value);
         });
-    });
+    }
 
     // Time slot click (no form submit)
     var timeSlots = document.querySelectorAll('.time-slot:not(.cursor-not-allowed)');
@@ -303,7 +275,7 @@
         });
     });
 
-    // Initial load: if doctor and date are already selected, update time slots
+    // Initial load
     document.addEventListener('DOMContentLoaded', function() {
         var doctorId = selectedDoctorInput.value;
         var dateStr = selectedDateInput.value;
