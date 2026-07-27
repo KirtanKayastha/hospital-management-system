@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.db.models import Count, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from .forms import PatientForm
 
 from admin_nishan.models import (
     Appointment,
@@ -238,3 +239,25 @@ def admin_reports(request):
         "total_dept": total_dept,
     }
     return render(request, "admin_reports.html", context)
+
+@admin_required
+def edit_patient(request, patient_id):
+    patient = get_object_or_404(PatientProfile, pk=patient_id)
+
+    if request.method == "POST":
+        form = PatientForm(request.POST, request.FILES, instance=patient)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Patient updated successfully.")
+            return redirect("admin_nishan:admin_manage_patients")
+    else:
+        form = PatientForm(instance=patient)
+
+    context = {
+        "active_page": "patients",
+        "form": form,
+        "patient": patient,
+    }
+
+    return render(request, "admin_nishan/edit_patient.html", context)

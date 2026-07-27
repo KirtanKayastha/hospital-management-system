@@ -6,6 +6,12 @@ app_name = 'admin_nishan'
 urlpatterns = [
     path("", views.admin_dashboard, name="admin_dashboard"),
     path("patients/", views.admin_manage_patients, name="admin_manage_patients"),
+    
+    path(
+    "patients/edit/<int:patient_id>/",
+    views.edit_patient,
+    name="edit_patient",
+),
     path("doctor/", views.admin_manage_doctor, name="admin_manage_doctor"),
     path("pending-doctors/", views.pending_doctors, name="pending_doctors"),
     path("doctors/approve/<int:doctor_id>/", views.approve_doctor, name="approve_doctor"),
