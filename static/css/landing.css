@@ -5,83 +5,45 @@
     vertical-align: middle;
 }
 
-/* Design System Colors */
-:root {
-    --primary: #004ac6;
-    --surface: #f7f9fb;
-    --text: #191c1e;
-    --on-surface: #191c1e;
-    --on-surface-variant: #434655;
-    --outline-variant: #c3c6d7;
-    --surface-container-lowest: #ffffff;
-    --surface-container-low: #f2f4f6;
-    --surface-container: #eceef0;
-    --surface-container-high: #e6e8ea;
-    --surface-container-highest: #e0e3e5;
-    --primary-container: #2563eb;
-    --on-primary-container: #ffffff;
-    --error: #ba1a1a;
-    --on-error: #ffffff;
-    --error-container: #ffdad6;
-    --on-error-container: #93000a;
-    --background: #f7f9fb;
-}
-
-/* Body */
 body {
     font-family: 'Inter', sans-serif;
-    background-color: var(--surface);
-    color: var(--text);
+    background-color: #f7f9fb;
+    color: #191c1e;
 }
 
-/* Color Classes */
-.bg-primary { background-color: var(--primary); }
-.text-primary { color: var(--primary); }
-.bg-primary-container { background-color: var(--primary-container); }
-.text-on-primary-container { color: var(--on-primary-container); }
-.bg-surface-container-lowest { background-color: var(--surface-container-lowest); }
-.bg-surface-container-low { background-color: var(--surface-container-low); }
-.bg-surface-container { background-color: var(--surface-container); }
-.bg-surface-container-high { background-color: var(--surface-container-high); }
-.bg-surface-container-highest { background-color: var(--surface-container-highest); }
-.bg-background { background-color: var(--background); }
-.text-on-surface { color: var(--on-surface); }
-.text-on-surface-variant { color: var(--on-surface-variant); }
-.border-outline-variant { border-color: var(--outline-variant); }
-.bg-error { background-color: var(--error); }
-.text-error { color: var(--error); }
-.bg-error-container { background-color: var(--error-container); }
-.text-on-error-container { color: var(--on-error-container); }
-.border-error { border-color: var(--error); }
+.custom-shadow {
+    box-shadow: 0px 1px 2px 0px rgba(15, 23, 42, 0.05);
+}
 
-/* Card */
-.card {
-    background-color: var(--surface-container-lowest);
-    border-radius: 0.75rem; /* 12px */
+.custom-shadow-hover:hover {
     box-shadow: 0px 4px 6px -1px rgba(15, 23, 42, 0.1);
 }
 
-/* Sidebar (width handled by Tailwind w-64) */
-.sidebar {
-    background-color: var(--surface-container-lowest);
-    border-right: 1px solid var(--outline-variant);
+/* Tailwind custom utilities (if needed) */
+.bg-primary {
+    background-color: #004ac6;
 }
-
-/* Button */
-.btn-primary {
-    background-color: var(--primary);
-    color: var(--on-primary);
-    border-radius: 0.25rem; /* 6px */
-    padding: 0.5rem 1rem;
-    font-weight: 500;
-    transition: background-color 0.2s;
+.bg-primary-container {
+    background-color: #2563eb;
 }
-.btn-primary:hover {
-    background-color: var(--primary);
-    opacity: 0.9;
+.text-primary {
+    color: #004ac6;
 }
-
-/* Ensure Material Symbols are used */
-.material-symbols-outlined {
-    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+.text-on-surface {
+    color: #191c1e;
+}
+.text-on-surface-variant {
+    color: #434655;
+}
+.border-outline-variant {
+    border-color: #c3c6d7;
+}
+.bg-surface-container-lowest {
+    background-color: #ffffff;
+}
+.bg-surface-container-high {
+    background-color: #e6e8ea;
+}
+.bg-background {
+    background-color: #f7f9fb;
 }
