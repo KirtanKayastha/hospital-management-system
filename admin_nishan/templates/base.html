@@ -5,23 +5,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Dashboard{% endblock %} - Your App</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries,typography"></script>
-    
-    <!-- Google Fonts -->
+    <title>{% block title %}Dashboard{% endblock %} - MediCare Admin</title>
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind Config -->
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
+
     <script id="tailwind-config">
     tailwind.config = {
         darkMode: "class",
-        content: [
-            "./**/*.html",
-            "./**/*.js"
-        ],
         theme: {
             extend: {
                 colors: {
@@ -110,41 +102,93 @@
     </script>
 
     <style>
-        body {
-            font-family: 'Inter', system-ui, sans-serif;
-            background-color: #f7f9fb;
-        }
-        
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        
-        .chart-bar-transition {
-            transition: height 1s ease-out;
-        }
-        
-        /* Smooth sidebar transition support */
-        .sidebar-transition {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        body { font-family: 'Inter', system-ui, sans-serif; background-color: #f7f9fb; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .chart-bar-transition { transition: height 1s ease-out; }
+        .sidebar-transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
-<body class="text-on-surface overflow-hidden bg-surface">
+<body class="text-on-surface bg-surface">
 
-    {% include "includes/sidebar.html" %}
+    <!-- Sidebar -->
+    <aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container-lowest border-r border-outline-variant flex flex-col p-lg z-50">
+        <div class="mb-xxl">
+            <h1 class="font-headline-sm text-headline-sm font-bold text-primary">MediCare Admin</h1>
+            <p class="text-on-surface-variant font-label-sm text-label-sm uppercase tracking-wider">System Portal</p>
+        </div>
+        <nav class="flex-1 space-y-base overflow-y-auto">
+            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'dashboard' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_nishan:admin_dashboard' %}">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span>Dashboard</span>
+            </a>
+            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'patients' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_nishan:admin_manage_patients' %}">
+                <span class="material-symbols-outlined">group</span>
+                <span>Patients</span>
+            </a>
+            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'doctor' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_nishan:admin_manage_doctor' %}">
+                <span class="material-symbols-outlined">medical_services</span>
+                <span>Doctors</span>
+            </a>
+            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'appointments' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_nishan:admin_appointments' %}">
+                <span class="material-symbols-outlined">event</span>
+                <span>Appointments</span>
+            </a>
+            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'accounts' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_nishan:admin_accounts' %}">
+                <span class="material-symbols-outlined">manage_accounts</span>
+                <span>Accounts</span>
+            </a>
+            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'reports' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_nishan:admin_reports' %}">
+                <span class="material-symbols-outlined">analytics</span>
+                <span>Reports</span>
+            </a>
+            <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'pending_doctors' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}" href="{% url 'admin_nishan:pending_doctors' %}">
+                <span class="material-symbols-outlined">how_to_reg</span>
+                <span>Pending Approvals</span>
+            </a>
+        </nav>
+        <div class="pt-lg border-t border-outline-variant">
+            <div class="flex items-center gap-md mb-md">
+                <div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold">
+                    {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+                </div>
+                <div class="overflow-hidden">
+                    <p class="font-label-md text-label-md truncate">{{ request.user.get_full_name|default:request.user.username }}</p>
+                    <p class="text-label-sm text-on-surface-variant truncate">Administrator</p>
+                </div>
+            </div>
+            <a class="flex items-center gap-md p-md rounded-lg text-error hover:bg-error-container transition-colors font-label-md text-label-md" href="{% url 'auth_kirtan:logout' %}">
+                <span class="material-symbols-outlined">logout</span>
+                <span>Logout</span>
+            </a>
+        </div>
+    </aside>
 
-    <!-- Navbar can be uncommented when ready -->
-    <!-- {% include "includes/navbar.html" %} -->
+    <!-- Topbar -->
+    <header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 bg-surface border-b border-outline-variant flex justify-between items-center px-lg z-40">
+        <div class="flex items-center gap-lg flex-1">
+            <h2 class="font-headline-sm text-headline-sm font-bold text-primary">{% block page_title %}Admin Dashboard{% endblock %}</h2>
+        </div>
+        <div class="flex items-center gap-md">
+            <button class="p-2 text-on-surface-variant hover:text-primary transition-colors relative">
+                <span class="material-symbols-outlined">notifications</span>
+            </button>
+            <div class="h-8 w-[1px] bg-outline-variant"></div>
+            <a class="flex items-center gap-sm p-1 rounded-full hover:bg-surface-container-high transition-colors" href="{% url 'auth_kirtan:logout' %}">
+                <div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold">
+                    {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+                </div>
+                <span class="material-symbols-outlined text-on-surface-variant">logout</span>
+            </a>
+        </div>
+    </header>
 
-    <main class="ml-64 pt-16 h-screen overflow-y-auto bg-surface">
-        {% block content %}
-        <!-- Child templates will override this -->
-        {% endblock %}
+    <main class="ml-64 pt-16 min-h-screen overflow-y-auto bg-surface">
+        <div class="p-lg max-w-7xl mx-auto space-y-lg">
+            {% block content %}{% endblock %}
+        </div>
     </main>
 
-    {% block scripts %}
-    <!-- Child templates can add scripts here -->
-    {% endblock %}
+    {% block scripts %}{% endblock %}
 
 </body>
 </html>

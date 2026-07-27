@@ -1,0 +1,236 @@
+{% extends 'patient_roshan/base.html' %}
+{% block title %}Book Appointment{% endblock %}
+{% block page_title %}Book Appointment{% endblock %}
+
+{% block content %}
+{% with active_page='book' %}
+
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-xl">
+
+    {# Left: Filters + Doctor List #}
+    <div class="lg:col-span-7 space-y-lg">
+
+        {# Filters #}
+        <section class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant">
+            <form method="GET" action="{% url 'patient_roshan:book_appointment' %}" id="bookingFilterForm" class="flex flex-col md:flex-row gap-lg items-end">
+                <input type="hidden" name="doctor" id="filterDoctor" value="{{ selected_doctor_id }}"/>
+                <input type="hidden" name="date" id="filterDate" value="{{ selected_date }}"/>
+                <input type="hidden" name="time" id="filterTime" value="{{ selected_time }}"/>
+                <div class="flex-1">
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Select Department</label>
+                    <div class="relative">
+                        <select name="department" onchange="this.form.submit()" class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm appearance-none focus:ring-2 focus:ring-primary focus:border-primary font-body-md text-body-md transition-all">
+                            <option value="">All Departments</option>
+                            {% for dept in departments %}
+                            <option value="{{ dept.id }}" {% if selected_department_id == dept.id|stringformat:"s" %}selected{% endif %}>{{ dept.name }}</option>
+                            {% endfor %}
+                        </select>
+                        <span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-on-surface-variant">expand_more</span>
+                    </div>
+                </div>
+                <div class="flex-1">
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Search Specialist</label>
+                    <div class="relative">
+                           <input class="w-full bg-white border border-outline-variant rounded-lg px-md py-sm pl-xl focus:ring-2 focus:ring-primary focus:border-primary font-body-md text-body-md transition-all"
+                               placeholder="Dr. Name..." type="text" name="search" value="{{ search|default:'' }}"/>
+                        <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+                    </div>
+                </div>
+                <button type="submit" class="bg-primary text-white px-lg py-sm rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
+                    Filter
+                </button>
+            </form>
+        </section>
+
+        {# Doctor List #}
+        <h2 class="font-headline-sm text-headline-sm text-on-surface">Available Specialists</h2>
+
+        {% for doctor in doctors %}
+        <div class="doctor-card bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant hover:shadow-md transition-all cursor-pointer group active:scale-[0.98] {% if selected_doctor_id == doctor.id %}ring-2 ring-primary{% endif %}"
+             data-doctor-id="{{ doctor.id }}"
+             data-doctor-name="{{ doctor.name }}">
+            <div class="flex gap-lg">
+                <div class="w-20 h-20 rounded-xl overflow-hidden bg-secondary-container flex items-center justify-center text-2xl font-bold text-on-secondary-container flex-shrink-0">
+                    {{ doctor.initials }}
+                </div>
+                <div class="flex-1">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h3 class="font-headline-sm text-headline-sm group-hover:text-primary transition-colors">{{ doctor.name }}</h3>
+                            <p class="font-body-md text-body-md text-on-surface-variant">{{ doctor.specialization }}</p>
+                        </div>
+                        <div class="bg-secondary-container text-on-secondary-container px-sm py-xs rounded text-label-sm font-label-sm flex items-center gap-xs">
+                            <span class="material-symbols-outlined text-[14px]">star</span>{{ doctor.rating }} ({{ doctor.review_count }}+ reviews)
+                        </div>
+                    </div>
+                    <div class="mt-md flex flex-wrap gap-sm">
+                        {% for slot in doctor.available_slots %}
+                        <span class="px-md py-xs bg-surface-container rounded-full text-label-sm font-label-sm text-on-surface-variant border border-outline-variant">{{ slot }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant text-center">
+            <p class="font-body-md text-on-surface-variant">No doctors available for the selected filters.</p>
+        </div>
+        {% endfor %}
+
+    </div>
+
+    {# Right: Scheduler #}
+    <div class="lg:col-span-5">
+        <div class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant sticky top-32">
+            <form method="POST" action="{% url 'patient_roshan:book_appointment' %}">
+                {% csrf_token %}
+                <input type="hidden" name="doctor_id" id="selectedDoctor" value="{{ selected_doctor_id }}"/>
+                <div class="space-y-xl">
+
+                    {% if form_errors %}
+                    <div class="rounded-xl border border-error bg-error-container p-md text-on-error-container">
+                        <p class="font-label-md text-label-md mb-sm">Please fix the following:</p>
+                        <ul class="list-disc pl-lg space-y-xs font-body-sm text-body-sm">
+                            {% for error in form_errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {# Calendar #}
+                    <section>
+                        <div class="flex items-center justify-between mb-md">
+                            <h3 class="font-headline-sm text-headline-sm">Select Date</h3>
+                            <div class="flex gap-sm">
+                                <button type="button" class="p-xs hover:bg-surface-container rounded transition-colors">
+                                    <span class="material-symbols-outlined">chevron_left</span>
+                                </button>
+                                <span class="font-label-md text-label-md py-xs" id="calMonthLabel">July 2025</span>
+                                <button type="button" class="p-xs hover:bg-surface-container rounded transition-colors">
+                                    <span class="material-symbols-outlined">chevron_right</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="calendar-grid text-center">
+                            <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">Su</span>
+                            <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">Mo</span>
+                            <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">Tu</span>
+                            <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">We</span>
+                            <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">Th</span>
+                            <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">Fr</span>
+                            <span class="text-on-surface-variant font-label-sm text-label-sm py-xs">Sa</span>
+                            {% for day in calendar_days %}
+                            <button type="button"
+                                class="py-md rounded-lg font-body-md text-body-md cal-day
+                                {% if day.is_past %}text-on-surface-variant/40 cursor-not-allowed
+                                {% elif day.is_selected %}bg-primary text-white font-bold shadow-md
+                                {% else %}hover:bg-surface-container transition-colors{% endif %}"
+                                {% if not day.is_past %}data-date="{{ day.date }}"{% endif %}>
+                                {{ day.number }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" name="appointment_date" id="selectedDate" value="{{ selected_date }}"/>
+                    </section>
+
+                    {# Time Slots #}
+                    <section>
+                        <h3 class="font-headline-sm text-headline-sm mb-md">Select Time</h3>
+                        <div class="grid grid-cols-3 gap-sm" id="time-slot-container">
+                            {% for slot in time_slots %}
+                            <button type="button"
+                                class="time-slot px-md py-sm border border-outline-variant rounded-lg text-label-md font-label-md transition-all
+                                {% if slot.is_booked %}opacity-40 cursor-not-allowed{% else %}hover:border-primary hover:text-primary{% endif %}
+                                {% if slot.value == selected_time %}slot-selected{% endif %}"
+                                {% if not slot.is_booked %}data-time="{{ slot.value }}"{% endif %}>
+                                {{ slot.label }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                        <input type="hidden" name="appointment_time" id="selectedTime" value="{{ selected_time }}"/>
+                    </section>
+
+                    {# Reason #}
+                    <section>
+                        <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Reason for Visit</label>
+                        <textarea name="reason" rows="3"
+                            class="w-full bg-white border border-outline-variant rounded-lg px-md py-md focus:ring-2 focus:ring-primary focus:border-primary font-body-md text-body-md transition-all resize-none"
+                            placeholder="Briefly describe your symptoms or reason for the appointment...">{{ form.reason.value|default:'' }}</textarea>
+                    </section>
+
+                    {# Actions #}
+                    <div class="flex flex-col gap-sm pt-md border-t border-outline-variant">
+                        <button type="submit" class="w-full bg-primary text-white py-md rounded-lg font-label-md text-label-md hover:opacity-90 active:scale-[0.99] transition-all shadow-md">
+                            Confirm Appointment
+                        </button>
+                        <a href="{% url 'patient_roshan:dashboard' %}" class="w-full text-center bg-transparent text-on-surface-variant border border-outline-variant py-md rounded-lg font-label-md text-label-md hover:bg-surface-container transition-all">
+                            Cancel
+                        </a>
+                    </div>
+
+                    <p class="text-center font-body-sm text-body-sm text-on-surface-variant px-md">
+                        You will receive a confirmation email and SMS once the specialist confirms.
+                    </p>
+
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+{% endwith %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const selectedDoctorInput = document.getElementById('selectedDoctor');
+    const bookingFilterForm = document.getElementById('bookingFilterForm');
+    const filterDoctorInput = document.getElementById('filterDoctor');
+    const filterDateInput = document.getElementById('filterDate');
+    const filterTimeInput = document.getElementById('filterTime');
+    const doctorCards = document.querySelectorAll('.doctor-card');
+    doctorCards.forEach(card => {
+        card.addEventListener('click', () => {
+            doctorCards.forEach(item => item.classList.remove('ring-2', 'ring-primary'));
+            card.classList.add('ring-2', 'ring-primary');
+            selectedDoctorInput.value = card.dataset.doctorId;
+            filterDoctorInput.value = card.dataset.doctorId;
+            filterTimeInput.value = '';
+            bookingFilterForm.submit();
+        });
+    });
+
+    // Time slot selection
+    const timeSlots = document.querySelectorAll('.time-slot:not(.cursor-not-allowed)');
+    const selectedTimeInput = document.getElementById('selectedTime');
+    timeSlots.forEach(slot => {
+        slot.addEventListener('click', () => {
+            timeSlots.forEach(s => s.classList.remove('slot-selected'));
+            slot.classList.add('slot-selected');
+            selectedTimeInput.value = slot.dataset.time;
+            filterTimeInput.value = slot.dataset.time;
+            bookingFilterForm.submit();
+        });
+    });
+
+    // Calendar day selection
+    const calDays = document.querySelectorAll('.cal-day:not(.cursor-not-allowed)');
+    const selectedDateInput = document.getElementById('selectedDate');
+    calDays.forEach(day => {
+        day.addEventListener('click', () => {
+            calDays.forEach(d => {
+                d.classList.remove('bg-primary', 'text-white', 'font-bold', 'shadow-md');
+                d.classList.add('hover:bg-surface-container');
+            });
+            day.classList.add('bg-primary', 'text-white', 'font-bold', 'shadow-md');
+            day.classList.remove('hover:bg-surface-container');
+            selectedDateInput.value = day.dataset.date;
+            filterDateInput.value = day.dataset.date;
+            filterTimeInput.value = '';
+            bookingFilterForm.submit();
+        });
+    });
+</script>
+{% endblock %}

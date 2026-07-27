@@ -1,0 +1,67 @@
+{% extends 'patient_roshan/base.html' %}
+{% block title %}Prescriptions{% endblock %}
+{% block page_title %}Prescriptions{% endblock %}
+
+{% block content %}
+{% with active_page='prescriptions' %}
+
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-lg">
+    <div>
+        <h1 class="font-headline-lg text-headline-lg text-on-surface">Prescriptions</h1>
+        <p class="font-body-md text-on-surface-variant mt-xs">Your active and past medicines.</p>
+    </div>
+</div>
+
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-surface-container-low border-b border-outline-variant">
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Date</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Medicine</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Dosage</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Doctor</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Status</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-outline-variant">
+                {% for p in prescriptions %}
+                <tr class="hover:bg-surface-bright transition-colors">
+                    <td class="px-lg py-md font-body-sm text-on-surface">{{ p.date }}</td>
+                    <td class="px-lg py-md font-body-md font-semibold text-on-surface">{{ p.medicine }}</td>
+                    <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ p.dosage }}</td>
+                    <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ p.doctor }}</td>
+                    <td class="px-lg py-md">
+                        {% if p.status == 'Active' %}
+                            <span class="inline-flex items-center gap-xs px-sm py-xs bg-green-100 text-green-700 rounded-lg font-label-sm">
+                                <span class="w-2 h-2 rounded-full bg-green-500"></span>Active
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center gap-xs px-sm py-xs bg-surface-container text-on-surface-variant rounded-lg font-label-sm">
+                                <span class="w-2 h-2 rounded-full bg-outline"></span>{{ p.status }}
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-lg py-md text-right">
+                        {% if p.status == 'Active' %}
+                        <button class="px-md py-xs border border-outline-variant rounded-lg font-label-sm hover:bg-surface-container text-on-surface-variant transition-colors">
+                            Request Refill
+                        </button>
+                        {% else %}
+                        <span class="text-on-surface-variant font-body-sm">—</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-lg py-xl text-center font-body-sm text-on-surface-variant">No prescriptions found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endwith %}
+{% endblock %}
