@@ -267,13 +267,15 @@
         });
     }
 
-    // Time slot click (no form submit)
-    var timeSlots = document.querySelectorAll('.time-slot:not(.cursor-not-allowed)');
-    timeSlots.forEach(function(slot) {
-        slot.addEventListener('click', function() {
-            selectTimeSlot(slot, slot.dataset.time);
+    // Time slot click (event delegation for dynamically loaded slots)
+    if (timeSlotContainer) {
+        timeSlotContainer.addEventListener('click', function(e) {
+            var slot = e.target.closest('.time-slot:not(.cursor-not-allowed)');
+            if (slot && slot.dataset.time) {
+                selectTimeSlot(slot, slot.dataset.time);
+            }
         });
-    });
+    }
 
     // Initial load
     document.addEventListener('DOMContentLoaded', function() {
