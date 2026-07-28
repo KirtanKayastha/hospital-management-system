@@ -5,6 +5,8 @@ from django.contrib.auth.models import User
 from django.db.models import Count, Sum
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from .forms import PatientForm, DoctorForm
+from django.contrib.auth.forms import SetPasswordForm
 
 from admin_nishan.models import (
     Appointment,
@@ -238,3 +240,172 @@ def admin_reports(request):
         "total_dept": total_dept,
     }
     return render(request, "admin_reports.html", context)
+
+@admin_required
+def edit_patient(request, patient_id):
+    patient = get_object_or_404(PatientProfile, pk=patient_id)
+
+    if request.method == "POST":
+        form = PatientForm(request.POST, request.FILES, instance=patient)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Patient updated successfully.")
+            return redirect("admin_nishan:admin_manage_patients")
+    else:
+        form = PatientForm(instance=patient)
+
+    context = {
+        "active_page": "patients",
+        "form": form,
+        "patient": patient,
+    }
+
+    return render(request, "admin_nishan/edit_patient.html", context)
+
+@admin_required
+def edit_doctor(request, doctor_id):
+    doctor = get_object_or_404(DoctorProfile, pk=doctor_id)
+
+    if request.method == "POST":
+        form = DoctorForm(request.POST, instance=doctor)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Doctor updated successfully.")
+            return redirect("admin_nishan:admin_manage_doctor")
+    else:
+        form = DoctorForm(instance=doctor)
+
+    context = {
+        "active_page": "doctor",
+        "form": form,
+        "doctor": doctor,
+    }
+
+    return render(request, "admin_nishan/edit_doctor.html", context)
+
+@admin_required
+def change_doctor_password(request, doctor_id):
+    doctor = get_object_or_404(DoctorProfile, pk=doctor_id)
+    user = doctor.user
+
+    if request.method == "POST":
+        form = SetPasswordForm(user, request.POST)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Doctor password changed successfully.")
+            return redirect("admin_nishan:admin_manage_doctor")
+    else:
+        form = SetPasswordForm(user)
+
+    return render(
+        request,
+        "admin_nishan/change_password.html",
+        {
+            "form": form,
+            "title": f"Change Password - Dr. {doctor.display_name}",
+        },
+    )
+
+
+@admin_required
+def enable_doctor(request, doctor_id):
+    doctor = get_object_or_404(DoctorProfile, pk=doctor_id)
+
+    doctor.user.is_active = True
+    doctor.user.save()
+
+    messages.success(request, "Doctor login enabled successfully.")
+    return redirect("admin_nishan:admin_manage_doctor")
+
+
+@admin_required
+def disable_doctor(request, doctor_id):
+    doctor = get_object_or_404(DoctorProfile, pk=doctor_id)
+
+    doctor.user.is_active = False
+    doctor.user.save()
+
+    messages.success(request, "Doctor login disabled successfully.")
+    return redirect("admin_nishan:admin_manage_doctor")
+
+
+@admin_required
+def delete_doctor(request, doctor_id):
+    doctor = get_object_or_404(DoctorProfile, pk=doctor_id)
+
+    if doctor.user == request.user:
+        messages.error(request, "You cannot delete your own account.")
+        return redirect("admin_nishan:admin_manage_doctor")
+
+    doctor.user.delete()
+
+    messages.success(request, "Doctor deleted successfully.")
+    return redirect("admin_nishan:admin_manage_doctor")
+
+
+@admin_required
+def change_patient_password(request, patient_id):
+    patient = get_object_or_404(PatientProfile, pk=patient_id)
+    user = patient.user
+
+    if request.method == "POST":
+        form = SetPasswordForm(user, request.POST)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Patient password changed successfully.")
+            return redirect("admin_nishan:admin_manage_patients")
+    else:
+        form = SetPasswordForm(user)
+
+    return render(
+        request,
+        "admin_nishan/change_password.html",
+        {
+            "form": form,
+            "title": f"Change Password - {user.get_full_name() or user.username}",
+        },
+    )
+
+
+@admin_required
+def enable_patient(request, patient_id):
+    patient = get_object_or_404(PatientProfile, pk=patient_id)
+
+    patient.user.is_active = True
+    patient.user.save()
+
+    messages.success(request, "Patient login enabled.")
+    return redirect("admin_nishan:admin_manage_patients")
+
+
+@admin_required
+def disable_patient(request, patient_id):
+    patient = get_object_or_404(PatientProfile, pk=patient_id)
+
+    if patient.user == request.user:
+        messages.error(request, "You cannot disable your own account.")
+        return redirect("admin_nishan:admin_manage_patients")
+
+    patient.user.is_active = False
+    patient.user.save()
+
+    messages.success(request, "Patient login disabled.")
+    return redirect("admin_nishan:admin_manage_patients")
+
+
+@admin_required
+def delete_patient(request, patient_id):
+    patient = get_object_or_404(PatientProfile, pk=patient_id)
+
+    if patient.user == request.user:
+        messages.error(request, "You cannot delete your own account.")
+        return redirect("admin_nishan:admin_manage_patients")
+
+    patient.user.delete()
+
+    messages.success(request, "Patient deleted successfully.")
+    return redirect("admin_nishan:admin_manage_patients")

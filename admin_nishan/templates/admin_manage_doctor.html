@@ -5,8 +5,12 @@
 {% block content %}
 <div class="flex justify-between items-end mb-xl">
     <div>
-        <h2 class="font-headline-lg text-headline-lg text-on-surface">Manage Doctors</h2>
-        <p class="font-body-md text-body-md text-on-surface-variant mt-xs">Hospital medical staff ({{ total_doctors }} total).</p>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">
+            Manage Doctors
+        </h2>
+        <p class="font-body-md text-body-md text-on-surface-variant mt-xs">
+            Hospital medical staff ({{ total_doctors }} total).
+        </p>
     </div>
 </div>
 
@@ -14,59 +18,168 @@
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead class="bg-surface-container-low border-b border-outline-variant">
-                <tr>
-                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">ID</th>
-                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Doctor</th>
-                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Specialty</th>
-                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Email</th>
-                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Phone</th>
-                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Status</th>
-                </tr>
-            </thead>
+    <tr>
+        <th class="px-lg py-md">ID</th>
+        <th class="px-lg py-md">Doctor</th>
+        <th class="px-lg py-md">Specialty</th>
+        <th class="px-lg py-md">Email</th>
+        <th class="px-lg py-md">Phone</th>
+        <th class="px-lg py-md">Status</th>
+        <th class="px-lg py-md text-center">Actions</th>
+    </tr>
+</thead>
+
             <tbody class="divide-y divide-outline-variant">
+
                 {% for doc in doctors %}
                 <tr class="hover:bg-surface-container-low transition-colors">
-                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">DOC-{{ doc.user.id }}</td>
+
+                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">
+                        DOC-{{ doc.user.id }}
+                    </td>
+
                     <td class="px-lg py-lg">
                         <div class="flex items-center gap-md">
                             <div class="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold">
                                 {{ doc.user.first_name|first|upper }}{{ doc.user.last_name|first|upper }}
                             </div>
+
                             <div>
-                                <p class="font-label-md text-label-md text-on-surface">Dr. {{ doc.display_name }}</p>
-                                <p class="text-label-sm font-label-sm text-outline">{{ doc.qualification|default:"" }}</p>
+                                <p class="font-label-md text-label-md text-on-surface">
+                                    Dr. {{ doc.display_name }}
+                                </p>
+
+                                <p class="text-label-sm font-label-sm text-outline">
+                                    {{ doc.qualification|default:"" }}
+                                </p>
                             </div>
                         </div>
                     </td>
+
                     <td class="px-lg py-lg">
-                        <span class="px-md py-xs rounded-full bg-blue-100 text-blue-700 text-label-sm font-label-sm">{{ doc.specialization|default:"General" }}</span>
-                        <p class="text-xs text-on-surface-variant mt-xs">{{ doc.department.name }}</p>
+                        <span class="px-md py-xs rounded-full bg-blue-100 text-blue-700 text-label-sm font-label-sm">
+                            {{ doc.specialization|default:"General" }}
+                        </span>
+
+                        <p class="text-xs text-on-surface-variant mt-xs">
+                            {{ doc.department.name }}
+                        </p>
                     </td>
-                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">{{ doc.user.email|default:"—" }}</td>
-                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">{{ doc.phone|default:"—" }}</td>
+
+                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">
+                        {{ doc.user.email|default:"—" }}
+                    </td>
+
+                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">
+                        {{ doc.phone|default:"—" }}
+                    </td>
+
                     <td class="px-lg py-lg">
+
                         {% if doc.status == 'Active' %}
-                        <span class="flex items-center gap-xs text-secondary font-semibold text-sm"><span class="w-2 h-2 rounded-full bg-secondary"></span> Active</span>
+                            <span class="flex items-center gap-xs text-secondary font-semibold text-sm">
+                                <span class="w-2 h-2 rounded-full bg-secondary"></span>
+                                Active
+                            </span>
+
                         {% elif doc.status == 'On Leave' %}
-                        <span class="flex items-center gap-xs text-tertiary font-semibold text-sm"><span class="w-2 h-2 rounded-full bg-tertiary"></span> On Leave</span>
+                            <span class="flex items-center gap-xs text-yellow-600 font-semibold text-sm">
+                                <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                                On Leave
+                            </span>
+
                         {% elif doc.status == 'Pending' %}
-                        <span class="flex items-center gap-xs text-tertiary font-semibold text-sm"><span class="w-2 h-2 rounded-full bg-tertiary"></span> Pending</span>
+                            <span class="flex items-center gap-xs text-orange-600 font-semibold text-sm">
+                                <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+                                Pending
+                            </span>
+
                         {% else %}
-                        <span class="flex items-center gap-xs text-outline font-semibold text-sm"><span class="w-2 h-2 rounded-full bg-outline"></span> {{ doc.status }}</span>
+                            <span class="flex items-center gap-xs text-outline font-semibold text-sm">
+                                <span class="w-2 h-2 rounded-full bg-outline"></span>
+                                {{ doc.status }}
+                            </span>
                         {% endif %}
+
                     </td>
+
+                    <td class="px-lg py-lg">
+
+    <div class="flex flex-wrap gap-2">
+
+        <a href="{% url 'admin_nishan:edit_doctor' doc.id %}"
+           class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+
+            Edit
+
+        </a>
+
+        <a href="{% url 'admin_nishan:change_doctor_password' doc.id %}"
+           class="px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
+
+            Password
+
+        </a>
+
+        {% if doc.user.is_active %}
+
+        <a href="{% url 'admin_nishan:disable_doctor' doc.id %}"
+           onclick="return confirm('Disable doctor login?')"
+           class="px-3 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700">
+
+            Disable
+
+        </a>
+
+        {% else %}
+
+        <a href="{% url 'admin_nishan:enable_doctor' doc.id %}"
+           class="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+
+            Enable
+
+        </a>
+
+        {% endif %}
+
+        <a href="{% url 'admin_nishan:delete_doctor' doc.id %}"
+           onclick="return confirm('Delete this doctor permanently?')"
+           class="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+
+            Delete
+
+        </a>
+
+    </div>
+
+</td>
+
                 </tr>
+
                 {% empty %}
+
                 <tr>
-                    <td colspan="6" class="px-lg py-xl text-center">
-                        <span class="material-symbols-outlined text-4xl text-on-surface-variant">medical_services_off</span>
-                        <p class="font-body-md text-on-surface mt-md">No doctors found</p>
-                        <p class="font-body-sm text-on-surface-variant">Registered doctors will appear here.</p>
+                    <td colspan="7" class="px-lg py-xl text-center">
+                        <span class="material-symbols-outlined text-4xl text-on-surface-variant">
+                            medical_services_off
+                        </span>
+
+                        <p class="font-body-md text-on-surface mt-md">
+                            No doctors found
+                        </p>
+
+                        <p class="font-body-sm text-on-surface-variant">
+                            Registered doctors will appear here.
+                        </p>
                     </td>
                 </tr>
+
                 {% endfor %}
+
             </tbody>
+
         </table>
     </div>
 </section>
+
 {% endblock %}
