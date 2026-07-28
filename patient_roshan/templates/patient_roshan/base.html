@@ -197,9 +197,13 @@
 
         <div class="p-lg border-t border-outline-variant">
             <div class="flex items-center gap-md p-sm hover:bg-surface-container rounded-xl cursor-pointer transition-colors">
-                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">
-                    {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
-                </div>
+                {% if request.user.patient_profile.profile_picture %}
+<img src="{{ request.user.patient_profile.profile_picture.url }}" class="w-10 h-10 rounded-full object-cover"/>
+{% else %}
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">
+    {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+</div>
+{% endif %}
                 <div class="overflow-hidden">
                     <p class="font-label-md text-label-md truncate">{{ request.user.get_full_name|default:request.user.username }}</p>
                     <p class="font-body-sm text-body-sm text-on-surface-variant truncate">Patient ID: #HM-{{ request.user.id }}</p>
@@ -217,21 +221,31 @@
 
         <!-- Topbar -->
         <header class="bg-surface-container-lowest border-b border-outline-variant px-lg md:px-xxl py-md flex items-center justify-between sticky top-0 z-10">
-            <h1 class="font-headline-md text-headline-md text-on-surface">{% block page_title %}Dashboard{% endblock %}</h1>
+            <div>
+    <p class="font-label-sm text-label-sm text-on-surface-variant" id="greeting-text">Good morning,</p>
+    <h1 class="font-headline-md text-headline-md text-on-surface">{% block page_title %}Dashboard{% endblock %}</h1>
+</div>
             <div class="flex items-center gap-lg">
                 <button class="p-xs text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors relative">
                     <span class="material-symbols-outlined">notifications</span>
                     <span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full border border-surface-container-lowest"></span>
                 </button>
+                 <!-- ========== Time , Date , Zone ========== -->
+                <div class="hidden sm:flex flex-col items-end">
+    <span id="live-clock" class="font-label-md text-label-md text-on-surface font-bold"></span>
+    <span id="live-date" class="font-label-sm text-label-sm text-on-surface-variant"></span>
+        <span class="font-label-sm text-label-sm text-on-surface-variant">Asia/Kathmandu</span>
+</div>
+                
                 <div class="flex items-center gap-md border-l border-outline-variant pl-lg">
-                    <div class="text-right hidden sm:block">
-                        <p class="font-label-md text-label-md text-on-surface">{{ request.user.get_full_name|default:request.user.username }}</p>
-                        <p class="font-body-sm text-body-sm text-on-surface-variant">Patient ID: #HM-{{ request.user.id }}</p>
-                    </div>
-                    <div class="w-10 h-10 rounded-full border-2 border-primary bg-primary flex items-center justify-center text-white font-bold text-sm">
-                        {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
-                    </div>
-                </div>
+                    
+                        {% if request.user.patient_profile.profile_picture %}
+    <img src="{{ request.user.patient_profile.profile_picture.url }}" class="w-10 h-10 rounded-full border-2 border-primary object-cover"/>
+    {% else %}
+    <div class="w-10 h-10 rounded-full border-2 border-primary bg-primary flex items-center justify-center text-white font-bold text-sm">
+        {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+    </div>
+    {% endif %}
             </div>
         </header>
 
@@ -258,7 +272,33 @@
             </div>
         </footer>
     </main>
-
     {% block extra_js %}{% endblock %}
+<script>
+    const hour = new Date().getHours();
+    const greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
+    const el = document.getElementById('greeting-text');
+    if (el) el.textContent = greeting + ', {{ request.user.first_name|default:request.user.username }}!';
+
+
+    function updateClock() {
+    const now = new Date();
+    let h = now.getHours();
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const day = days[now.getDay()];
+    const date = now.getDate();
+    const month = months[now.getMonth()];
+    const year = now.getFullYear();
+    document.getElementById('live-clock').textContent = `${h}:${m}:${s} ${ampm}`;
+   document.getElementById('live-date').textContent = `${day}, ${date} ${month} ${year}`;
+    
+}
+updateClock();
+setInterval(updateClock, 1000);
+</script>
 </body>
 </html>
