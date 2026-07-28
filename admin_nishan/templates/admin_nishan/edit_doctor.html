@@ -1,0 +1,97 @@
+{% extends "admin_nishan/base.html" %}
+
+{% block title %}Edit Doctor{% endblock %}
+{% block page_title %}Edit Doctor{% endblock %}
+
+{% block content %}
+
+<div class="max-w-5xl mx-auto bg-white rounded-xl shadow p-8">
+
+    <h2 class="text-2xl font-bold mb-6">
+        Edit Doctor
+    </h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <div>
+                <label class="block mb-2 font-medium">First Name</label>
+                {{ form.first_name }}
+            </div>
+
+            <div>
+                <label class="block mb-2 font-medium">Last Name</label>
+                {{ form.last_name }}
+            </div>
+
+            <div>
+                <label class="block mb-2 font-medium">Email</label>
+                {{ form.email }}
+            </div>
+
+            <div>
+                <label class="block mb-2 font-medium">Phone</label>
+                {{ form.phone }}
+            </div>
+
+            <div>
+                <label class="block mb-2 font-medium">Department</label>
+                {{ form.department }}
+            </div>
+
+            <div>
+                <label class="block mb-2 font-medium">Specialization</label>
+                {{ form.specialization }}
+            </div>
+
+            <div>
+                <label class="block mb-2 font-medium">Qualification</label>
+                {{ form.qualification }}
+            </div>
+
+            <div>
+                <label class="block mb-2 font-medium">Experience (Years)</label>
+                {{ form.experience_years }}
+            </div>
+
+            <div>
+                <label class="block mb-2 font-medium">License Number</label>
+                {{ form.license_number }}
+            </div>
+
+            <div>
+                <label class="block mb-2 font-medium">Consultation Fee</label>
+                {{ form.consultation_fee }}
+            </div>
+
+            <div>
+                <label class="block mb-2 font-medium">Status</label>
+                {{ form.status }}
+            </div>
+
+        </div>
+
+        <div class="mt-6">
+            <label class="block mb-2 font-medium">Bio</label>
+            {{ form.bio }}
+        </div>
+
+        <div class="flex justify-end gap-4 mt-8">
+            <a href="{% url 'admin_nishan:admin_manage_doctor' %}"
+               class="px-5 py-2 rounded-lg bg-gray-300 hover:bg-gray-400">
+                Cancel
+            </a>
+
+            <button type="submit"
+                    class="px-5 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white">
+                Save Changes
+            </button>
+        </div>
+
+    </form>
+
+</div>
+
+{% endblock %}
