@@ -3,105 +3,173 @@
 {% block page_title %}Manage Patients{% endblock %}
 
 {% block content %}
+
 <div class="flex justify-between items-end mb-xl">
     <div>
-        <h2 class="font-headline-lg text-headline-lg text-on-surface">Manage Patients</h2>
-        <p class="font-body-md text-body-md text-on-surface-variant mt-xs">Overview of registered patients ({{ total_patients }} total).</p>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">
+            Manage Patients
+        </h2>
+
+        <p class="font-body-md text-body-md text-on-surface-variant mt-xs">
+            Overview of registered patients ({{ total_patients }} total).
+        </p>
     </div>
 </div>
 
 <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+
     <div class="overflow-x-auto">
+
         <table class="w-full text-left border-collapse">
+
             <thead class="bg-surface-container-low border-b border-outline-variant">
+
                 <tr>
-                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">ID</th>
-                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Name</th>
-                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Email</th>
-                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Phone</th>
-                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Registered</th>
-                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Status</th>
-                    <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Actions</th>
+                    <th class="px-lg py-md">ID</th>
+                    <th class="px-lg py-md">Patient</th>
+                    <th class="px-lg py-md">Email</th>
+                    <th class="px-lg py-md">Phone</th>
+                    <th class="px-lg py-md">Registered</th>
+                    <th class="px-lg py-md">Status</th>
+                    <th class="px-lg py-md text-center">Actions</th>
                 </tr>
+
             </thead>
+
             <tbody class="divide-y divide-outline-variant">
-    {% for profile in patients %}
-    <tr class="hover:bg-surface-container-low transition-colors">
 
-        <!-- ID -->
-        <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">
-            #HM-{{ profile.user.id }}
-        </td>
+            {% for profile in patients %}
 
-        <!-- Name -->
-        <td class="px-lg py-lg">
-            <div class="flex items-center gap-md">
-                <div class="w-8 h-8 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold text-xs">
-                    {{ profile.user.first_name|first|upper }}{{ profile.user.last_name|first|upper }}
-                </div>
-                <span class="font-label-md text-label-md text-on-surface">
-                    {{ profile.user.get_full_name|default:profile.user.username }}
-                </span>
-            </div>
-        </td>
+                <tr class="hover:bg-surface-container-low transition-colors">
 
-        <!-- Email -->
-        <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">
-            {{ profile.user.email|default:"—" }}
-        </td>
+                    <td class="px-lg py-lg">
+                        #HM-{{ profile.user.id }}
+                    </td>
 
-        <!-- Phone -->
-        <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">
-            {{ profile.phone|default:"—" }}
-        </td>
+                    <td class="px-lg py-lg">
 
-        <!-- Registered -->
-        <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">
-            {{ profile.user.date_joined|date:"M d, Y" }}
-        </td>
+                        <div class="flex items-center gap-3">
 
-        <!-- Status -->
-        <td class="px-lg py-lg">
-            {% if profile.user.is_active %}
-            <span class="px-sm py-xs rounded-full bg-secondary-container/20 text-on-secondary-container font-label-sm text-label-sm inline-flex items-center gap-xs">
-                <span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
-                Active
-            </span>
-            {% else %}
-            <span class="px-sm py-xs rounded-full bg-error-container/20 text-error font-label-sm text-label-sm inline-flex items-center gap-xs">
-                <span class="w-1.5 h-1.5 rounded-full bg-error"></span>
-                Inactive
-            </span>
-            {% endif %}
-        </td>
+                            <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center font-bold">
 
-        <!-- Actions -->
-        <td class="px-lg py-lg">
-            <a href="{% url 'admin_nishan:edit_patient' profile.id %}"
-               class="inline-flex items-center px-4 py-2 rounded-lg bg-primary text-white hover:opacity-90 transition">
-                Edit
+                                {{ profile.user.first_name|first|upper }}{{ profile.user.last_name|first|upper }}
+
+                            </div>
+
+                            <div>
+
+                                <div class="font-semibold">
+                                    {{ profile.user.get_full_name|default:profile.user.username }}
+                                </div>
+
+                                <div class="text-sm text-gray-500">
+                                    {{ profile.gender }}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </td>
+
+                    <td class="px-lg py-lg">
+                        {{ profile.user.email|default:"—" }}
+                    </td>
+
+                    <td class="px-lg py-lg">
+                        {{ profile.phone|default:"—" }}
+                    </td>
+
+                    <td class="px-lg py-lg">
+                        {{ profile.user.date_joined|date:"M d, Y" }}
+                    </td>
+
+                    <td class="px-lg py-lg">
+
+                        {% if profile.user.is_active %}
+
+                            <span class="inline-flex items-center gap-2 text-green-700 font-semibold">
+                                <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                Active
+                            </span>
+
+                        {% else %}
+
+                            <span class="inline-flex items-center gap-2 text-red-700 font-semibold">
+                                <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                                Disabled
+                            </span>
+
+                        {% endif %}
+
+                    </td>
+
+                    <td class="px-lg py-lg w-56">
+    <div class="grid grid-cols-2 gap-2">
+
+        <a href="{% url 'admin_nishan:edit_patient' profile.id %}"
+           class="text-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            Edit
+        </a>
+
+        <a href="{% url 'admin_nishan:change_patient_password' profile.id %}"
+           class="text-center px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
+            Password
+        </a>
+
+        {% if profile.user.is_active %}
+            <a href="{% url 'admin_nishan:disable_patient' profile.id %}"
+               class="text-center px-3 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700">
+                Disable
             </a>
-        </td>
+        {% else %}
+            <a href="{% url 'admin_nishan:enable_patient' profile.id %}"
+               class="text-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                Enable
+            </a>
+        {% endif %}
 
-    </tr>
+        <a href="{% url 'admin_nishan:delete_patient' profile.id %}"
+           onclick="return confirm('Delete this patient permanently?')"
+           class="text-center px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+            Delete
+        </a>
 
-    {% empty %}
-    <tr>
-        <td colspan="7" class="px-lg py-xl text-center">
-            <span class="material-symbols-outlined text-4xl text-on-surface-variant">
-                group_off
-            </span>
-            <p class="font-body-md text-on-surface mt-md">
-                No patients assigned
-            </p>
-            <p class="font-body-sm text-on-surface-variant">
-                Registered patients will appear here.
-            </p>
-        </td>
-    </tr>
-    {% endfor %}
-</tbody>
-        </table>
     </div>
+</td>
+
+                </tr>
+
+            {% empty %}
+
+                <tr>
+
+                    <td colspan="7" class="text-center py-10">
+
+                        <span class="material-symbols-outlined text-5xl text-gray-400">
+                            group_off
+                        </span>
+
+                        <p class="mt-3 text-lg font-semibold">
+                            No patients found
+                        </p>
+
+                        <p class="text-gray-500">
+                            Registered patients will appear here.
+                        </p>
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
 </section>
+
 {% endblock %}
