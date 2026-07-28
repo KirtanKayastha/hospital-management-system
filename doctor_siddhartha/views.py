@@ -386,3 +386,30 @@ def delete_prescription(request, prescription_id):
         messages.success(request, "Prescription deleted.")
         return redirect(f"/doctor/prescriptions/?patient={patient_id}")
     return redirect("doctor_siddhartha:prescriptions")
+
+
+@doctor_required
+def edit_profile(request):
+    profile = _doctor_profile(request.user)
+    if request.method == "POST":
+        request.user.first_name = (request.POST.get("first_name") or "").strip()
+        request.user.last_name = (request.POST.get("last_name") or "").strip()
+        request.user.email = request.POST.get("email") or request.user.email
+        request.user.save(update_fields=["first_name", "last_name", "email"])
+
+        profile.specialization = (request.POST.get("specialization") or "").strip()
+        profile.license_number = (request.POST.get("license_number") or "").strip()
+        profile.phone = (request.POST.get("phone") or "").strip()
+        profile.experience_years = int(request.POST.get("experience_years") or 0)
+        profile.bio = (request.POST.get("bio") or "").strip()
+        profile.save()
+
+        messages.success(request, "Profile updated successfully.")
+        return redirect("doctor_siddhartha:dashboard")
+
+    context = {
+        "profile": profile,
+        "user": request.user,
+        "departments": Department.objects.filter(is_active=True).order_by("name"),
+    }
+    return render(request, "doc_siddhartha/edit_profile.html", context)
