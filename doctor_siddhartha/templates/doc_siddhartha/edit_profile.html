@@ -1,13 +1,12 @@
 <!DOCTYPE html>
-<html class="light" lang="en">
-<head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Edit Profile | MedCore Portal</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-    <script id="tailwind-config">
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Edit Profile | MedCore Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -20,261 +19,298 @@
                         "tertiary-container": "#996100",
                         "surface-tint": "#0053db",
                         "on-primary-fixed": "#00174b",
+                        "inverse-on-surface": "#eff1f3",
                         "on-primary-fixed-variant": "#003ea8",
                         "tertiary": "#784b00",
                         "on-surface": "#191c1e",
+                        "secondary-fixed": "#6ffbbe",
                         "on-surface-variant": "#434655",
+                        "inverse-primary": "#b4c5ff",
                         "primary": "#004ac6",
-                        "error": "#ba1a1a",
-                        "error-container": "#ffdad6",
+                        "on-error-container": "#93000a",
                         "surface-container-highest": "#e0e3e5",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface-bright": "#f7f9fb",
+                        "on-primary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#ffb95f",
                         "surface-container": "#eceef0",
                         "outline-variant": "#c3c6d7",
                         "outline": "#737686",
-                        "surface-bright": "#f7f9fb",
-                        "surface": "#f7f9fb",
-                        "background": "#f7f9fb",
-                        "on-primary": "#ffffff",
+                        "on-background": "#191c1e",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
                         "on-secondary": "#ffffff",
+                        "on-tertiary-container": "#ffeedd",
+                        "on-error": "#ffffff",
                         "primary-container": "#2563eb",
+                        "on-secondary-fixed-variant": "#005236",
                         "on-primary-container": "#eeefff",
+                        "inverse-surface": "#2d3133",
+                        "surface-dim": "#d8dadc",
+                        "on-secondary-container": "#00714d",
+                        "on-secondary-fixed": "#002113",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "surface-variant": "#e0e3e5",
+                        "secondary-fixed-dim": "#4edea3",
+                        "surface-container-high": "#e6e8ea",
+                        "surface": "#f7f9fb",
+                        "tertiary-fixed": "#ffddb8",
+                        "background": "#f7f9fb",
+                        "secondary-container": "#6cf8bb"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "xxl": "48px",
+                        "lg": "24px",
+                        "xl": "32px",
+                        "sm": "8px",
+                        "container-max": "1280px",
+                        "xs": "4px",
+                        "md": "16px",
+                        "gutter": "24px"
                     },
                     "fontFamily": {
-                        "inter": ["Inter", "sans-serif"],
+                        "body-sm": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "label-md": ["Inter"],
+                        "headline-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "headline-lg-mobile": ["Inter"],
+                        "label-sm": ["Inter"],
+                        "headline-sm": ["Inter"],
+                        "body-md": ["Inter"]
                     },
-                },
-            },
+                    "fontSize": {
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
         };
     </script>
     <style>
-        body { font-family: 'Inter', sans-serif; background: #f7f9fb; }
-        .font-headline-lg { font-size: 1.5rem; font-weight: 700; line-height: 1.3; }
-        .font-headline-sm { font-size: 1.125rem; font-weight: 600; line-height: 1.4; }
-        .font-headline-md { font-size: 1.25rem; font-weight: 600; line-height: 1.4; }
-        .text-headline-lg { font-size: 1.5rem; font-weight: 700; }
-        .text-headline-md { font-size: 1.25rem; font-weight: 600; }
-        .text-headline-sm { font-size: 1.125rem; font-weight: 600; }
-        .text-body-md { font-size: 0.875rem; line-height: 1.5; }
-        .text-body-sm { font-size: 0.8125rem; line-height: 1.5; }
-        .text-label-md { font-size: 0.875rem; font-weight: 500; }
-        .text-label-sm { font-size: 0.75rem; font-weight: 500; }
-        .font-label-md { font-size: 0.875rem; font-weight: 500; }
-        .font-label-sm { font-size: 0.75rem; font-weight: 500; }
-        .rounded-xl { border-radius: 0.75rem; }
-        .rounded-lg { border-radius: 0.5rem; }
-        .px-lg { padding-left: 1.5rem; padding-right: 1.5rem; }
-        .py-lg { padding-top: 1.5rem; padding-bottom: 1.5rem; }
-        .p-lg { padding: 1.5rem; }
-        .px-md { padding-left: 1rem; padding-right: 1rem; }
-        .py-md { padding-top: 0.75rem; padding-bottom: 0.75rem; }
-        .p-md { padding: 1rem; }
-        .px-sm { padding-left: 0.5rem; padding-right: 0.5rem; }
-        .py-sm { padding-top: 0.25rem; padding-bottom: 0.25rem; }
-        .px-xl { padding-left: 2rem; padding-right: 2rem; }
-        .py-xl { padding-top: 2rem; padding-bottom: 2rem; }
-        .gap-lg { gap: 1.5rem; }
-        .gap-md { gap: 1rem; }
-        .gap-sm { gap: 0.5rem; }
-        .mb-lg { margin-bottom: 1.5rem; }
-        .mb-md { margin-bottom: 1rem; }
-        .mb-xs { margin-bottom: 0.25rem; }
-        .mt-xs { margin-top: 0.25rem; }
-        .mt-md { margin-top: 1rem; }
-        .mt-lg { margin-top: 1.5rem; }
-        .space-y-lg > * + * { margin-top: 1.5rem; }
-        .space-y-md > * + * { margin-top: 1rem; }
-        .space-y-sm > * + * { margin-top: 0.5rem; }
-        .space-y-xs > * + * { margin-top: 0.25rem; }
-        .border-outline-variant { border-color: #c3c6d7; }
-        .border-outline { border-color: #737686; }
-        .bg-surface-container-lowest { background-color: #ffffff; }
-        .bg-surface-container-low { background-color: #f2f4f6; }
-        .bg-surface-container { background-color: #eceef0; }
-        .bg-surface { background-color: #f7f9fb; }
-        .bg-primary { background-color: #004ac6; }
-        .bg-primary-container { background-color: #2563eb; }
-        .bg-secondary-container { background-color: #6ffbbe; }
-        .bg-tertiary-fixed { background-color: #ffddb8; }
-        .bg-error-container { background-color: #ffdad6; }
-        .text-on-surface { color: #191c1e; }
-        .text-on-surface-variant { color: #434655; }
-        .text-primary { color: #004ac6; }
-        .text-secondary { color: #006c49; }
-        .text-tertiary { color: #784b00; }
-        .text-error { color: #ba1a1a; }
-        .text-on-primary { color: #ffffff; }
-        .text-on-primary-container { color: #eeefff; }
-        .hover\:opacity-90:hover { opacity: 0.9; }
-        .hover\:bg-surface-container:hover { background-color: #eceef0; }
-        .hover\:bg-surface-container-high:hover { background-color: #e0e3e5; }
-        .hover\:bg-primary:hover { background-color: #003ea8; }
-        .hover\:bg-red-700:hover { background-color: #b91c1c; }
-        .hover\:text-primary:hover { color: #004ac6; }
-        .transition-all { transition: all 0.2s ease; }
-        .transition-colors { transition: color 0.2s ease, background-color 0.2s ease; }
-        .transition-opacity { transition: opacity 0.2s ease; }
-        .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
-        .shadow-md { box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .rounded-full { border-radius: 9999px; }
-        .font-bold { font-weight: 700; }
-        .font-semibold { font-weight: 600; }
-        .w-full { width: 100%; }
-        .text-center { text-align: center; }
-        .text-right { text-align: right; }
-        .flex { display: flex; }
-        .inline-flex { display: inline-flex; }
-        .items-center { align-items: center; }
-        .justify-between { justify-content: space-between; }
-        .justify-end { justify-content: flex-end; }
-        .gap-sm { gap: 0.5rem; }
-        .border { border-width: 1px; }
-        .border-t { border-top-width: 1px; }
-        .border-b { border-bottom-width: 1px; }
-        .divide-y > * + * { border-top-width: 1px; border-color: #c3c6d7; }
-        .grid { display: grid; }
-        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0,1fr)); }
-        .grid-cols-2 { grid-template-columns: repeat(2, minmax(0,1fr)); }
-        .grid-cols-3 { grid-template-columns: repeat(3, minmax(0,1fr)); }
-        .col-span-2 { grid-column: span 2 / span 2; }
-        .overflow-hidden { overflow: hidden; }
-        .overflow-x-auto { overflow-x: auto; }
-        .rounded-lg { border-radius: 0.5rem; }
-        .rounded-xl { border-radius: 0.75rem; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; vertical-align: middle; }
+        .shadow-sm { box-shadow: 0px 1px 2px 0px rgba(15, 23, 42, 0.05); }
+        .shadow-md { box-shadow: 0px 4px 6px -1px rgba(15, 23, 42, 0.1); }
+        body { background-color: #F8FAFC; color: #191C1E; }
     </style>
 </head>
-<body class="min-h-screen">
-    <div class="max-w-2xl mx-auto p-lg">
+<body>
+  <div class="min-h-screen flex">
 
-        <div class="mb-lg">
-            <h1 class="font-headline-lg text-headline-lg text-on-surface">Edit Profile</h1>
-            <p class="text-on-surface-variant text-body-md mt-xs">Update your personal and professional information.</p>
+<aside class="hidden lg:flex flex-col w-64 h-screen sticky top-0 left-0 shrink-0 border-r border-outline-variant bg-surface-container-lowest shadow-sm">
+<div class="p-lg flex flex-col h-full">
+<h1 class="font-headline-md text-headline-md font-bold text-primary mb-xl">MedCore Portal</h1>
+
+<div class="flex items-center gap-md mb-xl p-md rounded-xl bg-surface-container-low">
+    <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg shrink-0">
+        {{ profile.initials }}
+    </div>
+    <div class="overflow-hidden">
+        <p class="font-label-md text-label-md text-primary truncate">Dr. {{ profile.display_name }}</p>
+        <p class="text-label-sm text-on-surface-variant truncate">{{ profile.specialization|default:"General Medicine" }}</p>
+    </div>
+</div>
+
+<nav class="flex flex-col gap-xs flex-1">
+    <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors duration-150" href="{% url 'doctor_siddhartha:dashboard' %}">
+        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+        Dashboard
+    </a>
+    <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors duration-150" href="{% url 'doctor_siddhartha:schedule' %}">
+        <span class="material-symbols-outlined text-[22px]">calendar_month</span>
+        Schedule
+    </a>
+    <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors duration-150" href="{% url 'doctor_siddhartha:patients' %}">
+        <span class="material-symbols-outlined text-[22px]">group</span>
+        Patients
+    </a>
+    <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-on-surface-variant hover:bg-surface-container-low transition-colors duration-150" href="{% url 'doctor_siddhartha:prescriptions' %}">
+        <span class="material-symbols-outlined text-[22px]">medication</span>
+        Prescriptions
+    </a>
+    <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-primary font-bold border-r-4 border-primary bg-surface-container-low transition-colors duration-150" href="{% url 'doctor_siddhartha:edit_profile' %}">
+        <span class="material-symbols-outlined text-[22px]" style="font-variation-settings: 'FILL' 1;">person</span>
+        Profile
+    </a>
+</nav>
+
+<a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-error hover:bg-error-container/10 transition-colors duration-150" href="{% url 'auth_kirtan:logout' %}">
+    <span class="material-symbols-outlined text-[22px]">logout</span>
+    Logout
+</a>
+</div>
+</aside>
+
+<div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+<header class="flex items-center justify-between px-lg h-16 sticky top-0 z-40 bg-surface/95 backdrop-blur-sm border-b border-outline-variant">
+<div class="flex items-center gap-lg">
+    <span class="font-headline-sm text-headline-sm font-extrabold text-primary lg:hidden">MedCore Portal</span>
+    <p class="hidden lg:block text-label-sm text-on-surface-variant uppercase tracking-wider">Edit Profile</p>
+</div>
+<div class="flex items-center gap-md shrink-0">
+    <button class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container-high transition-all"><span class="material-symbols-outlined text-[22px]">notifications</span></button>
+    <button class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container-high transition-all"><span class="material-symbols-outlined text-[22px]">settings</span></button>
+    <div class="h-8 w-px bg-outline-variant mx-xs"></div>
+    <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm shrink-0">
+        {{ profile.user.first_name|first|upper }}{{ profile.user.last_name|first|upper }}
+    </div>
+</div>
+</header>
+
+<main class="flex-1 overflow-y-auto p-lg">
+<div class="max-w-2xl mx-auto space-y-lg pb-xxl">
+
+<div class="mb-lg">
+    <h1 class="font-headline-lg text-headline-lg text-on-surface">Edit Profile</h1>
+    <p class="text-on-surface-variant text-body-md mt-xs">Update your personal and professional information.</p>
+</div>
+
+{% if messages %}
+<div class="mb-lg space-y-sm">
+    {% for message in messages %}
+    <div class="px-lg py-sm rounded-lg font-body-sm text-body-sm
+        {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-200
+        {% else %}bg-red-100 text-red-700 border border-red-200{% endif %}">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<form method="POST" action="{% url 'doctor_siddhartha:edit_profile' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="space-y-lg">
+
+        <!-- Personal Information -->
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+            <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+                <h3 class="font-headline-sm text-headline-sm text-on-surface">Personal Information</h3>
+                <span class="material-symbols-outlined text-on-surface-variant">person</span>
+            </div>
+            <div class="p-lg grid grid-cols-1 md:grid-cols-2 gap-lg">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">First Name</label>
+                    <input type="text" name="first_name" value="{{ user.first_name|default:'' }}"
+                        class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Last Name</label>
+                    <input type="text" name="last_name" value="{{ user.last_name|default:'' }}"
+                        class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"/>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Email Address</label>
+                    <input type="email" name="email" value="{{ user.email|default:'' }}"
+                        class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"/>
+                </div>
+            </div>
         </div>
 
-        {% if messages %}
-        <div class="mb-lg space-y-sm">
-            {% for message in messages %}
-            <div class="px-lg py-sm rounded-lg font-body-sm text-body-sm
-                {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-200
-                {% else %}bg-red-100 text-red-700 border border-red-200{% endif %}">
-                {{ message }}
+        <!-- Professional Information -->
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+            <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+                <h3 class="font-headline-sm text-headline-sm text-on-surface">Professional Information</h3>
+                <span class="material-symbols-outlined text-on-surface-variant">medical_services</span>
             </div>
-            {% endfor %}
+            <div class="p-lg grid grid-cols-1 md:grid-cols-2 gap-lg">
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Specialization</label>
+                    <input type="text" name="specialization" value="{{ profile.specialization|default:'' }}"
+                        class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"
+                        placeholder="e.g. Cardiology, Neurology"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">License Number</label>
+                    <input type="text" name="license_number" value="{{ profile.license_number|default:'' }}"
+                        class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Phone Number</label>
+                    <input type="tel" name="phone" value="{{ profile.phone|default:'' }}"
+                        class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Experience (Years)</label>
+                    <input type="number" name="experience_years" value="{{ profile.experience_years|default:0 }}" min="0" max="50"
+                        class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Department</label>
+                    <select name="department_id"
+                        class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md">
+                        {% for dept in departments %}
+                        <option value="{{ dept.id }}" {% if profile.department_id == dept.id %}selected{% endif %}>{{ dept.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
         </div>
-        {% endif %}
 
-        <form method="POST" action="{% url 'doctor_siddhartha:edit_profile' %}" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="space-y-lg">
-
-                <!-- Personal Information -->
-                <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
-                    <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
-                        <h3 class="font-headline-sm text-headline-sm text-on-surface">Personal Information</h3>
-                        <span class="material-symbols-outlined text-on-surface-variant">person</span>
-                    </div>
-                    <div class="p-lg grid grid-cols-1 md:grid-cols-2 gap-lg">
-                        <div>
-                            <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">First Name</label>
-                            <input type="text" name="first_name" value="{{ user.first_name|default:'' }}"
-                                class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"/>
-                        </div>
-                        <div>
-                            <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Last Name</label>
-                            <input type="text" name="last_name" value="{{ user.last_name|default:'' }}"
-                                class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"/>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Email Address</label>
-                            <input type="email" name="email" value="{{ user.email|default:'' }}"
-                                class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"/>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Professional Information -->
-                <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
-                    <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
-                        <h3 class="font-headline-sm text-headline-sm text-on-surface">Professional Information</h3>
-                        <span class="material-symbols-outlined text-on-surface-variant">medical_services</span>
-                    </div>
-                    <div class="p-lg grid grid-cols-1 md:grid-cols-2 gap-lg">
-                        <div>
-                            <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Specialization</label>
-                            <input type="text" name="specialization" value="{{ profile.specialization|default:'' }}"
-                                class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"
-                                placeholder="e.g. Cardiology, Neurology"/>
-                        </div>
-                        <div>
-                            <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">License Number</label>
-                            <input type="text" name="license_number" value="{{ profile.license_number|default:'' }}"
-                                class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"/>
-                        </div>
-                        <div>
-                            <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Phone Number</label>
-                            <input type="tel" name="phone" value="{{ profile.phone|default:'' }}"
-                                class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"/>
-                        </div>
-                        <div>
-                            <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Experience (Years)</label>
-                            <input type="number" name="experience_years" value="{{ profile.experience_years|default:0 }}" min="0" max="50"
-                                class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"/>
-                        </div>
-                        <div>
-                            <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Department</label>
-                            <select name="department_id"
-                                class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md">
-                                {% for dept in departments %}
-                                <option value="{{ dept.id }}" {% if profile.department_id == dept.id %}selected{% endif %}>{{ dept.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Bio -->
-                <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
-                    <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
-                        <h3 class="font-headline-sm text-headline-sm text-on-surface">Bio / About</h3>
-                        <span class="material-symbols-outlined text-on-surface-variant">description</span>
-                    </div>
-                    <div class="p-lg">
-                        <textarea name="bio" rows="4"
-                            class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md resize-none"
-                            placeholder="Tell patients about yourself, your approach, and your qualifications...">{{ profile.bio|default:'' }}</textarea>
-                    </div>
-                </div>
-
-                <!-- Profile Picture -->
-                <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
-                    <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
-                        <h3 class="font-headline-sm text-headline-sm text-on-surface">Profile Picture</h3>
-                        <span class="material-symbols-outlined text-on-surface-variant">photo_camera</span>
-                    </div>
-                    <div class="p-lg flex items-center gap-lg">
-                        <div class="w-20 h-20 rounded-xl bg-surface-container-high flex items-center justify-center text-on-surface-variant font-bold text-2xl">
-                            {{ profile.initials }}
-                        </div>
-                        <div>
-                            <p class="font-body-md text-body-md text-on-surface">Upload a new profile picture</p>
-                            <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">JPG, PNG or GIF. Max 2MB.</p>
-                            <input type="file" name="profile_picture" accept="image/*" class="mt-sm font-body-md text-body-md"/>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="flex flex-col gap-sm pt-md border-t border-outline-variant mt-md">
-                    <button type="submit" class="w-full bg-primary text-white py-md rounded-lg font-label-md text-label-md hover:opacity-90 active:scale-[0.99] transition-all shadow-md">
-                        Save Changes
-                    </button>
-                    <a href="{% url 'doctor_siddhartha:dashboard' %}" class="w-full text-center bg-transparent text-on-surface-variant border border-outline-variant py-md rounded-lg font-label-md text-label-md hover:bg-surface-container transition-all">
-                        Cancel
-                    </a>
-                </div>
-
+        <!-- Bio -->
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+            <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+                <h3 class="font-headline-sm text-headline-sm text-on-surface">Bio / About</h3>
+                <span class="material-symbols-outlined text-on-surface-variant">description</span>
             </div>
-        </form>
+            <div class="p-lg">
+                <textarea name="bio" rows="4"
+                    class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md resize-none"
+                    placeholder="Tell patients about yourself, your approach, and your qualifications...">{{ profile.bio|default:'' }}</textarea>
+            </div>
+        </div>
+
+        <!-- Profile Picture -->
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+            <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+                <h3 class="font-headline-sm text-headline-sm text-on-surface">Profile Picture</h3>
+                <span class="material-symbols-outlined text-on-surface-variant">photo_camera</span>
+            </div>
+            <div class="p-lg flex items-center gap-lg">
+                <div class="w-20 h-20 rounded-xl bg-surface-container-high flex items-center justify-center text-on-surface-variant font-bold text-2xl">
+                    {{ profile.initials }}
+                </div>
+                <div>
+                    <p class="font-body-md text-body-md text-on-surface">Upload a new profile picture</p>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">JPG, PNG or GIF. Max 2MB.</p>
+                    <input type="file" name="profile_picture" accept="image/*" class="mt-sm font-body-md text-body-md"/>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex flex-col gap-sm pt-md border-t border-outline-variant mt-md">
+            <button type="submit" class="w-full bg-primary text-white py-md rounded-lg font-label-md text-label-md hover:opacity-90 active:scale-[0.99] transition-all shadow-md">
+                Save Changes
+            </button>
+            <a href="{% url 'doctor_siddhartha:dashboard' %}" class="w-full text-center bg-transparent text-on-surface-variant border border-outline-variant py-md rounded-lg font-label-md text-label-md hover:bg-surface-container transition-all">
+                Cancel
+            </a>
+        </div>
 
     </div>
+</form>
+
+</div>
+</main>
+
+</div>
+</div>
 </body>
 </html>
