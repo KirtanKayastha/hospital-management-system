@@ -31,7 +31,7 @@
             <div class="space-y-xs">
                 <div class="flex justify-between items-center">
                     <label class="font-label-md text-label-md text-on-surface-variant block" for="password">Password</label>
-                    <a class="font-label-sm text-label-sm text-primary hover:underline transition-all" href="/forgot-password/">Forgot Password?</a>
+                    <a class="font-label-sm text-label-sm text-primary hover:underline transition-all" href="{% url 'auth_kirtan:password_reset' %}">Forgot Password?</a>
                 </div>
                 <div class="relative group">
                     <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline group-focus-within:text-primary transition-colors duration-200">lock</span>
