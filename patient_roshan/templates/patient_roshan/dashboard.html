@@ -5,6 +5,24 @@
 {% block content %}
 {% with active_page='dashboard' %}
 
+{# --- Welcome Header with Profile Photo --- #}
+<div class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant mb-lg flex flex-col md:flex-row items-center gap-lg">
+    <div class="relative">
+        {% if patient.profile_picture %}
+            <img src="{{ patient.profile_picture.url }}" alt="Profile"
+                 class="w-20 h-20 rounded-xl object-cover border-2 border-outline-variant"/>
+        {% else %}
+            <div class="w-20 h-20 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-2xl border-2 border-outline-variant">
+                {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+            </div>
+        {% endif %}
+    </div>
+    <div class="text-center md:text-left">
+        <h2 class="font-headline-md text-headline-md text-on-surface">Welcome back, {{ request.user.first_name|default:request.user.username }}</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant">Here's your health overview</p>
+    </div>
+</div>
+
 {# --- Stat Cards --- #}
 <div class="grid grid-cols-1 md:grid-cols-3 gap-md mb-lg">
 
