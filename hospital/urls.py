@@ -7,7 +7,14 @@ from django.http import HttpResponse
 from django.db import connection
 import traceback
 import os
+import subprocess
 
+def run_seed(request):
+    try:
+        result = subprocess.run(['python', 'seed_demo.py'], capture_output=True, text=True)
+        return HttpResponse(f"<pre>{result.stdout}</pre>")
+    except Exception as e:
+        return HttpResponse(f"<pre>Error: {e}</pre>")
 
 def db_check(request):
     db_engine = None
@@ -60,6 +67,8 @@ urlpatterns = [
 
     # Doctor routes (Siddhartha)
     path('doctor/', include('doctor_siddhartha.urls', namespace='doctor_siddhartha')),
+
+    path('seed/', run_seed, name='seed'),
 ]
 
 if settings.DEBUG:
