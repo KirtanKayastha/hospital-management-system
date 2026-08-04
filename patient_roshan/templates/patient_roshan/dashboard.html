@@ -104,9 +104,13 @@
                         </td>
                         <td class="px-lg py-md">
                             <div class="flex items-center gap-sm">
-                                <div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container text-xs font-bold">
-                                    {{ appt.doctor.first_name|first|upper }}{{ appt.doctor.last_name|first|upper }}
-                                </div>
+                                {% if appt.doctor.doctor_profile.profile_picture %}
+                                    <img src="{{ appt.doctor.doctor_profile.profile_picture.url }}" alt="{{ appt.doctor.get_full_name }}" class="w-8 h-8 rounded-full object-cover"/>
+                                {% else %}
+                                    <div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container text-xs font-bold">
+                                        {{ appt.doctor.first_name|first|upper }}{{ appt.doctor.last_name|first|upper }}
+                                    </div>
+                                {% endif %}
                                 <span class="font-body-sm text-on-surface">{{ appt.doctor.get_full_name }}</span>
                             </div>
                         </td>

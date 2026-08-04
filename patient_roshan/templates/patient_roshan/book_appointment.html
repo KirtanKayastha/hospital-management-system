@@ -50,8 +50,12 @@
              data-doctor-id="{{ doctor.id }}"
              data-doctor-name="{{ doctor.name }}">
             <div class="flex gap-lg">
-                <div class="w-20 h-20 rounded-xl bg-secondary-container flex items-center justify-center text-2xl font-bold text-on-secondary-container flex-shrink-0">
-                    {{ doctor.initials }}
+                <div class="w-20 h-20 rounded-xl bg-secondary-container flex items-center justify-center text-2xl font-bold text-on-secondary-container flex-shrink-0 overflow-hidden">
+                    {% if doctor.has_profile_picture %}
+                        <img src="{{ doctor.profile_picture_url }}" alt="{{ doctor.name }}" class="w-full h-full object-cover"/>
+                    {% else %}
+                        {{ doctor.initials }}
+                    {% endif %}
                 </div>
                 <div class="flex-1">
                     <div class="flex justify-between items-start">

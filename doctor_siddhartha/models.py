@@ -28,6 +28,7 @@ class DoctorProfile(models.Model):
 	phone = models.CharField(max_length=20, blank=True)
 	consultation_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 	bio = models.TextField(blank=True)
+	profile_picture = models.ImageField(upload_to='doctor_profiles/', null=True, blank=True)
 	status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
