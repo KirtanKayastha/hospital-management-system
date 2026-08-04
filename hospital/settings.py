@@ -7,6 +7,8 @@ except ImportError:
     dj_database_url = None
 
 import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -109,10 +111,7 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/patient/'
 LOGOUT_REDIRECT_URL = '/login/'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# Email Configuration (Mailgun via django-anymail)
+# ============ EMAIL CONFIG (Mailgun via django-anymail) ============
 EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'sachit@sandbox22b3bf72b56e47c986cf76d90c69cb34.mailgun.org')
 ANYMAIL = {
@@ -120,14 +119,29 @@ ANYMAIL = {
     'MAILGUN_SENDER_DOMAIN': os.environ.get('MAILGUN_SENDER_DOMAIN', 'sandbox22b3bf72b56e47c986cf76d90c69cb34.mailgun.org'),
 }
 
-# Cloudinary Configuration
+# ============ CLOUDINARY CONFIGURATION ============
 CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL', 'cloudinary://175215214824226:hXyaU0UMOtKJkWKOe8thURuP1P0@zozspvpq')
-if CLOUDINARY_URL:
-    cloudinary.config(cloudinary_url=CLOUDINARY_URL)
-    print("[CLOUDINARY] Configured successfully")
-else:
-    print("[CLOUDINARY] WARNING: CLOUDINARY_URL not set. Using local storage.")
 
+cloudinary.config(
+    cloud_name="zozspvpq",
+    api_key="175215214824226",
+    api_secret="hXyaU0UMOtKJkWKOe8thURuP1P0",
+)
+
+print("[CLOUDINARY] Configured successfully")
+
+# ============ MEDIA STORAGE ============
+# Tell Django to use Cloudinary for file uploads
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Keep MEDIA_URL for backward compatibility (Cloudinary will handle the actual URL)
+MEDIA_URL = '/media/'  # This is for local dev fallback
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # This is for local dev fallback
+
+# Optional: If you want to use Cloudinary's CDN URL directly in templates,
+# you can set this to True
+# CLOUDINARY_STORAGE = {
+#     'CLOUD_NAME': 'zozspvpq',
+#     'API_KEY': '175215214824226',
+#     'API_SECRET': 'hXyaU0UMOtKJkWKOe8thURuP1P0',
+# }
