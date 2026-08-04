@@ -27,6 +27,8 @@ INSTALLED_APPS = [
     'doctor_siddhartha',
     'admin_nishan',
     'anymail',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -115,3 +117,8 @@ ANYMAIL = {
     'MAILGUN_API_KEY': os.environ.get('MAILGUN_API_KEY', 'd3a6f780-abbf2f78'),
     'MAILGUN_SENDER_DOMAIN': os.environ.get('MAILGUN_SENDER_DOMAIN', 'sandbox22b3bf72b56e47c986cf76d90c69cb34.mailgun.org'),
 }
+
+# Cloudinary Configuration
+CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL', 'cloudinary://175215214824226:hXyaU0UMOtKJkWKOe8thURuP1P0@zozspvpq')
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+MEDIA_URL = '/media/'
