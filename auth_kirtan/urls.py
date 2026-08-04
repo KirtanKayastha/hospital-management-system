@@ -9,7 +9,8 @@ urlpatterns = [
     path('register/', views.register_view, name='register'),
     path('password-reset/', auth_views.PasswordResetView.as_view(
         template_name='auth_kirtan/password_reset_form.html',
-        email_template_name='auth_kirtan/password_reset_email.html',
+        email_template_name='auth_kirtan/password_reset_email.txt',
+        html_email_template_name='auth_kirtan/password_reset_email.html',
         subject_template_name='auth_kirtan/password_reset_subject.txt',
         success_url='/password-reset/done/'
     ), name='password_reset'),
