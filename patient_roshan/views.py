@@ -42,8 +42,6 @@ def _doctor_card(profile):
     rating = round(min(5.0, 4.0 + (review_count * 0.1)), 1) if review_count else 0.0
     available_slots = [f"{slot.day_label[:3]} {slot.start_time.strftime('%I:%M %p')} - {slot.end_time.strftime('%I:%M %p')}" for slot in availability]
     available_days = ", ".join(dict(availability.model.DAY_CHOICES).get(slot.day_of_week, str(slot.day_of_week)) for slot in availability)
-    has_profile_picture = bool(profile.profile_picture)
-    profile_picture_url = profile.profile_picture.url if profile.profile_picture else ""
     return {
         "id": user.id,
         "initials": profile.initials,
@@ -56,8 +54,8 @@ def _doctor_card(profile):
         "available_days": available_days or "No regular availability set",
         "department_id": profile.department_id,
         "department_name": profile.department.name,
-        "has_profile_picture": has_profile_picture,
-        "profile_picture_url": profile_picture_url,
+        "has_profile_picture": False,
+        "profile_picture_url": "",
     }
 
 

@@ -67,12 +67,8 @@
                     </td>
                     <td class="px-lg py-md">
                         <div class="flex items-center gap-sm {% if appt.status == 'Cancelled' %}opacity-60{% endif %}">
-                            <div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container text-xs font-bold overflow-hidden">
-                                {% if appt.doctor.doctor_profile.profile_picture %}
-                                    <img src="{{ appt.doctor.doctor_profile.profile_picture.url }}" alt="{{ appt.doctor_name }}" class="w-full h-full object-cover"/>
-                                {% else %}
-                                    {{ appt.doctor_initials }}
-                                {% endif %}
+                            <div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container text-xs font-bold">
+                                {{ appt.doctor_initials }}
                             </div>
                             <span class="font-body-sm text-on-surface">{{ appt.doctor_name }}</span>
                         </div>
