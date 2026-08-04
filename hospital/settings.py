@@ -6,6 +6,8 @@ try:
 except ImportError:
     dj_database_url = None
 
+import cloudinary
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-wpk!9)59onq%^01logxbyu2dmz5w^1cw75l$sda%x6lqxtqbkl')
@@ -120,5 +122,12 @@ ANYMAIL = {
 
 # Cloudinary Configuration
 CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL', 'cloudinary://175215214824226:hXyaU0UMOtKJkWKOe8thURuP1P0@zozspvpq')
+if CLOUDINARY_URL:
+    cloudinary.config(cloudinary_url=CLOUDINARY_URL)
+    print("[CLOUDINARY] Configured successfully")
+else:
+    print("[CLOUDINARY] WARNING: CLOUDINARY_URL not set. Using local storage.")
+
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
