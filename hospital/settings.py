@@ -120,28 +120,23 @@ ANYMAIL = {
 }
 
 # ============ CLOUDINARY CONFIGURATION ============
-CLOUDINARY_URL = os.environ.get('CLOUDINARY_URL', 'cloudinary://175215214824226:hXyaU0UMOtKJkWKOe8thURuP1P0@zozspvpq')
-
 cloudinary.config(
     cloud_name="zozspvpq",
     api_key="175215214824226",
     api_secret="hXyaU0UMOtKJkWKOe8thURuP1P0",
 )
 
-print("[CLOUDINARY] Configured successfully")
+# ============ STORAGE BACKEND ============
+# Use Cloudinary for media files
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
 
-# ============ MEDIA STORAGE ============
-# Tell Django to use Cloudinary for file uploads
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
-# Keep MEDIA_URL for backward compatibility (Cloudinary will handle the actual URL)
-MEDIA_URL = '/media/'  # This is for local dev fallback
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # This is for local dev fallback
-
-# Optional: If you want to use Cloudinary's CDN URL directly in templates,
-# you can set this to True
-# CLOUDINARY_STORAGE = {
-#     'CLOUD_NAME': 'zozspvpq',
-#     'API_KEY': '175215214824226',
-#     'API_SECRET': 'hXyaU0UMOtKJkWKOe8thURuP1P0',
-# }
+# Keep these for backward compatibility
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
