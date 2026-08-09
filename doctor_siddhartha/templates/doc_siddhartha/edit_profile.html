@@ -110,9 +110,14 @@
                 <span class="material-symbols-outlined text-on-surface-variant">photo_camera</span>
             </div>
             <div class="p-lg flex items-center gap-lg">
-                <div class="w-20 h-20 rounded-xl bg-surface-container-high flex items-center justify-center text-on-surface-variant font-bold text-2xl">
+                {% if profile.profile_picture %}
+                <img src="{{ profile.profile_picture.url }}" alt="Profile"
+                    class="w-20 h-20 rounded-xl object-cover border-2 border-outline-variant"/>
+                {% else %}
+                <div class="w-20 h-20 rounded-xl border-2 border-outline-variant bg-primary flex items-center justify-center text-white font-bold text-2xl">
                     {{ profile.initials }}
                 </div>
+                {% endif %}
                 <div>
                     <p class="font-body-md text-body-md text-on-surface">Upload a new profile picture</p>
                     <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">JPG, PNG or GIF. Max 2MB.</p>
