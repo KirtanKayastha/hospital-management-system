@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html class="light" lang="en">
 <head>
     <meta charset="utf-8"/>
@@ -58,7 +58,7 @@
                         "on-secondary-fixed-variant": "#005236"
                     },
                     borderRadius: {
-                        "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"
+                        "DEFAULT": "0.25rem", "lg": "8px", "xl": "12px", "full": "9999px"
                     },
                     spacing: {
                         "lg": "24px", "container-max": "1280px", "md": "16px", "xs": "4px",
@@ -72,12 +72,12 @@
                     fontSize: {
                         "headline-sm": ["20px", { lineHeight: "28px", fontWeight: "600" }],
                         "label-sm":    ["12px", { lineHeight: "16px", fontWeight: "500" }],
-                        "headline-md": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "600" }],
-                        "label-md":    ["14px", { lineHeight: "20px", letterSpacing: "0.05em", fontWeight: "600" }],
+                        "headline-md": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "700" }],
+                        "label-md":    ["14px", { lineHeight: "20px", letterSpacing: "0.05em", fontWeight: "500" }],
                         "body-md":     ["16px", { lineHeight: "24px", fontWeight: "400" }],
                         "body-sm":     ["14px", { lineHeight: "20px", fontWeight: "400" }],
                         "body-lg":     ["18px", { lineHeight: "28px", fontWeight: "400" }],
-                        "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }]
+                        "headline-lg": ["28px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }]
                     }
                 }
             }
@@ -112,7 +112,39 @@
             background: #e2e8f0;
         }
         .timeline-item:last-child .timeline-line::before { display: none; }
-    </style>
+    
+    /* ---- Canonical status badge (design guide section 3.6) ---- */
+    .hm-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 9999px;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 16px;
+        white-space: nowrap;
+    }
+    .hm-badge::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 9999px;
+        background: currentColor;
+        flex: none;
+    }
+    .hm-badge-none::before { display: none; }
+    /* Positive: Active / Confirmed / Completed / Approved / Paid */
+    .hm-badge-success  { background: #6cf8bb; color: #00432a; }
+    /* Negative: Inactive / Cancelled / Rejected / Unpaid */
+    .hm-badge-error    { background: #ffdad6; color: #93000a; }
+    /* Waiting: Pending */
+    .hm-badge-pending  { background: #ffddb8; color: #653e00; }
+    /* Informational / in-progress */
+    .hm-badge-info     { background: #dbe1ff; color: #003ea8; }
+    /* Unknown or fallback status */
+    .hm-badge-neutral  { background: #eceef0; color: #434655; }
+</style>
 
     {% block extra_head %}{% endblock %}
 </head>
@@ -130,22 +162,22 @@
             <p class="px-md pt-md pb-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Main</p>
             <a href="{% url 'patient_roshan:dashboard' %}"
                class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
-                      {% if active_page == 'dashboard' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                      {% if active_page == 'dashboard' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
                 <span class="material-symbols-outlined">dashboard</span>Dashboard
             </a>
             <a href="{% url 'patient_roshan:book_appointment' %}"
                class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
-                      {% if active_page == 'book' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                      {% if active_page == 'book' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
                 <span class="material-symbols-outlined">calendar_month</span>Book Appointment
             </a>
             <a href="{% url 'patient_roshan:find_doctor' %}"
                class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
-                      {% if active_page == 'finddoctor' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                      {% if active_page == 'finddoctor' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
                 <span class="material-symbols-outlined">person_search</span>Find Doctor
             </a>
             <a href="{% url 'patient_roshan:my_appointments' %}"
                class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
-                      {% if active_page == 'appointments' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                      {% if active_page == 'appointments' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
                 <span class="material-symbols-outlined">calendar_today</span>My Appointments
             </a>
 
@@ -153,44 +185,44 @@
             <p class="px-md pt-md pb-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Health</p>
             <a href="{% url 'patient_roshan:medical_records' %}"
                class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
-                      {% if active_page == 'records' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                      {% if active_page == 'records' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
                 <span class="material-symbols-outlined">medical_services</span>Medical Records
             </a>
 <a href="{% url 'patient_roshan:prescriptions' %}"
    class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
-          {% if active_page == 'prescriptions' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+          {% if active_page == 'prescriptions' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
     <span class="material-symbols-outlined">prescriptions</span>Prescriptions
 </a>
 <a href="{% url 'patient_roshan:lab_reports' %}"
    class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
-          {% if active_page == 'labreports' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+          {% if active_page == 'labreports' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
     <span class="material-symbols-outlined">science</span>Lab Reports
 </a>
             <!-- ACCOUNT -->
             <p class="px-md pt-md pb-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Account</p>
             <a href="{% url 'patient_roshan:billing' %}"
    class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
-          {% if active_page == 'billing' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+          {% if active_page == 'billing' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
     <span class="material-symbols-outlined">receipt_long</span>Billing &amp; Payments
 </a>
           <a href="{% url 'patient_roshan:messages' %}"
    class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
-          {% if active_page == 'messages' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+          {% if active_page == 'messages' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
     <span class="material-symbols-outlined">mail</span>Messages
 </a>
             <a href="{% url 'patient_roshan:notifications' %}"
    class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
-          {% if active_page == 'notifications' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+          {% if active_page == 'notifications' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
     <span class="material-symbols-outlined">notifications</span>Notifications
 </a>
             <a href="{% url 'patient_roshan:profile' %}"
                class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
-                      {% if active_page == 'profile' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+                      {% if active_page == 'profile' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
                 <span class="material-symbols-outlined">person</span>Profile
             </a>
             <a href="{% url 'patient_roshan:settings' %}"
    class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
-          {% if active_page == 'settings' %}bg-primary-container text-on-primary-container{% else %}text-on-surface-variant hover:bg-surface-container{% endif %}">
+          {% if active_page == 'settings' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
     <span class="material-symbols-outlined">settings</span>Settings
 </a>
         </nav>
@@ -220,7 +252,7 @@
     <main class="flex-1 flex flex-col min-w-0">
 
         <!-- Topbar -->
-        <header class="bg-surface-container-lowest border-b border-outline-variant px-lg md:px-xxl py-md flex items-center justify-between sticky top-0 z-10">
+        <header class="bg-surface-container-lowest border-b border-outline-variant px-lg md:px-xxl h-16 shrink-0 flex items-center justify-between sticky top-0 z-10">
             <div>
     <p class="font-label-sm text-label-sm text-on-surface-variant" id="greeting-text">Good morning,</p>
     <h1 class="font-headline-md text-headline-md text-on-surface">{% block page_title %}Dashboard{% endblock %}</h1>
@@ -261,7 +293,7 @@
             <div class="w-full px-lg md:px-xxl py-xl flex flex-col md:flex-row justify-between items-center gap-md max-w-container-max mx-auto">
                 <div class="flex flex-col items-center md:items-start">
                     <span class="font-headline-sm text-headline-sm font-bold text-on-surface">HM System</span>
-                    <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">© 2025 HM System. All rights reserved.</p>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Â© 2025 HM System. All rights reserved.</p>
                 </div>
                 <div class="flex gap-xl">
                     <a class="font-label-sm text-label-sm text-on-surface-variant hover:underline hover:text-primary transition-all" href="#">Privacy Policy</a>

@@ -56,8 +56,8 @@
 <div id="listView" class="space-y-md">
     <div class="bg-surface-container-lowest rounded-xl border border-outline-variant overflow-hidden">
         <table class="w-full text-left border-collapse">
-            <thead class="bg-surface-container-low border-b border-outline-variant">
-                <tr>
+            <thead class="bg-surface-container border-b border-outline-variant">
+                <tr class="bg-surface-container">
                     <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Date</th>
                     <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Diagnosis</th>
                     <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Doctor</th>
@@ -67,7 +67,7 @@
             </thead>
             <tbody class="divide-y divide-outline-variant">
                 {% for record in records %}
-                <tr class="hover:bg-surface-bright transition-colors">
+                <tr class="hover:bg-surface-container-low transition-colors">
                     <td class="px-lg py-md">
                         <p class="font-body-md text-on-surface">{{ record.date }}</p>
                         <p class="font-body-sm text-on-surface-variant">{{ record.time }}</p>
@@ -95,7 +95,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr>
+                <tr class="hover:bg-surface-container-low">
                     <td colspan="5" class="px-lg py-xl text-center font-body-sm text-on-surface-variant">No medical records found.</td>
                 </tr>
                 {% endfor %}

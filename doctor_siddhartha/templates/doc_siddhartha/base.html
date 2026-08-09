@@ -1,0 +1,271 @@
+﻿{% load static %}<!DOCTYPE html>
+<html class="light" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>{% block title %}Doctor Portal{% endblock %} | HM System</title>
+
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+<script id="tailwind-config">
+    tailwind.config = {
+        darkMode: "class",
+        theme: {
+            extend: {
+                "colors": {
+                    "primary": "#004ac6",
+                    "primary-container": "#2563eb",
+                    "on-primary": "#ffffff",
+                    "on-primary-container": "#eeefff",
+                    "primary-fixed": "#dbe1ff",
+                    "primary-fixed-dim": "#b4c5ff",
+                    "on-primary-fixed": "#00174b",
+                    "on-primary-fixed-variant": "#003ea8",
+                    "inverse-primary": "#b4c5ff",
+                    "secondary": "#006c49",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#6cf8bb",
+                    "on-secondary-container": "#00714d",
+                    "secondary-fixed": "#6ffbbe",
+                    "secondary-fixed-dim": "#4edea3",
+                    "on-secondary-fixed": "#002113",
+                    "on-secondary-fixed-variant": "#005236",
+                    "tertiary": "#784b00",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-container": "#996100",
+                    "on-tertiary-container": "#ffeedd",
+                    "tertiary-fixed": "#ffddb8",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "error": "#ba1a1a",
+                    "on-error": "#ffffff",
+                    "error-container": "#ffdad6",
+                    "on-error-container": "#93000a",
+                    "background": "#f7f9fb",
+                    "on-background": "#191c1e",
+                    "surface": "#f7f9fb",
+                    "on-surface": "#191c1e",
+                    "surface-variant": "#e0e3e5",
+                    "on-surface-variant": "#434655",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-low": "#f2f4f6",
+                    "surface-container": "#eceef0",
+                    "surface-container-high": "#e6e8ea",
+                    "surface-container-highest": "#e0e3e5",
+                    "surface-bright": "#f7f9fb",
+                    "surface-dim": "#d8dadc",
+                    "surface-tint": "#0053db",
+                    "inverse-surface": "#2d3133",
+                    "inverse-on-surface": "#eff1f3",
+                    "outline": "#737686",
+                    "outline-variant": "#c3c6d7"
+                },
+                "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "8px",
+                    "xl": "12px",
+                    "full": "9999px"
+                },
+                "spacing": {
+                    "base": "4px",
+                    "xs": "4px",
+                    "sm": "8px",
+                    "md": "16px",
+                    "lg": "24px",
+                    "xl": "32px",
+                    "xxl": "48px",
+                    "gutter": "24px",
+                    "container-max": "1280px"
+                },
+                "fontFamily": {
+                    "sans": ["Inter", "sans-serif"],
+                    "body-sm": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "label-sm": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-sm": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "headline-lg-mobile": ["Inter"]
+                },
+                "fontSize": {
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                    "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                    "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                    "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+                },
+                "boxShadow": {
+                    "card": "0px 1px 2px 0px rgba(15, 23, 42, 0.05)",
+                    "card-hover": "0px 4px 6px -1px rgba(15, 23, 42, 0.1)"
+                }
+            }
+        }
+    }
+</script>
+
+<style>
+    body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; color: #191c1e; }
+    .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        vertical-align: middle;
+    }
+    /* Canonical elevation utilities. Legacy aliases kept so existing markup keeps working. */
+    .shadow-sm,
+    .custom-shadow-sm,
+    .card-shadow { box-shadow: 0px 1px 2px 0px rgba(15, 23, 42, 0.05); }
+    .shadow-md,
+    .custom-shadow-md,
+    .card-shadow-hover:hover { box-shadow: 0px 4px 6px -1px rgba(15, 23, 42, 0.1); }
+
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #c3c6d7; border-radius: 10px; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+
+    /* Shared table styling per design system */
+    .hm-table thead th { background-color: #eceef0; }
+    .hm-table tbody tr:hover { background-color: #f2f4f6; }
+
+    /* ---- Canonical status badge (design guide section 3.6) ---- */
+    .hm-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 9999px;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 16px;
+        white-space: nowrap;
+    }
+    .hm-badge::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 9999px;
+        background: currentColor;
+        flex: none;
+    }
+    .hm-badge-none::before { display: none; }
+    /* Positive: Active / Confirmed / Completed / Approved / Paid */
+    .hm-badge-success  { background: #6cf8bb; color: #00432a; }
+    /* Negative: Inactive / Cancelled / Rejected / Unpaid */
+    .hm-badge-error    { background: #ffdad6; color: #93000a; }
+    /* Waiting: Pending */
+    .hm-badge-pending  { background: #ffddb8; color: #653e00; }
+    /* Informational / in-progress */
+    .hm-badge-info     { background: #dbe1ff; color: #003ea8; }
+    /* Unknown or fallback status */
+    .hm-badge-neutral  { background: #eceef0; color: #434655; }
+</style>
+
+{% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-background text-on-surface font-body-md h-screen flex overflow-hidden">
+{% comment %}
+Profile data is read straight off request.user.doctor_profile so this base does
+not depend on which context key a view happens to use (doctor_dashboard/schedule/
+patients/prescription pass `doctor_profile`; edit_profile passes `profile`).
+Sidebar highlighting derives from the resolved URL name -- a child template's
+{% with %} cannot reach the parent, and no doctor view supplies `active_page`.
+{% endcomment %}
+{% with un=request.resolver_match.url_name %}
+
+<!-- ========== SIDEBAR (256px) ========== -->
+<aside class="hidden lg:flex flex-col w-64 h-screen sticky top-0 left-0 shrink-0 border-r border-outline-variant bg-surface-container-lowest shadow-sm">
+<div class="p-lg flex flex-col h-full">
+    <h1 class="font-headline-md text-headline-md font-bold text-primary mb-xl">MedCore Portal</h1>
+
+    <div class="flex items-center gap-md mb-xl p-md rounded-xl bg-surface-container-low">
+        {% if request.user.doctor_profile.profile_picture %}
+        <img src="{{ request.user.doctor_profile.profile_picture.url }}" alt="Profile" class="w-12 h-12 rounded-full object-cover shrink-0"/>
+        {% else %}
+        <div class="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white font-bold text-lg shrink-0">
+            {{ request.user.doctor_profile.user.first_name|first|upper }}{{ request.user.doctor_profile.user.last_name|first|upper }}
+        </div>
+        {% endif %}
+        <div class="overflow-hidden">
+            <p class="font-label-md text-label-md text-primary truncate">Dr. {{ request.user.doctor_profile.display_name }}</p>
+            <p class="text-label-sm text-on-surface-variant truncate">{{ request.user.doctor_profile.specialization|default:"General Medicine" }}</p>
+        </div>
+    </div>
+
+    <nav class="flex flex-col gap-xs flex-1">
+        <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-colors duration-150 {% if un == 'dashboard' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}" href="{% url 'doctor_siddhartha:dashboard' %}">
+            <span class="material-symbols-outlined text-[22px]"{% if un == 'dashboard' %} style="font-variation-settings: 'FILL' 1;"{% endif %}>dashboard</span>
+            Dashboard
+        </a>
+        <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-colors duration-150 {% if un == 'schedule' or un == 'edit_availability' or un == 'delete_availability' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}" href="{% url 'doctor_siddhartha:schedule' %}">
+            <span class="material-symbols-outlined text-[22px]"{% if un == 'schedule' or un == 'edit_availability' or un == 'delete_availability' %} style="font-variation-settings: 'FILL' 1;"{% endif %}>calendar_month</span>
+            Schedule
+        </a>
+        <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-colors duration-150 {% if un == 'patients' or un == 'add_medical_record' or un == 'edit_medical_record' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}" href="{% url 'doctor_siddhartha:patients' %}">
+            <span class="material-symbols-outlined text-[22px]"{% if un == 'patients' or un == 'add_medical_record' or un == 'edit_medical_record' %} style="font-variation-settings: 'FILL' 1;"{% endif %}>group</span>
+            Patients
+        </a>
+        <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-colors duration-150 {% if un == 'prescriptions' or un == 'edit_prescription' or un == 'delete_prescription' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}" href="{% url 'doctor_siddhartha:prescriptions' %}">
+            <span class="material-symbols-outlined text-[22px]"{% if un == 'prescriptions' or un == 'edit_prescription' or un == 'delete_prescription' %} style="font-variation-settings: 'FILL' 1;"{% endif %}>medication</span>
+            Prescriptions
+        </a>
+        <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-colors duration-150 {% if un == 'edit_profile' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}" href="{% url 'doctor_siddhartha:edit_profile' %}">
+            <span class="material-symbols-outlined text-[22px]"{% if un == 'edit_profile' %} style="font-variation-settings: 'FILL' 1;"{% endif %}>person</span>
+            Profile
+        </a>
+    </nav>
+
+    <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-error hover:bg-error-container/40 transition-colors duration-150" href="{% url 'auth_kirtan:logout' %}">
+        <span class="material-symbols-outlined text-[22px]">logout</span>
+        Logout
+    </a>
+</div>
+</aside>
+
+<div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+<!-- ========== NAVBAR (64px) ========== -->
+<header class="flex items-center justify-between px-lg h-16 shrink-0 sticky top-0 z-40 bg-surface-container-lowest border-b border-outline-variant">
+    {% block topbar_left %}
+    <form class="relative w-full max-w-md" method="get" action="{% url 'doctor_siddhartha:patients' %}">
+        <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+        <input class="w-full pl-xl pr-md py-2 bg-surface-container-low border border-outline-variant rounded-full text-body-sm focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none" placeholder="Search patients..." type="text" name="search"/>
+    </form>
+    {% endblock %}
+    <div class="flex items-center gap-md shrink-0 ml-lg">
+        <span class="hidden lg:block font-headline-sm text-headline-sm text-on-surface">{% block page_title %}{% endblock %}</span>
+        <button type="button" class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container-high transition-all"><span class="material-symbols-outlined text-[22px]">notifications</span></button>
+        <a href="{% url 'doctor_siddhartha:edit_profile' %}" class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container-high transition-all"><span class="material-symbols-outlined text-[22px]">settings</span></a>
+        <div class="h-8 w-px bg-outline-variant mx-xs"></div>
+        {% if request.user.doctor_profile.profile_picture %}
+        <img src="{{ request.user.doctor_profile.profile_picture.url }}" alt="Profile" class="w-8 h-8 rounded-full object-cover shrink-0"/>
+        {% else %}
+        <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm shrink-0">
+            {{ request.user.doctor_profile.user.first_name|first|upper }}{{ request.user.doctor_profile.user.last_name|first|upper }}
+        </div>
+        {% endif %}
+    </div>
+</header>
+
+<main class="{% block main_class %}flex-1 overflow-y-auto p-lg{% endblock %}">
+{% block content %}{% endblock %}
+</main>
+
+</div>
+
+{% block modals %}{% endblock %}
+{% endwith %}
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

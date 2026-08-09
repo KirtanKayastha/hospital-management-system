@@ -16,7 +16,7 @@
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
-                <tr class="bg-surface-container-low border-b border-outline-variant">
+                <tr class="bg-surface-container border-b border-outline-variant">
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Date</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Test</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Ordered By</th>
@@ -26,7 +26,7 @@
             </thead>
             <tbody class="divide-y divide-outline-variant">
                 {% for report in lab_reports %}
-                <tr class="hover:bg-surface-bright transition-colors">
+                <tr class="hover:bg-surface-container-low transition-colors">
                     <td class="px-lg py-md">
                         <p class="font-label-md text-on-surface">{{ report.date }}</p>
                         <p class="text-xs text-on-surface-variant">{{ report.lab_name }}</p>
@@ -35,17 +35,11 @@
                     <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ report.ordered_by }}</td>
                     <td class="px-lg py-md">
                         {% if report.status == 'Ready' %}
-                            <span class="inline-flex items-center gap-xs px-sm py-xs bg-green-100 text-green-700 rounded-lg font-label-sm">
-                                <span class="w-2 h-2 rounded-full bg-green-500"></span>Ready
-                            </span>
+                            <span class="hm-badge hm-badge-success">Ready</span>
                         {% elif report.status == 'Pending' %}
-                            <span class="inline-flex items-center gap-xs px-sm py-xs bg-yellow-100 text-yellow-700 rounded-lg font-label-sm">
-                                <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>Pending
-                            </span>
+                            <span class="hm-badge hm-badge-pending">Pending</span>
                         {% else %}
-                            <span class="inline-flex items-center gap-xs px-sm py-xs bg-surface-container text-on-surface-variant rounded-lg font-label-sm">
-                                {{ report.status }}
-                            </span>
+                            <span class="hm-badge hm-badge-neutral">{{ report.status }}</span>
                         {% endif %}
                     </td>
                     <td class="px-lg py-md text-right">
@@ -59,7 +53,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr>
+                <tr class="hover:bg-surface-container-low">
                     <td colspan="5" class="px-lg py-xl text-center font-body-sm text-on-surface-variant">No lab reports available.</td>
                 </tr>
                 {% endfor %}

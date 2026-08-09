@@ -16,7 +16,7 @@
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
-                <tr class="bg-surface-container-low border-b border-outline-variant">
+                <tr class="bg-surface-container border-b border-outline-variant">
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Date</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Medicine</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Dosage</th>
@@ -27,20 +27,16 @@
             </thead>
             <tbody class="divide-y divide-outline-variant">
                 {% for p in prescriptions %}
-                <tr class="hover:bg-surface-bright transition-colors">
+                <tr class="hover:bg-surface-container-low transition-colors">
                     <td class="px-lg py-md font-body-sm text-on-surface">{{ p.date }}</td>
                     <td class="px-lg py-md font-body-md font-semibold text-on-surface">{{ p.medicine }}</td>
                     <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ p.dosage }}</td>
                     <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ p.doctor }}</td>
                     <td class="px-lg py-md">
                         {% if p.status == 'Active' %}
-                            <span class="inline-flex items-center gap-xs px-sm py-xs bg-green-100 text-green-700 rounded-lg font-label-sm">
-                                <span class="w-2 h-2 rounded-full bg-green-500"></span>Active
-                            </span>
+                            <span class="hm-badge hm-badge-success">Active</span>
                         {% else %}
-                            <span class="inline-flex items-center gap-xs px-sm py-xs bg-surface-container text-on-surface-variant rounded-lg font-label-sm">
-                                <span class="w-2 h-2 rounded-full bg-outline"></span>{{ p.status }}
-                            </span>
+                            <span class="hm-badge hm-badge-neutral">{{ p.status }}</span>
                         {% endif %}
                     </td>
                     <td class="px-lg py-md text-right">
@@ -54,7 +50,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr>
+                <tr class="hover:bg-surface-container-low">
                     <td colspan="6" class="px-lg py-xl text-center font-body-sm text-on-surface-variant">No prescriptions found.</td>
                 </tr>
                 {% endfor %}

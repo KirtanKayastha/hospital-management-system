@@ -50,7 +50,7 @@
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
-                <tr class="bg-surface-container-low border-b border-outline-variant">
+                <tr class="bg-surface-container border-b border-outline-variant">
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Date &amp; Time</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Doctor</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Department</th>
@@ -60,7 +60,7 @@
             </thead>
             <tbody class="divide-y divide-outline-variant">
                 {% for appt in appointments %}
-                <tr class="hover:bg-surface-bright transition-colors group">
+                <tr class="hover:bg-surface-container-low transition-colors group">
                     <td class="px-lg py-md">
                         <p class="font-label-md text-on-surface {% if appt.status == 'Cancelled' %}opacity-60{% endif %}">{{ appt.date }}</p>
                         <p class="text-xs text-on-surface-variant {% if appt.status == 'Cancelled' %}opacity-60{% endif %}">{{ appt.time }}</p>
@@ -76,13 +76,13 @@
                     <td class="px-lg py-md font-body-sm text-on-surface-variant {% if appt.status == 'Cancelled' %}opacity-60{% endif %}">{{ appt.department }}</td>
                     <td class="px-lg py-md">
                         {% if appt.status == 'Confirmed' %}
-                            <span class="inline-flex items-center gap-xs px-sm py-xs bg-green-100 text-green-700 rounded-lg font-label-sm"><span class="w-2 h-2 rounded-full bg-green-500"></span>Confirmed</span>
+                            <span class="hm-badge hm-badge-success">Confirmed</span>
                         {% elif appt.status == 'Pending' %}
-                            <span class="inline-flex items-center gap-xs px-sm py-xs bg-yellow-100 text-yellow-700 rounded-lg font-label-sm"><span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>Pending</span>
+                            <span class="hm-badge hm-badge-pending">Pending</span>
                         {% elif appt.status == 'Completed' %}
-                            <span class="inline-flex items-center gap-xs px-sm py-xs bg-primary-container/10 text-primary rounded-lg font-label-sm"><span class="w-2 h-2 rounded-full bg-primary-container"></span>Completed</span>
+                            <span class="hm-badge hm-badge-success">Completed</span>
                         {% elif appt.status == 'Cancelled' %}
-                            <span class="inline-flex items-center gap-xs px-sm py-xs bg-red-100 text-red-700 rounded-lg font-label-sm"><span class="w-2 h-2 rounded-full bg-red-500"></span>Cancelled</span>
+                            <span class="hm-badge hm-badge-error">Cancelled</span>
                         {% endif %}
                     </td>
                     <td class="px-lg py-md text-right">
@@ -106,7 +106,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr>
+                <tr class="hover:bg-surface-container-low">
                     <td colspan="5" class="px-lg py-xl text-center font-body-sm text-on-surface-variant">
                         No appointments found.
                         <a href="{% url 'patient_roshan:book_appointment' %}" class="text-primary hover:underline ml-sm">Book your first appointment</a>
