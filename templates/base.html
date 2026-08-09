@@ -65,8 +65,8 @@
                     },
                     "borderRadius": {
                         "DEFAULT": "0.25rem",
-                        "lg": "12px",
-                        "xl": "0.75rem",
+                        "lg": "8px",
+                        "xl": "12px",
                         "full": "9999px"
                     },
                     "spacing": {
@@ -98,9 +98,9 @@
                         "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
                         "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
                         "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
-                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600"}],
-                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                        "headline-lg": ["28px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
                     }
                 }
             }
@@ -135,7 +135,39 @@
         .login-card-shadow:hover {
             box-shadow: 0px 4px 6px -1px rgba(15, 23, 42, 0.1);
         }
-    </style>
+    
+    /* ---- Canonical status badge (design guide section 3.6) ---- */
+    .hm-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 9999px;
+        font-size: 12px;
+        font-weight: 500;
+        line-height: 16px;
+        white-space: nowrap;
+    }
+    .hm-badge::before {
+        content: '';
+        width: 6px;
+        height: 6px;
+        border-radius: 9999px;
+        background: currentColor;
+        flex: none;
+    }
+    .hm-badge-none::before { display: none; }
+    /* Positive: Active / Confirmed / Completed / Approved / Paid */
+    .hm-badge-success  { background: #6cf8bb; color: #00432a; }
+    /* Negative: Inactive / Cancelled / Rejected / Unpaid */
+    .hm-badge-error    { background: #ffdad6; color: #93000a; }
+    /* Waiting: Pending */
+    .hm-badge-pending  { background: #ffddb8; color: #653e00; }
+    /* Informational / in-progress */
+    .hm-badge-info     { background: #dbe1ff; color: #003ea8; }
+    /* Unknown or fallback status */
+    .hm-badge-neutral  { background: #eceef0; color: #434655; }
+</style>
     
     {% block extra_css %}{% endblock %}
 </head>

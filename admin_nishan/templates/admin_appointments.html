@@ -26,7 +26,7 @@
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
-                <tr class="bg-surface-container-low/50 border-b border-outline-variant">
+                <tr class="bg-surface-container border-b border-outline-variant">
                     <th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">ID</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Patient</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant uppercase tracking-wider">Doctor</th>
@@ -52,20 +52,20 @@
                     <td class="px-lg py-md text-body-sm">{{ appt.display_time }}</td>
                     <td class="px-lg py-md">
                         {% if appt.status == 'Confirmed' %}
-                        <span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-secondary-fixed text-on-secondary-fixed-variant uppercase"><span class="w-1.5 h-1.5 rounded-full bg-secondary mr-1.5"></span>Confirmed</span>
+                            <span class="hm-badge hm-badge-success">Confirmed</span>
                         {% elif appt.status == 'Pending' %}
-                        <span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-tertiary-fixed text-tertiary-container uppercase"><span class="w-1.5 h-1.5 rounded-full bg-tertiary mr-1.5"></span>Pending</span>
+                            <span class="hm-badge hm-badge-pending">Pending</span>
                         {% elif appt.status == 'Completed' %}
-                        <span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-primary-fixed text-on-primary-fixed-variant uppercase"><span class="w-1.5 h-1.5 rounded-full bg-primary mr-1.5"></span>Completed</span>
+                            <span class="hm-badge hm-badge-success">Completed</span>
                         {% elif appt.status == 'Cancelled' %}
-                        <span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-error-container text-on-error-container uppercase"><span class="w-1.5 h-1.5 rounded-full bg-error mr-1.5"></span>Cancelled</span>
+                            <span class="hm-badge hm-badge-error">Cancelled</span>
                         {% else %}
-                        <span class="inline-flex items-center px-sm py-xs rounded-full text-[12px] font-bold bg-surface-container-highest text-on-surface-variant uppercase">{{ appt.status }}</span>
+                            <span class="hm-badge hm-badge-neutral">{{ appt.status }}</span>
                         {% endif %}
                     </td>
                 </tr>
                 {% empty %}
-                <tr>
+                <tr class="hover:bg-surface-container-low">
                     <td colspan="7" class="px-lg py-xl text-center">
                         <span class="material-symbols-outlined text-4xl text-on-surface-variant">event_busy</span>
                         <p class="font-body-md text-on-surface mt-md">No appointments found</p>

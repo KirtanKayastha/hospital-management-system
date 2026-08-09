@@ -88,7 +88,7 @@
         <div class="overflow-x-auto">
             <table class="w-full text-left">
                 <thead>
-                    <tr class="bg-surface-container-low">
+                    <tr class="bg-surface-container">
                         <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Date &amp; Time</th>
                         <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Doctor</th>
                         <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Department</th>
@@ -97,7 +97,7 @@
                 </thead>
                 <tbody class="divide-y divide-outline-variant">
                     {% for appt in recent_appointments %}
-                    <tr class="hover:bg-surface-bright transition-colors">
+                    <tr class="hover:bg-surface-container-low transition-colors">
                         <td class="px-lg py-md">
                             <p class="font-label-md text-on-surface">{{ appt.appointment_date }}</p>
                             <p class="text-xs text-on-surface-variant">{{ appt.appointment_time }}</p>
@@ -113,26 +113,18 @@
                         <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ appt.department.name }}</td>
                         <td class="px-lg py-md">
                             {% if appt.status == 'confirmed' %}
-                                <span class="inline-flex items-center gap-xs px-sm py-xs bg-green-100 text-green-700 rounded-lg font-label-sm">
-                                    <span class="w-2 h-2 rounded-full bg-green-500"></span>Confirmed
-                                </span>
+                                <span class="hm-badge hm-badge-success">Confirmed</span>
                             {% elif appt.status == 'pending' %}
-                                <span class="inline-flex items-center gap-xs px-sm py-xs bg-yellow-100 text-yellow-700 rounded-lg font-label-sm">
-                                    <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>Pending
-                                </span>
+                                <span class="hm-badge hm-badge-pending">Pending</span>
                             {% elif appt.status == 'completed' %}
-                                <span class="inline-flex items-center gap-xs px-sm py-xs bg-primary/10 text-primary rounded-lg font-label-sm">
-                                    <span class="w-2 h-2 rounded-full bg-primary"></span>Completed
-                                </span>
+                                <span class="hm-badge hm-badge-success">Completed</span>
                             {% else %}
-                                <span class="inline-flex items-center gap-xs px-sm py-xs bg-red-100 text-red-700 rounded-lg font-label-sm">
-                                    <span class="w-2 h-2 rounded-full bg-red-500"></span>{{ appt.status }}
-                                </span>
+                                <span class="hm-badge hm-badge-error">{{ appt.status }}</span>
                             {% endif %}
                         </td>
                     </tr>
                     {% empty %}
-                    <tr>
+                    <tr class="hover:bg-surface-container-low">
                         <td colspan="4" class="px-lg py-xl text-center font-body-sm text-on-surface-variant">
                             No appointments yet.
                             <a href="{% url 'patient_roshan:book_appointment' %}" class="text-primary hover:underline ml-sm">Book one now</a>

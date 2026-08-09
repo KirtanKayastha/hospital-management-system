@@ -39,7 +39,7 @@
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead>
-                <tr class="bg-surface-container-low border-b border-outline-variant">
+                <tr class="bg-surface-container border-b border-outline-variant">
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Invoice #</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Date</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Description</th>
@@ -50,7 +50,7 @@
             </thead>
             <tbody class="divide-y divide-outline-variant">
                 {% for invoice in invoices %}
-                <tr class="hover:bg-surface-bright transition-colors">
+                <tr class="hover:bg-surface-container-low transition-colors">
                     <td class="px-lg py-md font-body-sm text-on-surface">{{ invoice.invoice_number }}</td>
                     <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ invoice.created_at|date:"d M Y" }}</td>
                     <td class="px-lg py-md font-body-sm text-on-surface">{{ invoice.description }}</td>
@@ -75,7 +75,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr>
+                <tr class="hover:bg-surface-container-low">
                     <td colspan="6" class="px-lg py-xl text-center font-body-sm text-on-surface-variant">No invoices found.</td>
                 </tr>
                 {% endfor %}
