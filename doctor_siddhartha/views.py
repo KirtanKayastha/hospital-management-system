@@ -399,9 +399,11 @@ def edit_profile(request):
 
         profile.specialization = (request.POST.get("specialization") or "").strip()
         profile.license_number = (request.POST.get("license_number") or "").strip()
-        profile.phone = (request.POST.get("phone") or "").strip()
+        profile.phone = request.POST.get("phone") or profile.phone
         profile.experience_years = int(request.POST.get("experience_years") or 0)
         profile.bio = (request.POST.get("bio") or "").strip()
+        if request.FILES.get("profile_picture"):
+            profile.profile_picture = request.FILES["profile_picture"]
         profile.save()
 
         messages.success(request, "Profile updated successfully.")
@@ -413,3 +415,33 @@ def edit_profile(request):
         "departments": Department.objects.filter(is_active=True).order_by("name"),
     }
     return render(request, "doc_siddhartha/edit_profile.html", context)
+
+
+@doctor_required
+def medical_records(request):
+    doctor_profile = _doctor_profile(request.user)
+    records = MedicalRecord.objects.filter(doctor=request.user).select_related("patient", "department").order_by("-visit_date", "-created_at")
+    patient_id = request.GET.get("patient")
+    if patient_id:
+        records = records.filter(patient_id=patient_id)
+    context = {
+        "doctor_profile": doctor_profile,
+        "records": records,
+        "selected_patient_id": patient_id,
+    }
+    return render(request, "doc_siddhartha/medical_records.html", context)
+
+
+@doctor_required
+def lab_reports(request):
+    doctor_profile = _doctor_profile(request.user)
+    reports = LabReport.objects.filter(doctor=request.user).select_related("patient").order_by("-ordered_on", "-created_at")
+    patient_id = request.GET.get("patient")
+    if patient_id:
+        reports = reports.filter(patient_id=patient_id)
+    context = {
+        "doctor_profile": doctor_profile,
+        "reports": reports,
+        "selected_patient_id": patient_id,
+    }
+    return render(request, "doc_siddhartha/lab_reports.html", context)

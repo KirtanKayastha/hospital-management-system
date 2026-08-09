@@ -31,6 +31,7 @@ class DoctorProfile(models.Model):
 	status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
+	profile_picture = models.ImageField(upload_to='profile_pictures/', null=True, blank=True)
 
 	class Meta:
 		ordering = ["user__username"]

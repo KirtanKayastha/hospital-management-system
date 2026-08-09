@@ -219,6 +219,14 @@ Sidebar highlighting derives from the resolved URL name -- a child template's
             <span class="material-symbols-outlined text-[22px]"{% if un == 'prescriptions' or un == 'edit_prescription' or un == 'delete_prescription' %} style="font-variation-settings: 'FILL' 1;"{% endif %}>medication</span>
             Prescriptions
         </a>
+        <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-colors duration-150 {% if un == 'medical_records' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}" href="{% url 'doctor_siddhartha:medical_records' %}">
+            <span class="material-symbols-outlined text-[22px]"{% if un == 'medical_records' %} style="font-variation-settings: 'FILL' 1;"{% endif %}>medical_services</span>
+            Medical Records
+        </a>
+        <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-colors duration-150 {% if un == 'lab_reports' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}" href="{% url 'doctor_siddhartha:lab_reports' %}">
+            <span class="material-symbols-outlined text-[22px]"{% if un == 'lab_reports' %} style="font-variation-settings: 'FILL' 1;"{% endif %}>science</span>
+            Lab Reports
+        </a>
         <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-colors duration-150 {% if un == 'edit_profile' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}" href="{% url 'doctor_siddhartha:edit_profile' %}">
             <span class="material-symbols-outlined text-[22px]"{% if un == 'edit_profile' %} style="font-variation-settings: 'FILL' 1;"{% endif %}>person</span>
             Profile
