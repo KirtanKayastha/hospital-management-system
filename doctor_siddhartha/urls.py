@@ -19,4 +19,6 @@ urlpatterns = [
     path('profile/edit/', views.edit_profile, name='edit_profile'),
     path('medical-records/', views.medical_records, name='medical_records'),
     path('lab-reports/', views.lab_reports, name='lab_reports'),
+    path('notifications/', views.notifications, name='notifications'),
+    path('notifications/mark-all-read/', views.mark_all_read, name='mark_all_read'),
 ]

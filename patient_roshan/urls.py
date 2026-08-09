@@ -29,4 +29,6 @@ path('settings/deactivate/', views.deactivate_account, name='deactivate_account'
 path('settings/request-deletion/', views.request_deletion, name='request_deletion'),
     path('settings/delete-account/', views.delete_account, name='delete_account'),
     path('get-time-slots/', views.get_time_slots, name='get_time_slots'),
+    path('medicine-reminders/', views.medicine_reminders, name='medicine_reminders'),
+    path('medicine-reminders/<int:reminder_id>/taken/', views.mark_medicine_taken, name='mark_medicine_taken'),
 ]

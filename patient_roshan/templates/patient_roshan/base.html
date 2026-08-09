@@ -193,6 +193,11 @@
           {% if active_page == 'prescriptions' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
     <span class="material-symbols-outlined">prescriptions</span>Prescriptions
 </a>
+<a href="{% url 'patient_roshan:medicine_reminders' %}"
+   class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
+          {% if active_page == 'reminders' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
+    <span class="material-symbols-outlined">medication</span>Medicine Reminders
+</a>
 <a href="{% url 'patient_roshan:lab_reports' %}"
    class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
           {% if active_page == 'labreports' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
@@ -258,10 +263,12 @@
     <h1 class="font-headline-md text-headline-md text-on-surface">{% block page_title %}Dashboard{% endblock %}</h1>
 </div>
             <div class="flex items-center gap-lg">
-                <button class="p-xs text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors relative">
+                <a href="{% url 'patient_roshan:notifications' %}" class="p-xs text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors relative">
                     <span class="material-symbols-outlined">notifications</span>
-                    <span class="absolute top-1 right-1 w-2 h-2 bg-error rounded-full border border-surface-container-lowest"></span>
-                </button>
+                    {% if unread_notification_count %}
+                    <span class="absolute top-0 right-0 min-w-[16px] h-4 px-1 bg-error text-white rounded-full text-[10px] leading-4 text-center font-bold border border-surface-container-lowest">{{ unread_notification_count }}</span>
+                    {% endif %}
+                </a>
                  <!-- ========== Time , Date , Zone ========== -->
                 <div class="hidden sm:flex flex-col items-end">
     <span id="live-clock" class="font-label-md text-label-md text-on-surface font-bold"></span>

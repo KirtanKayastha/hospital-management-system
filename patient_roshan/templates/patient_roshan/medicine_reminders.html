@@ -1,0 +1,51 @@
+{% extends 'patient_roshan/base.html' %}
+{% block title %}Medicine Reminders{% endblock %}
+{% block page_title %}Medicine Reminders{% endblock %}
+
+{% block content %}
+{% with active_page='reminders' %}
+
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-lg">
+    <div>
+        <h1 class="font-headline-lg text-headline-lg text-on-surface">Medicine Reminders</h1>
+        <p class="font-body-md text-on-surface-variant mt-xs">Doses generated from your active prescriptions.</p>
+    </div>
+    <span class="hm-badge {% if taken_count == reminders|length and reminders %}hm-badge-success{% else %}hm-badge-pending{% endif %}">
+        {{ taken_count }} of {{ reminders|length }} taken today
+    </span>
+</div>
+
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden divide-y divide-outline-variant">
+    {% for reminder in reminders %}
+    <div class="px-lg py-md flex items-center gap-md">
+        <span class="material-symbols-outlined {% if reminder.taken_today %}text-secondary{% else %}text-error{% endif %}">
+            {% if reminder.taken_today %}check_circle{% else %}medication{% endif %}
+        </span>
+        <div class="flex-1 min-w-0">
+            <p class="font-body-md text-body-md text-on-surface font-medium">{{ reminder.medicine_name }}</p>
+            <p class="font-label-sm text-label-sm text-on-surface-variant mt-xs">
+                {{ reminder.display_time }}{% if reminder.dosage %} &middot; {{ reminder.dosage }}{% endif %}
+                {% if reminder.end_date %} &middot; until {{ reminder.end_date|date:"d M Y" }}{% endif %}
+            </p>
+        </div>
+        {% if reminder.taken_today %}
+        <span class="hm-badge hm-badge-success">Taken</span>
+        {% else %}
+        <form method="POST" action="{% url 'patient_roshan:mark_medicine_taken' reminder.id %}">
+            {% csrf_token %}
+            <button type="submit" class="bg-primary text-white px-md py-sm rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
+                Mark taken
+            </button>
+        </form>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div class="px-lg py-xl text-center">
+        <span class="material-symbols-outlined text-4xl text-on-surface-variant">medication</span>
+        <p class="font-body-sm text-on-surface-variant mt-sm">No active medicine reminders.</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% endwith %}
+{% endblock %}

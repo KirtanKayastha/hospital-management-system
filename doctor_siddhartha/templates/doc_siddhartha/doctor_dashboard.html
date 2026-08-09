@@ -113,9 +113,19 @@
     <div class="p-lg space-y-md">
         {% for appointment in recent_patients %}
         <div class="rounded-xl bg-surface-container-low p-md flex items-center justify-between gap-md">
-            <div>
-                <p class="font-bold text-on-surface">{{ appointment.patient_name }}</p>
-                <p class="text-body-sm text-on-surface-variant">Last visit: {{ appointment.display_date }}</p>
+            <div class="flex items-center gap-md min-w-0">
+                {% if appointment.patient_profile.profile_picture %}
+                <img src="{{ appointment.patient_profile.profile_picture.url }}" alt="{{ appointment.patient_name }}"
+                     class="w-10 h-10 rounded-full object-cover shrink-0"/>
+                {% else %}
+                <div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-outline text-sm shrink-0">
+                    {{ appointment.patient.first_name|first|upper }}{{ appointment.patient.last_name|first|upper }}
+                </div>
+                {% endif %}
+                <div class="min-w-0">
+                    <p class="font-bold text-on-surface truncate">{{ appointment.patient_name }}</p>
+                    <p class="text-body-sm text-on-surface-variant">Last visit: {{ appointment.display_date }}</p>
+                </div>
             </div>
             <span class="text-body-sm text-on-surface-variant shrink-0">{{ appointment.department_name }}</span>
         </div>

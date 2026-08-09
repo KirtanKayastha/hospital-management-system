@@ -22,9 +22,14 @@
 <div class="flex flex-col">
     {% for appt in patients %}
     <a href="?patient={{ appt.patient_id }}" class="p-lg flex items-center gap-md border-b border-outline-variant text-left transition-all hover:bg-surface-container-low {% if selected_patient and selected_patient.id == appt.patient_id %}bg-primary-fixed/20{% endif %} group">
-        <div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-outline text-lg">
+        {% if appt.patient_profile.profile_picture %}
+        <img src="{{ appt.patient_profile.profile_picture.url }}" alt="{{ appt.patient_name }}"
+             class="w-12 h-12 rounded-full object-cover flex-shrink-0"/>
+        {% else %}
+        <div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-outline text-lg flex-shrink-0">
             {{ appt.patient.first_name|first|upper }}{{ appt.patient.last_name|first|upper }}
         </div>
+        {% endif %}
         <div class="flex-1">
             <h3 class="font-bold text-on-surface">{{ appt.patient_name }}</h3>
             <p class="text-body-sm text-outline">Last: {{ appt.display_date }}</p>
@@ -47,9 +52,14 @@
 {% if selected_patient %}
 <div class="flex flex-col md:flex-row md:items-center justify-between gap-md mb-sm">
 <div class="flex items-center gap-md">
+{% if selected_patient_profile.profile_picture %}
+<img src="{{ selected_patient_profile.profile_picture.url }}" alt="{{ selected_patient.get_full_name|default:selected_patient.username }}"
+     class="w-14 h-14 rounded-xl object-cover border border-outline-variant flex-shrink-0"/>
+{% else %}
 <div class="p-3 bg-primary-container text-on-primary-container rounded-xl">
     <span class="material-symbols-outlined text-3xl">medical_information</span>
 </div>
+{% endif %}
 <div>
 <h2 class="font-headline-sm text-headline-sm text-on-surface">{{ selected_patient.get_full_name|default:selected_patient.username }}</h2>
 <p class="text-body-sm text-outline">Patient ID: #HM-{{ selected_patient.id }}</p>

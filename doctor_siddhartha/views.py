@@ -16,6 +16,8 @@ from admin_nishan.models import (
     PrescriptionItem,
 )
 from hospital.access import doctor_required
+from hospital.notifications import notify, notify_appointment
+from hospital.reminders import build_reminders_for_prescription
 from patient_roshan.models import PatientProfile
 from .models import DoctorProfile
 
@@ -67,10 +69,15 @@ def _recent_patients(doctor_user):
         .values_list("patient_id", flat=True)
         .distinct()[:8]
     )
+    profiles_by_user = {
+        profile.user_id: profile
+        for profile in PatientProfile.objects.filter(user_id__in=list(patient_ids))
+    }
     patients = []
     for patient_id in patient_ids:
         latest = Appointment.objects.filter(doctor=doctor_user, patient_id=patient_id).select_related("patient").order_by("-appointment_date", "-appointment_time").first()
         if latest:
+            latest.patient_profile = profiles_by_user.get(patient_id)
             patients.append(latest)
     return patients
 
@@ -83,6 +90,13 @@ def approve_appointment(request, appointment_id):
         return redirect("doctor_siddhartha:dashboard")
     appointment.status = Appointment.STATUS_CONFIRMED
     appointment.save(update_fields=["status"])
+    notify_appointment(
+        appointment.patient,
+        "Appointment confirmed",
+        f"Dr. {request.user.get_full_name() or request.user.username} confirmed your appointment on "
+        f"{appointment.display_date} at {appointment.display_time}.",
+        appointment=appointment,
+    )
     messages.success(request, f"Appointment with {appointment.patient_name} has been confirmed.")
     return redirect("doctor_siddhartha:dashboard")
 
@@ -95,6 +109,13 @@ def reject_appointment(request, appointment_id):
         return redirect("doctor_siddhartha:dashboard")
     appointment.status = Appointment.STATUS_CANCELLED
     appointment.save(update_fields=["status"])
+    notify_appointment(
+        appointment.patient,
+        "Appointment cancelled",
+        f"Dr. {request.user.get_full_name() or request.user.username} cancelled your appointment on "
+        f"{appointment.display_date} at {appointment.display_time}.",
+        appointment=appointment,
+    )
     messages.warning(request, f"Appointment with {appointment.patient_name} has been rejected.")
     return redirect("doctor_siddhartha:dashboard")
 
@@ -219,9 +240,22 @@ def patients_records(request):
         recent_patients.append(appointment)
         seen_ids.add(appointment.patient_id)
 
+    # Attach each patient's profile so the list can render real avatars instead
+    # of initials. One query for the whole page rather than one per row.
+    profiles_by_user = {
+        profile.user_id: profile
+        for profile in PatientProfile.objects.filter(user_id__in=seen_ids)
+    }
+    for appointment in recent_patients:
+        appointment.patient_profile = profiles_by_user.get(appointment.patient_id)
+
     selected_patient_profile = (
-        PatientProfile.objects.filter(user=selected_patient).first() if selected_patient else None
+        profiles_by_user.get(selected_patient.id)
+        if selected_patient
+        else None
     )
+    if selected_patient and selected_patient_profile is None:
+        selected_patient_profile = PatientProfile.objects.filter(user=selected_patient).first()
 
     editing_record = None
     edit_record_id = request.GET.get("edit_record")
@@ -255,7 +289,7 @@ def add_medical_record(request, patient_id):
 
         if diagnosis:
             doctor_profile = _doctor_profile(request.user)
-            MedicalRecord.objects.create(
+            record = MedicalRecord.objects.create(
                 patient_id=patient_id,
                 doctor=request.user,
                 department=doctor_profile.department,
@@ -266,6 +300,12 @@ def add_medical_record(request, patient_id):
                 status=status,
                 visit_date=visit_date,
                 follow_up_date=follow_up_date or None,
+            )
+            notify(
+                record.patient,
+                "New medical record",
+                f"Dr. {request.user.get_full_name() or request.user.username} added a record: {record.diagnosis}.",
+                action_url="/patient/records/",
             )
             messages.success(request, "Medical record added.")
         else:
@@ -288,6 +328,12 @@ def edit_medical_record(request, record_id):
         follow_up_date = request.POST.get("follow_up_date")
         record.follow_up_date = follow_up_date or None
         record.save()
+        notify(
+            record.patient,
+            "Medical record updated",
+            f"Dr. {request.user.get_full_name() or request.user.username} updated your record: {record.diagnosis}.",
+            action_url="/patient/records/",
+        )
         messages.success(request, "Medical record updated.")
     return redirect(f"/doctor/patients/?patient={record.patient_id}")
 
@@ -349,6 +395,23 @@ def prescription(request):
                         duration=(durations[index] if index < len(durations) else "").strip(),
                         instructions=(instructions[index] if index < len(instructions) else "").strip(),
                     )
+                reminder_count = build_reminders_for_prescription(rx)
+                doctor_label = request.user.get_full_name() or request.user.username
+                if prescription_id:
+                    notify(
+                        rx.patient,
+                        "Prescription updated",
+                        f"Dr. {doctor_label} updated your prescription for {rx.diagnosis}.",
+                        action_url="/patient/prescriptions/",
+                    )
+                else:
+                    notify(
+                        rx.patient,
+                        "New prescription",
+                        f"Dr. {doctor_label} prescribed medication for {rx.diagnosis}. "
+                        f"{reminder_count} daily reminder(s) added.",
+                        action_url="/patient/prescriptions/",
+                    )
                 messages.success(request, "Prescription saved successfully.")
                 return redirect(f"{request.path}?patient={patient_id}")
         messages.error(request, "Select a patient and add a diagnosis before saving.")
@@ -382,6 +445,12 @@ def delete_prescription(request, prescription_id):
     rx = get_object_or_404(Prescription, pk=prescription_id, doctor=request.user)
     if request.method == "POST":
         patient_id = rx.patient_id
+        notify(
+            rx.patient,
+            "Prescription deleted",
+            f"Dr. {request.user.get_full_name() or request.user.username} removed your prescription for {rx.diagnosis}.",
+            action_url="/patient/prescriptions/",
+        )
         rx.delete()
         messages.success(request, "Prescription deleted.")
         return redirect(f"/doctor/prescriptions/?patient={patient_id}")
@@ -445,3 +514,19 @@ def lab_reports(request):
         "selected_patient_id": patient_id,
     }
     return render(request, "doc_siddhartha/lab_reports.html", context)
+
+
+@doctor_required
+def notifications(request):
+    context = {
+        "doctor_profile": _doctor_profile(request.user),
+        "notifications": Notification.objects.filter(recipient=request.user).order_by("-created_at"),
+    }
+    return render(request, "doc_siddhartha/notifications.html", context)
+
+
+@doctor_required
+def mark_all_read(request):
+    if request.method == "POST":
+        Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+    return redirect("doctor_siddhartha:notifications")

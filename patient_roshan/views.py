@@ -9,7 +9,7 @@ from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 
-from admin_nishan.models import Appointment, BillingInvoice, Department, DoctorAvailability, LabReport, MedicalRecord, Notification, Prescription
+from admin_nishan.models import Appointment, BillingInvoice, Department, DoctorAvailability, LabReport, MedicalRecord, MedicineReminder, Notification, Prescription
 from doctor_siddhartha.models import DoctorProfile
 from hospital.access import ensure_patient_profile, patient_required
 from .models import PatientProfile
@@ -710,3 +710,34 @@ def delete_account(request):
         messages.success(request, f'Account "{username}" has been permanently deleted.')
         return redirect('auth_kirtan:logout')
     return redirect('patient_roshan:settings')
+
+
+@patient_required
+def medicine_reminders(request):
+    patient_profile = _patient_profile(request.user)
+    today = timezone.localdate()
+    reminders = (
+        MedicineReminder.objects.filter(patient=request.user, is_active=True)
+        .select_related('item', 'item__prescription')
+        .order_by('remind_at')
+    )
+    active = [r for r in reminders if r.end_date is None or r.end_date >= today]
+    context = {
+        'patient_profile': patient_profile,
+        'reminders': active,
+        'taken_count': sum(1 for r in active if r.taken_today),
+        'today': today,
+        'active_page': 'reminders',
+        'patient': patient_profile,
+    }
+    return render(request, 'patient_roshan/medicine_reminders.html', context)
+
+
+@patient_required
+def mark_medicine_taken(request, reminder_id):
+    reminder = get_object_or_404(MedicineReminder, pk=reminder_id, patient=request.user)
+    if request.method == 'POST':
+        reminder.last_taken_on = timezone.localdate()
+        reminder.save(update_fields=['last_taken_on'])
+        messages.success(request, f'{reminder.medicine_name} marked as taken.')
+    return redirect('patient_roshan:medicine_reminders')

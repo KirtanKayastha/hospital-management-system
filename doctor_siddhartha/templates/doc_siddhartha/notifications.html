@@ -1,0 +1,46 @@
+{% extends 'doc_siddhartha/base.html' %}
+{% block title %}Notifications{% endblock %}
+{% block page_title %}Notifications{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-lg pb-xxl">
+
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
+    <div>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">Notifications</h2>
+        <p class="text-on-surface-variant font-body-md">Appointment requests and patient activity.</p>
+    </div>
+    {% if notifications %}
+    <form method="POST" action="{% url 'doctor_siddhartha:mark_all_read' %}">
+        {% csrf_token %}
+        <button type="submit" class="border border-outline-variant text-on-surface py-sm px-md rounded-lg font-label-md text-label-md hover:bg-surface-container transition-colors">
+            Mark all read
+        </button>
+    </form>
+    {% endif %}
+</div>
+
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden divide-y divide-outline-variant">
+    {% for notification in notifications %}
+    <div class="px-lg py-md flex gap-md items-start hover:bg-surface-container-low transition-colors">
+        <span class="w-2 h-2 rounded-full mt-2 flex-shrink-0 {% if notification.is_read %}bg-outline-variant{% else %}bg-primary{% endif %}"></span>
+        <div class="flex-1 min-w-0">
+            <p class="font-body-md text-body-md {% if notification.is_read %}text-on-surface-variant{% else %}text-on-surface font-medium{% endif %}">
+                {{ notification.title }}
+            </p>
+            <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">{{ notification.message }}</p>
+            <p class="font-label-sm text-label-sm text-on-surface-variant mt-xs">{{ notification.created_at|timesince }} ago</p>
+        </div>
+        {% if notification.action_url %}
+        <a href="{{ notification.action_url }}" class="text-primary font-label-sm text-label-sm hover:underline flex-shrink-0">View</a>
+        {% endif %}
+    </div>
+    {% empty %}
+    <div class="px-lg py-xl text-center">
+        <span class="material-symbols-outlined text-4xl text-on-surface-variant">notifications_off</span>
+        <p class="font-body-sm text-on-surface-variant mt-sm">No notifications yet.</p>
+    </div>
+    {% endfor %}
+</div>
+
+</div>
+{% endblock %}

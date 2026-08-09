@@ -252,7 +252,12 @@ Sidebar highlighting derives from the resolved URL name -- a child template's
     {% endblock %}
     <div class="flex items-center gap-md shrink-0 ml-lg">
         <span class="hidden lg:block font-headline-sm text-headline-sm text-on-surface">{% block page_title %}{% endblock %}</span>
-        <button type="button" class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container-high transition-all"><span class="material-symbols-outlined text-[22px]">notifications</span></button>
+        <a href="{% url 'doctor_siddhartha:notifications' %}" class="relative p-xs rounded-full text-on-surface-variant hover:bg-surface-container-high transition-all">
+            <span class="material-symbols-outlined text-[22px]">notifications</span>
+            {% if unread_notification_count %}
+            <span class="absolute top-0 right-0 min-w-[16px] h-4 px-1 bg-error text-white rounded-full text-[10px] leading-4 text-center font-bold">{{ unread_notification_count }}</span>
+            {% endif %}
+        </a>
         <a href="{% url 'doctor_siddhartha:edit_profile' %}" class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container-high transition-all"><span class="material-symbols-outlined text-[22px]">settings</span></a>
         <div class="h-8 w-px bg-outline-variant mx-xs"></div>
         {% if request.user.doctor_profile.profile_picture %}

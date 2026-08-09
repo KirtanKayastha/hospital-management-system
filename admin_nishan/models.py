@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 
 class Department(models.Model):
@@ -394,6 +395,47 @@ class BillingInvoice(models.Model):
 	@property
 	def display_amount(self):
 		return f"${self.amount:,.2f}"
+
+
+class MedicineReminder(models.Model):
+	"""A daily dose slot generated from a PrescriptionItem.
+
+	Reminders are derived rows rather than a computed property so a patient can
+	mark an individual dose as taken without mutating the prescription.
+	"""
+
+	patient = models.ForeignKey(
+		settings.AUTH_USER_MODEL,
+		on_delete=models.CASCADE,
+		related_name="medicine_reminders",
+	)
+	item = models.ForeignKey(
+		PrescriptionItem,
+		on_delete=models.CASCADE,
+		related_name="reminders",
+	)
+	medicine_name = models.CharField(max_length=150)
+	dosage = models.CharField(max_length=100, blank=True)
+	remind_at = models.TimeField()
+	start_date = models.DateField()
+	end_date = models.DateField(null=True, blank=True)
+	is_active = models.BooleanField(default=True)
+	last_taken_on = models.DateField(null=True, blank=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		ordering = ["remind_at", "medicine_name"]
+
+	def __str__(self):
+		return f"{self.medicine_name} @ {self.remind_at}"
+
+	@property
+	def taken_today(self):
+		return self.last_taken_on == timezone.localdate()
+
+	@property
+	def display_time(self):
+		return self.remind_at.strftime("%I:%M %p").lstrip("0")
 
 
 class Notification(models.Model):
