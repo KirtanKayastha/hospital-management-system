@@ -32,9 +32,18 @@
                 <tr class="hover:bg-surface-container-low transition-colors">
                     <td class="px-lg py-lg">
                         <div class="flex items-center gap-md">
+                            {% if doctor.profile_picture %}
+
+                            <img src="{{ doctor.profile_picture.url }}" alt="Dr. {{ doctor.display_name }}" class="w-10 h-10 rounded-full object-cover shrink-0"/>
+
+                            {% else %}
+
                             <div class="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold">
                                 {{ doctor.display_name|first|upper }}
                             </div>
+
+                            {% endif %}
+
                             <div>
                                 <p class="font-label-md text-label-md text-on-surface">Dr. {{ doctor.display_name }}</p>
                                 <p class="text-label-sm text-on-surface-variant">{{ doctor.user.email|default:"—" }}</p>

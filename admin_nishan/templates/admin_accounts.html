@@ -50,7 +50,22 @@
                     <td class="p-lg text-label-sm text-on-surface-variant">USR-{{ user.id }}</td>
                     <td class="p-lg">
                         <div class="flex items-center gap-md">
-                            <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant font-bold">{{ user.first_name|first|upper }}{{ user.last_name|first|upper }}</div>
+                            {% if user.patient_profile.profile_picture %}
+
+                            <img src="{{ user.patient_profile.profile_picture.url }}" alt="{{ user.get_full_name|default:user.username }}" class="w-10 h-10 rounded-full object-cover shrink-0"/>
+
+                            {% elif user.doctor_profile.profile_picture %}
+
+                            <img src="{{ user.doctor_profile.profile_picture.url }}" alt="{{ user.get_full_name|default:user.username }}" class="w-10 h-10 rounded-full object-cover shrink-0"/>
+
+                            {% else %}
+
+                            <div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center text-on-surface-variant font-bold">
+                                {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                            </div>
+
+                            {% endif %}
+
                             <span class="font-bold text-on-surface">{{ user.get_full_name|default:user.username }}</span>
                         </div>
                     </td>

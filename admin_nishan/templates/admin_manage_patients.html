@@ -50,11 +50,19 @@
 
                         <div class="flex items-center gap-3">
 
+                            {% if profile.profile_picture %}
+
+                            <img src="{{ profile.profile_picture.url }}" alt="{{ profile.user.get_full_name|default:profile.user.username }}" class="w-10 h-10 rounded-full object-cover shrink-0"/>
+
+                            {% else %}
+
                             <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center font-bold">
 
                                 {{ profile.user.first_name|first|upper }}{{ profile.user.last_name|first|upper }}
 
                             </div>
+
+                            {% endif %}
 
                             <div>
 
