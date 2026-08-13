@@ -221,4 +221,5 @@ __marimo__/
 __pycache__/
 *.pyc
 venv/
-db.sqlite3staticfiles/
+db.sqlite3
+staticfiles/
