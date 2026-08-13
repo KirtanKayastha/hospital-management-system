@@ -289,6 +289,9 @@ def edit_medical_record(request, record_id):
         record.follow_up_date = follow_up_date or None
         record.save()
         messages.success(request, "Medical record updated.")
+
+        if request.POST.get("next") == "medical_records":
+            return redirect("doctor_siddhartha:medical_records")
     return redirect(f"/doctor/patients/?patient={record.patient_id}")
 
 
@@ -402,8 +405,13 @@ def edit_profile(request):
         profile.phone = request.POST.get("phone") or profile.phone
         profile.experience_years = int(request.POST.get("experience_years") or 0)
         profile.bio = (request.POST.get("bio") or "").strip()
-        if request.FILES.get("profile_picture"):
+
+        if request.POST.get("remove_picture") == "1":
+            profile.profile_picture.delete(save=False)
+            profile.profile_picture = None
+        elif request.FILES.get("profile_picture"):
             profile.profile_picture = request.FILES["profile_picture"]
+
         profile.save()
 
         messages.success(request, "Profile updated successfully.")
@@ -424,10 +432,18 @@ def medical_records(request):
     patient_id = request.GET.get("patient")
     if patient_id:
         records = records.filter(patient_id=patient_id)
+
+    editing_record = None
+    edit_record_id = request.GET.get("edit_record")
+    if edit_record_id:
+        editing_record = MedicalRecord.objects.filter(pk=edit_record_id, doctor=request.user).first()
+
     context = {
         "doctor_profile": doctor_profile,
         "records": records,
         "selected_patient_id": patient_id,
+        "editing_record": editing_record,
+        "status_choices": MedicalRecord.STATUS_CHOICES,
     }
     return render(request, "doc_siddhartha/medical_records.html", context)
 
@@ -445,3 +461,21 @@ def lab_reports(request):
         "selected_patient_id": patient_id,
     }
     return render(request, "doc_siddhartha/lab_reports.html", context)
+
+
+@doctor_required
+def notifications(request):
+    doctor_profile = _doctor_profile(request.user)
+    notes = Notification.objects.filter(recipient=request.user).order_by("-created_at")
+    context = {
+        "doctor_profile": doctor_profile,
+        "notifications": notes,
+    }
+    return render(request, "doc_siddhartha/notifications.html", context)
+
+
+@doctor_required
+def mark_all_read(request):
+    if request.method == "POST":
+        Notification.objects.filter(recipient=request.user, is_read=False).update(is_read=True)
+    return redirect("doctor_siddhartha:notifications")
