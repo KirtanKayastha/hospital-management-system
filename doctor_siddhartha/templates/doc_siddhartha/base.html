@@ -118,7 +118,6 @@
         font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
         vertical-align: middle;
     }
-    /* Canonical elevation utilities. Legacy aliases kept so existing markup keeps working. */
     .shadow-sm,
     .custom-shadow-sm,
     .card-shadow { box-shadow: 0px 1px 2px 0px rgba(15, 23, 42, 0.05); }
@@ -131,18 +130,17 @@
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #c3c6d7; border-radius: 10px; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
 
-    /* Shared table styling per design system */
-    .hm-table thead th { background-color: #eceef0; }
-    .hm-table tbody tr:hover { background-color: #f2f4f6; }
+    .calendar-grid {
+        display: grid !important;
+        grid-template-columns: repeat(7, minmax(0, 1fr)) !important;
+    }
 
-    /* ---- Canonical status badge (design guide section 3.6) ---- */
     .hm-badge {
         display: inline-flex;
         align-items: center;
         gap: 6px;
-        padding: 4px 12px;
+        padding: 2px 10px;
         border-radius: 9999px;
         font-size: 12px;
         font-weight: 500;
@@ -158,15 +156,10 @@
         flex: none;
     }
     .hm-badge-none::before { display: none; }
-    /* Positive: Active / Confirmed / Completed / Approved / Paid */
     .hm-badge-success  { background: #6cf8bb; color: #00432a; }
-    /* Negative: Inactive / Cancelled / Rejected / Unpaid */
     .hm-badge-error    { background: #ffdad6; color: #93000a; }
-    /* Waiting: Pending */
     .hm-badge-pending  { background: #ffddb8; color: #653e00; }
-    /* Informational / in-progress */
     .hm-badge-info     { background: #dbe1ff; color: #003ea8; }
-    /* Unknown or fallback status */
     .hm-badge-neutral  { background: #eceef0; color: #434655; }
 </style>
 
@@ -174,19 +167,11 @@
 </head>
 
 <body class="bg-background text-on-surface font-body-md h-screen flex overflow-hidden">
-{% comment %}
-Profile data is read straight off request.user.doctor_profile so this base does
-not depend on which context key a view happens to use (doctor_dashboard/schedule/
-patients/prescription pass `doctor_profile`; edit_profile passes `profile`).
-Sidebar highlighting derives from the resolved URL name -- a child template's
-{% with %} cannot reach the parent, and no doctor view supplies `active_page`.
-{% endcomment %}
 {% with un=request.resolver_match.url_name %}
 
-<!-- ========== SIDEBAR (256px) ========== -->
 <aside class="hidden lg:flex flex-col w-64 h-screen sticky top-0 left-0 shrink-0 border-r border-outline-variant bg-surface-container-lowest shadow-sm">
 <div class="p-lg flex flex-col h-full">
-    <h1 class="font-headline-md text-headline-md font-bold text-primary mb-xl">MedCore Portal</h1>
+    <h1 class="font-headline-md text-headline-md font-bold text-primary mb-xl">HM System</h1>
 
     <div class="flex items-center gap-md mb-xl p-md rounded-xl bg-surface-container-low">
         {% if request.user.doctor_profile.profile_picture %}
@@ -242,7 +227,6 @@ Sidebar highlighting derives from the resolved URL name -- a child template's
 
 <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
 
-<!-- ========== NAVBAR (64px) ========== -->
 <header class="flex items-center justify-between px-lg h-16 shrink-0 sticky top-0 z-40 bg-surface-container-lowest border-b border-outline-variant">
     {% block topbar_left %}
     <form class="relative w-full max-w-md" method="get" action="{% url 'doctor_siddhartha:patients' %}">
@@ -252,8 +236,7 @@ Sidebar highlighting derives from the resolved URL name -- a child template's
     {% endblock %}
     <div class="flex items-center gap-md shrink-0 ml-lg">
         <span class="hidden lg:block font-headline-sm text-headline-sm text-on-surface">{% block page_title %}{% endblock %}</span>
-        <button type="button" class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container-high transition-all"><span class="material-symbols-outlined text-[22px]">notifications</span></button>
-        <a href="{% url 'doctor_siddhartha:edit_profile' %}" class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container-high transition-all"><span class="material-symbols-outlined text-[22px]">settings</span></a>
+        <a href="{% url 'doctor_siddhartha:notifications' %}" class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container-high transition-all"><span class="material-symbols-outlined text-[22px]">notifications</span></a>        <a href="{% url 'doctor_siddhartha:edit_profile' %}" class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container-high transition-all"><span class="material-symbols-outlined text-[22px]">settings</span></a>
         <div class="h-8 w-px bg-outline-variant mx-xs"></div>
         {% if request.user.doctor_profile.profile_picture %}
         <img src="{{ request.user.doctor_profile.profile_picture.url }}" alt="Profile" class="w-8 h-8 rounded-full object-cover shrink-0"/>

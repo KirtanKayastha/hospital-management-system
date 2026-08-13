@@ -125,6 +125,12 @@ cloudinary.config(
     api_secret="hXyaU0UMOtKJkWKOe8thURuP1P0",
 )
 
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': 'zozspvpq',
+    'API_KEY': '175215214824226',
+    'API_SECRET': 'hXyaU0UMOtKJkWKOe8thURuP1P0',
+}
+
 # ============ STORAGE BACKEND ============
 # Use Cloudinary for media files
 STORAGES = {
