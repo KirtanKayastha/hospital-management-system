@@ -52,10 +52,14 @@
 <div class="space-y-md">
     {% for doctor in doctors %}
     <div class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant hover:shadow-md transition-all cursor-pointer group active:scale-[0.98]">
-        <div class="flex gap-lg">
-            <div class="w-20 h-20 rounded-xl overflow-hidden bg-secondary-container flex items-center justify-center text-2xl font-bold text-on-secondary-container flex-shrink-0">
-                {{ doctor.initials }}
-            </div>
+    <div class="flex gap-lg">
+        <div class="w-20 h-20 rounded-xl overflow-hidden bg-secondary-container flex items-center justify-center text-2xl font-bold text-on-secondary-container flex-shrink-0">
+            {% if doctor.has_profile_picture %}
+            <img src="{{ doctor.profile_picture_url }}" alt="{{ doctor.name }}" class="w-full h-full object-cover"/>
+            {% else %}
+            {{ doctor.initials }}
+            {% endif %}
+        </div>
             <div class="flex-1">
                 <div class="flex justify-between items-start flex-wrap gap-sm">
                     <div>

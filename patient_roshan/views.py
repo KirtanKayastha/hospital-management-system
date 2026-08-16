@@ -54,8 +54,8 @@ def _doctor_card(profile):
         "available_days": available_days or "No regular availability set",
         "department_id": profile.department_id,
         "department_name": profile.department.name,
-        "has_profile_picture": False,
-        "profile_picture_url": "",
+        "has_profile_picture": bool(profile.profile_picture),
+        "profile_picture_url": profile.profile_picture.url if profile.profile_picture else "",
     }
 
 

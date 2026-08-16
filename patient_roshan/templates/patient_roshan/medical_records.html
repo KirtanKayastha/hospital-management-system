@@ -8,8 +8,12 @@
 {# Patient Summary Card #}
 <section class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden mb-xl">
     <div class="p-lg flex flex-col md:flex-row md:items-center gap-lg">
-        <div class="w-20 h-20 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-2xl flex-shrink-0">
+        <div class="w-20 h-20 rounded-xl overflow-hidden bg-primary flex items-center justify-center text-white font-bold text-2xl flex-shrink-0">
+            {% if patient.profile_picture %}
+            <img src="{{ patient.profile_picture.url }}" alt="Profile" class="w-full h-full object-cover"/>
+            {% else %}
             {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+            {% endif %}
         </div>
         <div class="flex-1 grid grid-cols-1 sm:grid-cols-3 gap-lg">
             <div>
@@ -79,8 +83,19 @@
                         </div>
                     </td>
                     <td class="px-lg py-md">
-                        <p class="font-body-md text-on-surface">{{ record.doctor_name }}</p>
-                        <p class="font-body-sm text-on-surface-variant">{{ record.doctor_specialization }}</p>
+                        <div class="flex items-center gap-sm">
+                            {% if record.doctor.doctor_profile.profile_picture %}
+                            <img src="{{ record.doctor.doctor_profile.profile_picture.url }}" alt="{{ record.doctor_name }}" class="w-8 h-8 rounded-full object-cover flex-shrink-0"/>
+                            {% else %}
+                            <div class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container text-xs font-bold flex-shrink-0">
+                                {{ record.doctor_name|first|upper }}
+                            </div>
+                            {% endif %}
+                            <div>
+                                <p class="font-body-md text-on-surface">{{ record.doctor_name }}</p>
+                                <p class="font-body-sm text-on-surface-variant">{{ record.doctor_specialization }}</p>
+                            </div>
+                        </div>
                     </td>
                     <td class="px-lg py-md">
                         <span class="px-sm py-xs rounded font-bold text-[12px]
@@ -118,7 +133,12 @@
                     <div>
                         <span class="font-label-sm text-label-sm text-primary uppercase tracking-wider">{{ record.department }}</span>
                         <h3 class="font-headline-sm text-headline-sm text-on-surface">{{ record.diagnosis }}</h3>
-                        <p class="font-body-sm text-on-surface-variant mt-xs">{{ record.date }} • {{ record.doctor_name }}</p>
+                        <div class="flex items-center gap-xs mt-xs">
+                            {% if record.doctor.doctor_profile.profile_picture %}
+                            <img src="{{ record.doctor.doctor_profile.profile_picture.url }}" alt="{{ record.doctor_name }}" class="w-5 h-5 rounded-full object-cover"/>
+                            {% endif %}
+                            <p class="font-body-sm text-on-surface-variant">{{ record.date }} • {{ record.doctor_name }}</p>
+                        </div>
                     </div>
                     <button class="bg-primary text-on-primary px-lg py-sm rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">View Details</button>
                 </div>
