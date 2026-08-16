@@ -113,4 +113,126 @@
         </div>
     </div>
 </section>
+
+<!-- Charts Section -->
+<section class="grid grid-cols-1 xl:grid-cols-2 gap-lg">
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant flex flex-col">
+        <div class="p-lg border-b border-outline-variant">
+            <h4 class="font-headline-sm text-headline-sm text-on-surface">Patient Registrations (Last 30 Days)</h4>
+            <p class="text-body-sm text-on-surface-variant">Daily new patient sign-ups</p>
+        </div>
+        <div class="p-lg flex-1 h-[300px]">
+            <canvas id="patientRegistrationsChart"></canvas>
+        </div>
+    </div>
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant flex flex-col">
+        <div class="p-lg border-b border-outline-variant">
+            <h4 class="font-headline-sm text-headline-sm text-on-surface">Appointment Status Distribution</h4>
+            <p class="text-body-sm text-on-surface-variant">Overall appointment breakdown</p>
+        </div>
+        <div class="p-lg flex-1 flex items-center justify-center h-[300px]">
+            <canvas id="appointmentStatusChart"></canvas>
+        </div>
+    </div>
+</section>
+<section class="grid grid-cols-1 gap-lg">
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant flex flex-col">
+        <div class="p-lg border-b border-outline-variant">
+            <h4 class="font-headline-sm text-headline-sm text-on-surface">Doctor Workload</h4>
+            <p class="text-body-sm text-on-surface-variant">Total appointments per doctor (top 10)</p>
+        </div>
+        <div class="p-lg flex-1 h-[300px]">
+            <canvas id="doctorWorkloadChart"></canvas>
+        </div>
+    </div>
+</section>
+
+{{ patient_registrations|json_script:"patient-registrations-data" }}
+{{ appointment_status_distribution|json_script:"appointment-status-data" }}
+{{ doctor_workload|json_script:"doctor-workload-data" }}
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+(function() {
+    const registrationsCtx = document.getElementById('patientRegistrationsChart');
+    if (registrationsCtx) {
+        const data = JSON.parse(document.getElementById('patient-registrations-data').textContent);
+        new Chart(registrationsCtx, {
+            type: 'bar',
+            data: {
+                labels: data.map(item => item.date),
+                datasets: [{
+                    label: 'New Patients',
+                    data: data.map(item => item.count),
+                    backgroundColor: '#004ac6',
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                    x: { ticks: { maxTicksLimit: 10, font: { size: 11 } } }
+                }
+            }
+        });
+    }
+
+    const statusCtx = document.getElementById('appointmentStatusChart');
+    if (statusCtx) {
+        const data = JSON.parse(document.getElementById('appointment-status-data').textContent);
+        new Chart(statusCtx, {
+            type: 'pie',
+            data: {
+                labels: data.map(item => item.status),
+                datasets: [{
+                    data: data.map(item => item.count),
+                    backgroundColor: ['#004ac6', '#006c49', '#784b00', '#ba1a1a'],
+                    borderWidth: 2,
+                    borderColor: '#ffffff',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 16, font: { size: 12 } } }
+                }
+            }
+        });
+    }
+
+    const workloadCtx = document.getElementById('doctorWorkloadChart');
+    if (workloadCtx) {
+        const data = JSON.parse(document.getElementById('doctor-workload-data').textContent);
+        new Chart(workloadCtx, {
+            type: 'bar',
+            data: {
+                labels: data.map(item => item.name),
+                datasets: [{
+                    label: 'Appointments',
+                    data: data.map(item => item.count),
+                    backgroundColor: '#004ac6',
+                    borderRadius: 6,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { beginAtZero: true, ticks: { stepSize: 1 } }
+                }
+            }
+        });
+    }
+})();
+</script>
 {% endblock %}

@@ -1,0 +1,65 @@
+{% extends 'patient_roshan/base.html' %}
+{% block title %}Invoices{% endblock %}
+{% block page_title %}Invoices{% endblock %}
+
+{% block content %}
+{% with active_page='invoices' %}
+
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-lg">
+    <div>
+        <h1 class="font-headline-lg text-headline-lg text-on-surface">Invoices</h1>
+        <p class="font-body-md text-on-surface-variant mt-xs">View and track your invoices.</p>
+    </div>
+</div>
+
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-surface-container border-b border-outline-variant">
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Invoice #</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Date</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Appointment</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Amount</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Due Date</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Status</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-outline-variant">
+                {% for invoice in invoices %}
+                <tr class="hover:bg-surface-container-low transition-colors">
+                    <td class="px-lg py-md font-body-sm text-on-surface font-medium">{{ invoice.invoice_number }}</td>
+                    <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ invoice.issued_on|date:"M d, Y" }}</td>
+                    <td class="px-lg py-md font-body-sm text-on-surface-variant">
+                        {% if invoice.appointment %}
+                            #APT-{{ invoice.appointment.id }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td class="px-lg py-md font-body-md font-semibold text-on-surface">Rs. {{ invoice.amount }}</td>
+                    <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ invoice.due_on|date:"M d, Y"|default:"—" }}</td>
+                    <td class="px-lg py-md">
+                        {% if invoice.status == 'Paid' %}
+                            <span class="hm-badge hm-badge-success">Paid</span>
+                        {% elif invoice.status == 'Unpaid' %}
+                            <span class="hm-badge hm-badge-pending">Unpaid</span>
+                        {% elif invoice.status == 'Void' %}
+                            <span class="hm-badge hm-badge-neutral">Void</span>
+                        {% else %}
+                            <span class="hm-badge hm-badge-neutral">{{ invoice.status }}</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr class="hover:bg-surface-container-low">
+                    <td colspan="6" class="px-lg py-xl text-center font-body-sm text-on-surface-variant">No invoices found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+
+{% endwith %}
+{% endblock %}

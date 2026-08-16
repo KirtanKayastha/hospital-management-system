@@ -23,6 +23,7 @@
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Status</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Ordered On</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Result</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant text-right">Actions</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-outline-variant">
@@ -42,18 +43,25 @@
                             <span class="hm-badge hm-badge-neutral">{{ report.status }}</span>
                         {% endif %}
                     </td>
-                    <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ report.display_date }}</td>
+                    <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ report.ordered_date|date:"M d, Y" }}</td>
                     <td class="px-lg py-md font-body-sm">
-                        {% if report.report_url %}
-                            <a href="{{ report.report_url }}" target="_blank" class="text-primary hover:underline font-medium">View Report</a>
+                        {% if report.report_file %}
+                            <a href="{{ report.report_file.url }}" target="_blank" class="text-primary hover:underline font-medium">View Report</a>
                         {% else %}
                             <span class="text-on-surface-variant">—</span>
                         {% endif %}
                     </td>
+                    <td class="px-lg py-md text-right">
+                        <button type="button"
+                            class="px-md py-xs border border-outline-variant rounded-lg font-label-sm hover:bg-surface-container text-on-surface-variant transition-colors"
+                            onclick="openLabReportModal('{{ report.id }}', '{{ report.status }}', '{{ report.summary|escapejs }}', '{{ report.result_date|date:'Y-m-d' }}')">
+                            Update
+                        </button>
+                    </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6" class="px-lg py-xl text-center text-on-surface-variant font-body-sm">No lab reports found.</td>
+                    <td colspan="7" class="px-lg py-xl text-center text-on-surface-variant font-body-sm">No lab reports found.</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -68,4 +76,60 @@
 {% endif %}
 
 </div>
+{% endblock %}
+
+{% block modals %}
+<div class="fixed inset-0 z-[100] hidden" id="lab-report-modal">
+    <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="document.getElementById('lab-report-modal').classList.add('hidden')"></div>
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl card-shadow overflow-hidden max-h-[90vh] overflow-y-auto">
+        <form method="post" action="{% url 'doctor_siddhartha:lab_reports' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="report_id" id="modal-report-id"/>
+            <div class="p-lg border-b border-outline-variant flex items-center justify-between bg-surface-container-lowest">
+                <h3 class="font-headline-sm text-headline-sm">Update Lab Report</h3>
+                <button type="button" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high rounded-full p-1" onclick="document.getElementById('lab-report-modal').classList.add('hidden')">close</button>
+            </div>
+            <div class="p-lg space-y-md">
+                <div>
+                    <label class="block font-label-md text-on-surface-variant mb-xs">Status</label>
+                    <select name="status" id="modal-status" class="w-full border border-outline-variant rounded-lg p-md">
+                        <option value="Pending">Pending</option>
+                        <option value="In Review">In Review</option>
+                        <option value="Ready">Ready</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-label-md text-on-surface-variant mb-xs">Result Date</label>
+                    <input type="date" name="result_date" id="modal-result-date" class="w-full border border-outline-variant rounded-lg p-md"/>
+                </div>
+                <div>
+                    <label class="block font-label-md text-on-surface-variant mb-xs">Report File (PDF / Image)</label>
+                    <input type="file" name="report_file" accept=".pdf,image/*" class="w-full border border-outline-variant rounded-lg p-md"/>
+                    <p class="text-xs text-on-surface-variant mt-xs">Upload a new file to replace the existing one.</p>
+                </div>
+                <div>
+                    <label class="block font-label-md text-on-surface-variant mb-xs">Summary / Findings</label>
+                    <textarea name="summary" id="modal-summary" rows="3" class="w-full border border-outline-variant rounded-lg p-md"></textarea>
+                </div>
+            </div>
+            <div class="p-lg bg-surface-container-low border-t border-outline-variant flex justify-end gap-md">
+                <button type="button" class="px-6 py-2 border border-outline-variant rounded-lg font-bold hover:bg-white transition-colors" onclick="document.getElementById('lab-report-modal').classList.add('hidden')">Cancel</button>
+                <button type="submit" class="px-8 py-2 bg-primary text-white rounded-lg font-bold transition-transform active:scale-95">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openLabReportModal(id, status, summary, resultDate) {
+    const modal = document.getElementById('lab-report-modal');
+    document.getElementById('modal-report-id').value = id;
+    document.getElementById('modal-status').value = status;
+    document.getElementById('modal-summary').value = summary || '';
+    document.getElementById('modal-result-date').value = resultDate || '';
+    modal.classList.remove('hidden');
+}
+</script>
 {% endblock %}

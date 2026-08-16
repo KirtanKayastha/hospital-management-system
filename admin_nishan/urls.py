@@ -56,6 +56,7 @@ path(
     path("accounts/", views.admin_accounts, name="admin_accounts"),
     path("accounts/delete/<int:user_id>/", views.delete_account, name="delete_account"),
     path("reports/", views.admin_reports, name="admin_reports"),
+    path("billing/", views.admin_billing, name="admin_billing"),
 
  
 

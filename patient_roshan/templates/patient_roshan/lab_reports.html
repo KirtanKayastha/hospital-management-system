@@ -20,6 +20,7 @@
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Date</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Test</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Ordered By</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Lab</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Status</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant text-right">Report</th>
                 </tr>
@@ -28,23 +29,34 @@
                 {% for report in lab_reports %}
                 <tr class="hover:bg-surface-container-low transition-colors">
                     <td class="px-lg py-md">
-                        <p class="font-label-md text-on-surface">{{ report.date }}</p>
-                        <p class="text-xs text-on-surface-variant">{{ report.lab_name }}</p>
+                        <p class="font-label-md text-on-surface">{{ report.ordered_date|date:"M d, Y" }}</p>
+                        {% if report.result_date %}
+                        <p class="text-xs text-on-surface-variant">Result: {{ report.result_date|date:"M d, Y" }}</p>
+                        {% endif %}
                     </td>
                     <td class="px-lg py-md font-body-md font-semibold text-on-surface">{{ report.test_name }}</td>
-                    <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ report.ordered_by }}</td>
+                    <td class="px-lg py-md font-body-sm text-on-surface-variant">
+                        {% if report.doctor %}
+                            Dr. {{ report.doctor.get_full_name|default:report.doctor.username }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ report.lab_name }}</td>
                     <td class="px-lg py-md">
                         {% if report.status == 'Ready' %}
                             <span class="hm-badge hm-badge-success">Ready</span>
                         {% elif report.status == 'Pending' %}
                             <span class="hm-badge hm-badge-pending">Pending</span>
+                        {% elif report.status == 'In Review' %}
+                            <span class="hm-badge hm-badge-info">In Review</span>
                         {% else %}
                             <span class="hm-badge hm-badge-neutral">{{ report.status }}</span>
                         {% endif %}
                     </td>
                     <td class="px-lg py-md text-right">
-                        {% if report.status == 'Ready' %}
-                            <a href="{{ report.file_url }}" class="px-md py-xs border border-outline-variant rounded-lg font-label-sm hover:bg-surface-container text-on-surface-variant transition-colors" download>
+                        {% if report.report_file %}
+                            <a href="{{ report.report_file.url }}" class="px-md py-xs border border-outline-variant rounded-lg font-label-sm hover:bg-surface-container text-on-surface-variant transition-colors" download>
                                 Download
                             </a>
                         {% else %}
@@ -54,7 +66,7 @@
                 </tr>
                 {% empty %}
                 <tr class="hover:bg-surface-container-low">
-                    <td colspan="5" class="px-lg py-xl text-center font-body-sm text-on-surface-variant">No lab reports available.</td>
+                    <td colspan="6" class="px-lg py-xl text-center font-body-sm text-on-surface-variant">No lab reports available.</td>
                 </tr>
                 {% endfor %}
             </tbody>

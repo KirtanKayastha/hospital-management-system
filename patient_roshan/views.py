@@ -489,7 +489,7 @@ def lab_reports(request):
     context = {
         "active_page": "labreports",
         "patient": _patient_profile(request.user),
-        "lab_reports": LabReport.objects.filter(patient=request.user).select_related("doctor", "appointment").order_by("-ordered_on", "-created_at"),
+        "lab_reports": LabReport.objects.filter(patient=request.user).select_related("doctor").order_by("-ordered_date", "-created_at"),
     }
     return render(request, "patient_roshan/lab_reports.html", context)
 
@@ -598,6 +598,17 @@ def billing(request):
         'pending_count': pending_count,
     }
     return render(request, 'patient_roshan/billing.html', context)
+
+
+@patient_required
+def invoices(request):
+    invoices_qs = BillingInvoice.objects.filter(patient=request.user).order_by('-issued_on', '-created_at')
+    context = {
+        'active_page': 'invoices',
+        'patient': _patient_profile(request.user),
+        'invoices': invoices_qs,
+    }
+    return render(request, 'patient_roshan/invoices.html', context)
 
 
 # ─── MESSAGES ────────────────────────────────────────────────────────────────

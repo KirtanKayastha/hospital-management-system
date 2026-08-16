@@ -3,6 +3,7 @@ from datetime import timedelta
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Count, Sum
+from django.db.models.functions import TruncDate
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from .forms import PatientForm, DoctorForm
@@ -76,6 +77,46 @@ def admin_dashboard(request):
         or 0
     )
 
+    start_30 = today - timedelta(days=29)
+    raw_registrations = (
+        PatientProfile.objects.filter(user__date_joined__date__gte=start_30)
+        .annotate(day=TruncDate("user__date_joined"))
+        .values("day")
+        .annotate(count=Count("id"))
+        .order_by("day")
+    )
+    reg_map = {item["day"]: item["count"] for item in raw_registrations}
+    patient_registrations = []
+    for i in range(29, -1, -1):
+        d = today - timedelta(days=i)
+        patient_registrations.append(
+            {"date": d.strftime("%b %d"), "count": reg_map.get(d, 0)}
+        )
+
+    status_qs = (
+        Appointment.objects.values("status")
+        .annotate(count=Count("id"))
+        .order_by("status")
+    )
+    status_labels = {
+        Appointment.STATUS_PENDING: "Pending",
+        Appointment.STATUS_CONFIRMED: "Confirmed",
+        Appointment.STATUS_COMPLETED: "Completed",
+        Appointment.STATUS_CANCELLED: "Cancelled",
+    }
+    appointment_status_distribution = [
+        {"status": status_labels.get(item["status"], item["status"]), "count": item["count"]}
+        for item in status_qs
+    ]
+
+    doctor_workload = list(
+        Appointment.objects.values("doctor__first_name", "doctor__last_name")
+        .annotate(count=Count("id"))
+        .order_by("-count")[:10]
+    )
+    for item in doctor_workload:
+        item["name"] = f"{item.pop('doctor__first_name')} {item.pop('doctor__last_name')}".strip()
+
     context = {
         "active_page": "dashboard",
         "total_patients": PatientProfile.objects.count(),
@@ -94,6 +135,9 @@ def admin_dashboard(request):
         "total_revenue": total_revenue,
         "weekly_appointments": weekly_appointments,
         "recent_activity": recent_activity,
+        "patient_registrations": patient_registrations,
+        "appointment_status_distribution": appointment_status_distribution,
+        "doctor_workload": doctor_workload,
     }
     return render(request, "admin_dashboard.html", context)
 
@@ -409,3 +453,31 @@ def delete_patient(request, patient_id):
 
     messages.success(request, "Patient deleted successfully.")
     return redirect("admin_nishan:admin_manage_patients")
+
+
+@admin_required
+def admin_billing(request):
+    invoices = BillingInvoice.objects.select_related("patient", "appointment").order_by("-issued_on", "-created_at")
+    status_filter = request.GET.get("status", "")
+    if status_filter:
+        invoices = invoices.filter(status=status_filter)
+
+    if request.method == "POST":
+        invoice_id = request.POST.get("invoice_id")
+        invoice = get_object_or_404(BillingInvoice, pk=invoice_id)
+        new_status = request.POST.get("status")
+        if new_status in dict(BillingInvoice.STATUS_CHOICES):
+            invoice.status = new_status
+            if new_status == BillingInvoice.STATUS_PAID:
+                invoice.paid_on = timezone.localdate()
+            invoice.save(update_fields=["status", "paid_on"])
+            messages.success(request, f"Invoice {invoice.invoice_number} updated.")
+        return redirect("admin_nishan:admin_billing")
+
+    context = {
+        "active_page": "billing",
+        "invoices": invoices,
+        "status_filter": status_filter,
+        "status_choices": BillingInvoice.STATUS_CHOICES,
+    }
+    return render(request, "admin_nishan/admin_billing.html", context)

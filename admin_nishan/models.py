@@ -283,73 +283,7 @@ class PrescriptionItem(models.Model):
 		ordering = ["id"]
 
 	def __str__(self):
-		return self.medicine_name
-
-
-class LabReport(models.Model):
-	STATUS_PENDING = "Pending"
-	STATUS_READY = "Ready"
-	STATUS_REVIEW = "In Review"
-
-	STATUS_CHOICES = [
-		(STATUS_PENDING, "Pending"),
-		(STATUS_READY, "Ready"),
-		(STATUS_REVIEW, "In Review"),
-	]
-
-	patient = models.ForeignKey(
-		settings.AUTH_USER_MODEL,
-		on_delete=models.CASCADE,
-		related_name="lab_reports",
-	)
-	doctor = models.ForeignKey(
-		settings.AUTH_USER_MODEL,
-		on_delete=models.SET_NULL,
-		null=True,
-		blank=True,
-		related_name="ordered_lab_reports",
-	)
-	appointment = models.ForeignKey(
-		Appointment,
-		on_delete=models.SET_NULL,
-		null=True,
-		blank=True,
-		related_name="lab_reports",
-	)
-	test_name = models.CharField(max_length=160)
-	lab_name = models.CharField(max_length=160)
-	ordered_on = models.DateField()
-	result_date = models.DateField(null=True, blank=True)
-	status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
-	report_url = models.URLField(blank=True)
-	summary = models.TextField(blank=True)
-	created_at = models.DateTimeField(auto_now_add=True)
-
-	class Meta:
-		ordering = ["-ordered_on", "-created_at"]
-
-	def __str__(self):
-		return f"{self.test_name} - {self.patient.username}"
-
-	@property
-	def file_link(self):
-		return self.report_url
-
-	@property
-	def display_date(self):
-		return self.ordered_on.strftime("%b %d, %Y")
-
-	@property
-	def date(self):
-		return self.display_date
-
-	@property
-	def file_url(self):
-		return self.report_url
-
-	@property
-	def ordered_by(self):
-		return self.doctor.get_full_name() if self.doctor else "Unknown"
+		return self.title
 
 
 class BillingInvoice(models.Model):
@@ -468,3 +402,50 @@ class Notification(models.Model):
 
 	def __str__(self):
 		return self.title
+
+
+class LabReport(models.Model):
+	STATUS_PENDING = "Pending"
+	STATUS_READY = "Ready"
+	STATUS_IN_REVIEW = "In Review"
+
+	STATUS_CHOICES = [
+		(STATUS_PENDING, "Pending"),
+		(STATUS_READY, "Ready"),
+		(STATUS_IN_REVIEW, "In Review"),
+	]
+
+	patient = models.ForeignKey(
+		settings.AUTH_USER_MODEL,
+		on_delete=models.CASCADE,
+		related_name="lab_reports",
+	)
+	doctor = models.ForeignKey(
+		settings.AUTH_USER_MODEL,
+		on_delete=models.SET_NULL,
+		null=True,
+		blank=True,
+		related_name="ordered_lab_reports",
+	)
+	test_name = models.CharField(max_length=200)
+	lab_name = models.CharField(max_length=200)
+	ordered_date = models.DateField()
+	result_date = models.DateField(null=True, blank=True)
+	status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
+	report_file = models.FileField(upload_to="lab_reports/", null=True, blank=True)
+	summary = models.TextField(blank=True)
+	created_at = models.DateTimeField(auto_now_add=True)
+
+	class Meta:
+		ordering = ["-ordered_date", "-created_at"]
+
+	def __str__(self):
+		return f"{self.test_name} - {self.patient.get_full_name() or self.patient.username}"
+
+	@property
+	def display_date(self):
+		return self.ordered_date.strftime("%b %d, %Y")
+
+	@property
+	def report_url(self):
+		return self.report_file.url if self.report_file else None

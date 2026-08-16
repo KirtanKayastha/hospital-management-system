@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from admin_nishan.models import (
     Appointment,
+    BillingInvoice,
     Department,
     DoctorAvailability,
     LabReport,
@@ -97,6 +98,16 @@ def approve_appointment(request, appointment_id):
         f"{appointment.display_date} at {appointment.display_time}.",
         appointment=appointment,
     )
+    if not BillingInvoice.objects.filter(appointment=appointment).exists():
+        BillingInvoice.objects.create(
+            patient=appointment.patient,
+            appointment=appointment,
+            invoice_number=f"INV-{appointment.id:06d}",
+            amount=appointment.doctor.doctor_profile.consultation_fee or 0,
+            status=BillingInvoice.STATUS_UNPAID,
+            issued_on=timezone.localdate(),
+            due_on=timezone.localdate() + timedelta(days=7),
+        )
     messages.success(request, f"Appointment with {appointment.patient_name} has been confirmed.")
     return redirect("doctor_siddhartha:dashboard")
 
@@ -520,10 +531,25 @@ def medical_records(request):
 @doctor_required
 def lab_reports(request):
     doctor_profile = _doctor_profile(request.user)
-    reports = LabReport.objects.filter(doctor=request.user).select_related("patient").order_by("-ordered_on", "-created_at")
+    reports = LabReport.objects.filter(doctor=request.user).select_related("patient").order_by("-ordered_date", "-created_at")
     patient_id = request.GET.get("patient")
     if patient_id:
         reports = reports.filter(patient_id=patient_id)
+
+    if request.method == "POST":
+        report_id = request.POST.get("report_id")
+        report = get_object_or_404(LabReport, pk=report_id, doctor=request.user)
+        report.status = request.POST.get("status", report.status)
+        report.summary = request.POST.get("summary", report.summary)
+        if request.FILES.get("report_file"):
+            report.report_file = request.FILES["report_file"]
+        result_date = request.POST.get("result_date")
+        if result_date:
+            report.result_date = result_date
+        report.save(update_fields=["status", "summary", "report_file", "result_date"])
+        messages.success(request, "Lab report updated successfully.")
+        return redirect("doctor_siddhartha:lab_reports")
+
     context = {
         "doctor_profile": doctor_profile,
         "reports": reports,
