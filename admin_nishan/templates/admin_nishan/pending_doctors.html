@@ -17,8 +17,8 @@
 <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
-            <thead class="bg-surface-container-low border-b border-outline-variant">
-                <tr>
+            <thead class="bg-surface-container border-b border-outline-variant">
+                <tr class="bg-surface-container">
                     <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Doctor</th>
                     <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Email</th>
                     <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Specialty</th>
@@ -32,9 +32,18 @@
                 <tr class="hover:bg-surface-container-low transition-colors">
                     <td class="px-lg py-lg">
                         <div class="flex items-center gap-md">
+                            {% if doctor.profile_picture %}
+
+                            <img src="{{ doctor.profile_picture.url }}" alt="Dr. {{ doctor.display_name }}" class="w-10 h-10 rounded-full object-cover shrink-0"/>
+
+                            {% else %}
+
                             <div class="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold">
                                 {{ doctor.display_name|first|upper }}
                             </div>
+
+                            {% endif %}
+
                             <div>
                                 <p class="font-label-md text-label-md text-on-surface">Dr. {{ doctor.display_name }}</p>
                                 <p class="text-label-sm text-on-surface-variant">{{ doctor.user.email|default:"—" }}</p>
@@ -61,7 +70,7 @@
                     </td>
                 </tr>
                 {% empty %}
-                <tr>
+                <tr class="hover:bg-surface-container-low">
                     <td colspan="6" class="px-lg py-xl text-center">
                         <span class="material-symbols-outlined text-4xl text-on-surface-variant">fact_check</span>
                         <p class="font-body-md text-on-surface mt-md">No pending doctor approvals</p>

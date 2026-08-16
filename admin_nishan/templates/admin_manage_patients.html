@@ -19,12 +19,37 @@
 <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
 
     <div class="overflow-x-auto">
+              <div class="mb-6">
+    <form method="GET" class="flex items-center gap-3 mt-4 ml-2">
+
+        <input
+            type="text"
+            name="search"
+            value="{{ search }}"
+            placeholder="Search by name, email or phone..."
+            class="w-full md:w-96 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+
+        <button
+            type="submit"
+            class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+
+            <span class="material-symbols-outlined text-sm">
+                search
+            </span>
+
+            Search
+
+        </button>
+
+    </form>
+</div>
 
         <table class="w-full text-left border-collapse">
 
-            <thead class="bg-surface-container-low border-b border-outline-variant">
+            <thead class="bg-surface-container border-b border-outline-variant">
 
-                <tr>
+                <tr class="bg-surface-container">
                     <th class="px-lg py-md">ID</th>
                     <th class="px-lg py-md">Patient</th>
                     <th class="px-lg py-md">Email</th>
@@ -50,11 +75,19 @@
 
                         <div class="flex items-center gap-3">
 
+                            {% if profile.profile_picture %}
+
+                            <img src="{{ profile.profile_picture.url }}" alt="{{ profile.user.get_full_name|default:profile.user.username }}" class="w-10 h-10 rounded-full object-cover shrink-0"/>
+
+                            {% else %}
+
                             <div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center font-bold">
 
                                 {{ profile.user.first_name|first|upper }}{{ profile.user.last_name|first|upper }}
 
                             </div>
+
+                            {% endif %}
 
                             <div>
 
@@ -113,9 +146,9 @@
         </a>
 
         <a href="{% url 'admin_nishan:change_patient_password' profile.id %}"
-           class="text-center px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
-            Password
-        </a>
+   class="px-4 py-2 min-w-[100px] text-center bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
+    Password
+</a>
 
         {% if profile.user.is_active %}
             <a href="{% url 'admin_nishan:disable_patient' profile.id %}"
@@ -142,7 +175,7 @@
 
             {% empty %}
 
-                <tr>
+                <tr class="hover:bg-surface-container-low">
 
                     <td colspan="7" class="text-center py-10">
 

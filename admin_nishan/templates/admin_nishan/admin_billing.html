@@ -1,0 +1,87 @@
+{% extends 'admin_nishan/base.html' %}
+{% block title %}Billing{% endblock %}
+{% block page_title %}Invoice Management{% endblock %}
+
+{% block content %}
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-md mb-lg">
+    <div>
+        <h2 class="font-headline-lg text-headline-lg text-on-surface">Invoices</h2>
+        <p class="font-body-md text-on-surface-variant mt-xs">Manage patient invoices and payments.</p>
+    </div>
+</div>
+
+<section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+    <div class="px-lg py-md border-b border-outline-variant flex flex-col sm:flex-row sm:items-center justify-between gap-md">
+        <h3 class="font-headline-sm text-headline-sm text-on-surface">All Invoices</h3>
+        <form method="get" class="flex items-center gap-sm">
+            <select name="status" onchange="this.form.submit()" class="bg-white border border-outline-variant rounded-lg px-md py-sm font-body-md text-body-md">
+                <option value="">All Statuses</option>
+                {% for value, label in status_choices %}
+                <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </form>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+            <thead>
+                <tr class="bg-surface-container border-b border-outline-variant">
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Invoice #</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Patient</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Appointment</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Amount</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Issued</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Due</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant">Status</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-outline-variant">
+                {% for invoice in invoices %}
+                <tr class="hover:bg-surface-container-low transition-colors">
+                    <td class="px-lg py-md font-body-sm text-on-surface font-medium">{{ invoice.invoice_number }}</td>
+                    <td class="px-lg py-md font-body-sm text-on-surface">{{ invoice.patient.get_full_name|default:invoice.patient.username }}</td>
+                    <td class="px-lg py-md font-body-sm text-on-surface-variant">
+                        {% if invoice.appointment %}
+                            #APT-{{ invoice.appointment.id }}
+                        {% else %}
+                            —
+                        {% endif %}
+                    </td>
+                    <td class="px-lg py-md font-body-md font-semibold text-on-surface">Rs. {{ invoice.amount }}</td>
+                    <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ invoice.issued_on|date:"M d, Y" }}</td>
+                    <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ invoice.due_on|date:"M d, Y"|default:"—" }}</td>
+                    <td class="px-lg py-md">
+                        {% if invoice.status == 'Paid' %}
+                            <span class="hm-badge hm-badge-success">Paid</span>
+                        {% elif invoice.status == 'Unpaid' %}
+                            <span class="hm-badge hm-badge-pending">Unpaid</span>
+                        {% elif invoice.status == 'Void' %}
+                            <span class="hm-badge hm-badge-neutral">Void</span>
+                        {% else %}
+                            <span class="hm-badge hm-badge-neutral">{{ invoice.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-lg py-md text-right">
+                        <form method="post" class="inline-flex items-center gap-sm">
+                            {% csrf_token %}
+                            <input type="hidden" name="invoice_id" value="{{ invoice.id }}"/>
+                            <select name="status" class="border border-outline-variant rounded-lg px-sm py-xs font-body-sm text-body-sm bg-white">
+                                {% for value, label in status_choices %}
+                                <option value="{{ value }}" {% if invoice.status == value %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="px-md py-xs bg-primary text-white rounded-lg font-label-sm hover:opacity-90 transition-opacity">Save</button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="px-lg py-xl text-center text-on-surface-variant font-body-sm">No invoices found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}
