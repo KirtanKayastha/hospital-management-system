@@ -335,6 +335,9 @@ def edit_medical_record(request, record_id):
             action_url="/patient/records/",
         )
         messages.success(request, "Medical record updated.")
+
+        if request.POST.get("next") == "medical_records":
+            return redirect("doctor_siddhartha:medical_records")
     return redirect(f"/doctor/patients/?patient={record.patient_id}")
 
 
@@ -471,8 +474,13 @@ def edit_profile(request):
         profile.phone = request.POST.get("phone") or profile.phone
         profile.experience_years = int(request.POST.get("experience_years") or 0)
         profile.bio = (request.POST.get("bio") or "").strip()
-        if request.FILES.get("profile_picture"):
+
+        if request.POST.get("remove_picture") == "1":
+            profile.profile_picture.delete(save=False)
+            profile.profile_picture = None
+        elif request.FILES.get("profile_picture"):
             profile.profile_picture = request.FILES["profile_picture"]
+
         profile.save()
 
         messages.success(request, "Profile updated successfully.")
@@ -493,10 +501,18 @@ def medical_records(request):
     patient_id = request.GET.get("patient")
     if patient_id:
         records = records.filter(patient_id=patient_id)
+
+    editing_record = None
+    edit_record_id = request.GET.get("edit_record")
+    if edit_record_id:
+        editing_record = MedicalRecord.objects.filter(pk=edit_record_id, doctor=request.user).first()
+
     context = {
         "doctor_profile": doctor_profile,
         "records": records,
         "selected_patient_id": patient_id,
+        "editing_record": editing_record,
+        "status_choices": MedicalRecord.STATUS_CHOICES,
     }
     return render(request, "doc_siddhartha/medical_records.html", context)
 
