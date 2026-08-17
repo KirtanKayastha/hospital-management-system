@@ -9,7 +9,6 @@ from admin_nishan.models import (
     Appointment,
     Department,
     DoctorAvailability,
-    LabReport,
     MedicalRecord,
     Notification,
     Prescription,
@@ -515,22 +514,6 @@ def medical_records(request):
         "status_choices": MedicalRecord.STATUS_CHOICES,
     }
     return render(request, "doc_siddhartha/medical_records.html", context)
-
-
-@doctor_required
-def lab_reports(request):
-    doctor_profile = _doctor_profile(request.user)
-    reports = LabReport.objects.filter(doctor=request.user).select_related("patient").order_by("-ordered_on", "-created_at")
-    patient_id = request.GET.get("patient")
-    if patient_id:
-        reports = reports.filter(patient_id=patient_id)
-    context = {
-        "doctor_profile": doctor_profile,
-        "reports": reports,
-        "selected_patient_id": patient_id,
-    }
-    return render(request, "doc_siddhartha/lab_reports.html", context)
-
 
 @doctor_required
 def notifications(request):

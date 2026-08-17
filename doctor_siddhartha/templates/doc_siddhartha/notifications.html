@@ -6,13 +6,13 @@
 
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
     <div>
-        <h2 class="font-headline-lg text-headline-lg text-on-surface">Notifications</h2>
-        <p class="text-on-surface-variant font-body-md">Appointment requests and patient activity.</p>
+        <h2 class="font-headline-lg text-[22px] md:text-headline-lg text-on-surface">Notifications</h2>
+        <p class="text-on-surface-variant font-body-md text-sm md:text-base">Appointment requests and patient activity.</p>
     </div>
     {% if notifications %}
-    <form method="POST" action="{% url 'doctor_siddhartha:mark_all_read' %}">
+    <form method="POST" action="{% url 'doctor_siddhartha:mark_all_read' %}" class="w-full md:w-auto">
         {% csrf_token %}
-        <button type="submit" class="border border-outline-variant text-on-surface py-sm px-md rounded-lg font-label-md text-label-md hover:bg-surface-container transition-colors">
+        <button type="submit" class="w-full md:w-auto border border-outline-variant text-on-surface py-sm px-md rounded-lg font-label-md text-label-md hover:bg-surface-container transition-colors">
             Mark all read
         </button>
     </form>
@@ -21,7 +21,7 @@
 
 <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden divide-y divide-outline-variant">
     {% for notification in notifications %}
-    <div class="px-lg py-md flex gap-md items-start hover:bg-surface-container-low transition-colors">
+    <div class="px-md md:px-lg py-md flex gap-md items-start hover:bg-surface-container-low transition-colors">
         <span class="w-2 h-2 rounded-full mt-2 flex-shrink-0 {% if notification.is_read %}bg-outline-variant{% else %}bg-primary{% endif %}"></span>
         <div class="flex-1 min-w-0">
             <p class="font-body-md text-body-md {% if notification.is_read %}text-on-surface-variant{% else %}text-on-surface font-medium{% endif %}">

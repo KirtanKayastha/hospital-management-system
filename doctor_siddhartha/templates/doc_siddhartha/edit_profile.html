@@ -5,8 +5,8 @@
 <div class="max-w-2xl mx-auto space-y-lg pb-xxl">
 
 <div class="mb-lg">
-    <h1 class="font-headline-lg text-headline-lg text-on-surface">Edit Profile</h1>
-    <p class="text-on-surface-variant text-body-md mt-xs">Update your personal and professional information.</p>
+    <h1 class="font-headline-lg text-[22px] md:text-headline-lg text-on-surface">Edit Profile</h1>
+    <p class="text-on-surface-variant text-sm md:text-body-md mt-xs">Update your personal and professional information.</p>
 </div>
 
 {% if messages %}
@@ -25,13 +25,12 @@
     {% csrf_token %}
     <div class="space-y-lg">
 
-        <!-- Personal Information -->
         <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
-            <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
-                <h3 class="font-headline-sm text-headline-sm text-on-surface">Personal Information</h3>
+            <div class="px-md md:px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+                <h3 class="font-headline-sm text-base md:text-headline-sm text-on-surface">Personal Information</h3>
                 <span class="material-symbols-outlined text-on-surface-variant">person</span>
             </div>
-            <div class="p-lg grid grid-cols-1 md:grid-cols-2 gap-lg">
+            <div class="p-md md:p-lg grid grid-cols-1 md:grid-cols-2 gap-md md:gap-lg">
                 <div>
                     <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">First Name</label>
                     <input type="text" name="first_name" value="{{ user.first_name|default:'' }}"
@@ -50,13 +49,12 @@
             </div>
         </div>
 
-        <!-- Professional Information -->
         <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
-            <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
-                <h3 class="font-headline-sm text-headline-sm text-on-surface">Professional Information</h3>
+            <div class="px-md md:px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+                <h3 class="font-headline-sm text-base md:text-headline-sm text-on-surface">Professional Information</h3>
                 <span class="material-symbols-outlined text-on-surface-variant">medical_services</span>
             </div>
-            <div class="p-lg grid grid-cols-1 md:grid-cols-2 gap-lg">
+            <div class="p-md md:p-lg grid grid-cols-1 md:grid-cols-2 gap-md md:gap-lg">
                 <div>
                     <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Specialization</label>
                     <input type="text" name="specialization" value="{{ profile.specialization|default:'' }}"
@@ -78,7 +76,7 @@
                     <input type="number" name="experience_years" value="{{ profile.experience_years|default:0 }}" min="0" max="50"
                         class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md"/>
                 </div>
-                <div>
+                <div class="md:col-span-2">
                     <label class="block font-label-md text-label-md text-on-surface-variant mb-xs">Department</label>
                     <select name="department_id"
                         class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md">
@@ -90,27 +88,25 @@
             </div>
         </div>
 
-        <!-- Bio -->
         <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
-            <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
-                <h3 class="font-headline-sm text-headline-sm text-on-surface">Bio / About</h3>
+            <div class="px-md md:px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+                <h3 class="font-headline-sm text-base md:text-headline-sm text-on-surface">Bio / About</h3>
                 <span class="material-symbols-outlined text-on-surface-variant">description</span>
             </div>
-            <div class="p-lg">
+            <div class="p-md md:p-lg">
                 <textarea name="bio" rows="4"
                     class="w-full px-md py-sm bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all font-body-md text-body-md resize-none"
                     placeholder="Tell patients about yourself, your approach, and your qualifications...">{{ profile.bio|default:'' }}</textarea>
             </div>
         </div>
 
-        <!-- Profile Picture -->
         <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
-            <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
-                <h3 class="font-headline-sm text-headline-sm text-on-surface">Profile Picture</h3>
+            <div class="px-md md:px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+                <h3 class="font-headline-sm text-base md:text-headline-sm text-on-surface">Profile Picture</h3>
                 <span class="material-symbols-outlined text-on-surface-variant">photo_camera</span>
             </div>
-            <div class="p-lg flex items-center gap-lg">
-                <div class="relative">
+            <div class="p-md md:p-lg flex flex-col sm:flex-row items-center gap-lg text-center sm:text-left">
+                <div class="relative shrink-0">
                     {% if profile.profile_picture %}
                     <img src="{{ profile.profile_picture.url }}" alt="Profile"
                         class="w-20 h-20 rounded-xl object-cover border-2 border-outline-variant"/>
@@ -128,12 +124,11 @@
                 <div>
                     <p class="font-body-md text-body-md text-on-surface">Upload a new profile picture</p>
                     <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">JPG, PNG or GIF. Max 2MB.</p>
-                    <input type="file" name="profile_picture" accept="image/*" class="mt-sm font-body-md text-body-md"/>
+                    <input type="file" name="profile_picture" accept="image/*" class="mt-sm font-body-md text-body-md text-sm"/>
                 </div>
             </div>
         </div>
 
-        <!-- Actions -->
         <div class="flex flex-col gap-sm pt-md border-t border-outline-variant mt-md">
             <button type="submit" class="w-full bg-primary text-white py-md rounded-lg font-label-md text-label-md hover:opacity-90 active:scale-[0.99] transition-all shadow-md">
                 Save Changes
