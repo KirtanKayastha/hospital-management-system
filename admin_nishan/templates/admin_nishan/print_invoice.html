@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice {{ invoice.invoice_number }}</title>
+</head>
+<body onload="window.print()">
+
+    <h1>Hospital Invoice</h1>
+    <hr>
+
+    <p><strong>Invoice No:</strong> {{ invoice.invoice_number }}</p>
+    <p><strong>Patient:</strong> {{ invoice.patient.user.get_full_name }}</p>
+    <p><strong>Amount:</strong> Rs. {{ invoice.amount }}</p>
+    <p><strong>Status:</strong> {{ invoice.status }}</p>
+    <p><strong>Payment Method:</strong> {{ invoice.payment_method }}</p>
+    <p><strong>Created:</strong> {{ invoice.created_at }}</p>
+
+</body>
+</html>

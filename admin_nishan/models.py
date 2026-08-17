@@ -1,6 +1,9 @@
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from django.db import models
+from patient_roshan.models import PatientProfile
+
 
 
 class Department(models.Model):
@@ -449,3 +452,53 @@ class LabReport(models.Model):
 	@property
 	def report_url(self):
 		return self.report_file.url if self.report_file else None
+
+
+
+
+class Invoice(models.Model):
+
+    patient = models.ForeignKey(
+        PatientProfile,
+        on_delete=models.CASCADE
+    )
+
+    invoice_number = models.CharField(
+        max_length=20,
+        unique=True
+    )
+
+    amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2
+    )
+
+    STATUS_CHOICES = (
+        ('Due', 'Due'),
+        ('Paid', 'Paid'),
+    )
+
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='Due'
+    )
+
+    PAYMENT_METHODS = (
+    ('Cash', 'Cash'),
+    ('Credit', 'Credit'),
+    ('eSewa', 'eSewa'),
+    ('Khalti', 'Khalti'),
+)
+
+    payment_method = models.CharField(
+        max_length=20,
+        choices=PAYMENT_METHODS,
+        blank=True,
+        null=True
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.invoice_number

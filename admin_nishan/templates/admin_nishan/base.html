@@ -172,6 +172,13 @@
                     <span class="material-symbols-outlined">event</span>
                     <span class="font-label-md text-label-md">Manage Appointments</span>
                 </a>
+
+                <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-all duration-200 {% if active_page == 'billing' %}bg-primary-container text-on-primary-container font-bold{% else %}text-on-surface-variant hover:bg-surface-container-high{% endif %}"
+   href="{% url 'admin_nishan:admin_billing' %}">
+    <span class="material-symbols-outlined">payments</span>
+    <span>Billing & Payment</span>
+</a>
+
                 <a href="{% url 'admin_nishan:admin_accounts' %}" class="flex items-center gap-md px-md py-3 rounded-xl sidebar-transition {% if active_page == 'accounts' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
                     <span class="material-symbols-outlined">manage_accounts</span>
                     <span class="font-label-md text-label-md">Manage Accounts</span>
