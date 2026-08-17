@@ -63,6 +63,10 @@ urlpatterns = [
     # Doctor routes (Siddhartha)
     path('doctor/', include('doctor_siddhartha.urls', namespace='doctor_siddhartha')),
 
+    path('privacy-policy/', TemplateView.as_view(template_name='privacy_policy.html'), name='privacy_policy'),
+    path('terms/', TemplateView.as_view(template_name='terms_of_service.html'), name='terms_of_service'),
+    path('faq/', TemplateView.as_view(template_name='faq.html'), name='faq'),
+    path('support/', TemplateView.as_view(template_name='support.html'), name='support'),
 ]
 
 if settings.DEBUG:

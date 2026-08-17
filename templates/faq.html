@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}FAQ{% endblock %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+    <h1 class="text-2xl font-bold text-on-surface mb-6">Frequently Asked Questions</h1>
+    <div class="space-y-8 text-gray-600">
+        <div>
+            <h2 class="text-xl font-semibold text-on-surface mb-2">How do I book an appointment?</h2>
+            <p>Log in to your patient account, navigate to the "Book Appointment" section, select a doctor by department or name, choose an available date and time slot, provide a reason for your visit, and confirm the booking. You will receive a confirmation notification once the doctor approves your appointment.</p>
+        </div>
+
+        <div>
+            <h2 class="text-xl font-semibold text-on-surface mb-2">How can I view or download my medical records?</h2>
+            <p>After logging in, go to the "Medical Records" section from your patient dashboard. You can view diagnoses, treatments, doctor notes, and visit history. If a downloadable report or lab result is available, a download link will be provided next to the record.</p>
+        </div>
+
+        <div>
+            <h2 class="text-xl font-semibold text-on-surface mb-2">How do I reset my password?</h2>
+            <p>On the login page, click "Forgot Password," enter your registered email address, and follow the instructions sent to your inbox. If you do receive the email within a few minutes, check your spam folder or contact support for assistance.</p>
+        </div>
+
+        <div>
+            <h2 class="text-xl font-semibold text-on-surface mb-2">Is my personal and medical information secure?</h2>
+            <p>Yes. We use encryption, secure access controls, and industry-standard security protocols to protect your data. Only authorized personnel and your assigned healthcare providers can access your records. We comply with applicable healthcare data protection regulations and conduct regular security audits.</p>
+        </div>
+
+        <div>
+            <h2 class="text-xl font-semibold text-on-surface mb-2">How do I update my personal information?</h2>
+            <p>Go to "Profile" in your patient dashboard. You can update your name, contact details, address, blood group, emergency contact, and profile picture. For medical information updates, please consult your doctor during your next visit.</p>
+        </div>
+
+        <div>
+            <h2 class="text-xl font-semibold text-on-surface mb-2">How do I cancel or reschedule an appointment?</h2>
+            <p>Navigate to "My Appointments," find the appointment you wish to change, and use the "Cancel" or "Reschedule" option. Cancellation is subject to the clinic's policy. Rescheduling allows you to select a new date and time based on doctor availability.</p>
+        </div>
+
+        <div>
+            <h2 class="text-xl font-semibold text-on-surface mb-2">What should I do if my doctor is not available?</h2>
+            <p>If your doctor is unavailable, you can book an appointment with another specialist in the same department through the "Find Doctor" or "Book Appointment" sections. For urgent concerns, contact the clinic directly or visit the nearest emergency facility.</p>
+        </div>
+
+        <div>
+            <h2 class="text-xl font-semibold text-on-surface mb-2">How do I contact support?</h2>
+            <p>You can reach our support team via the "Support" page, by emailing support@hmsystem.com, or by calling +1 (555) 123-4567 during business hours. For technical issues, please include a description of the problem, your device/browser details, and any relevant screenshots.</p>
+        </div>
+
+        <div>
+            <h2 class="text-xl font-semibold text-on-surface mb-2">Can I access my lab reports online?</h2>
+            <p>Yes. Once your doctor uploads or updates a lab report, it will appear in the "Lab Reports" section of your dashboard. You can view the report details and download the file when available. Reports marked as "Pending" have not yet been finalized by the doctor.</p>
+        </div>
+
+        <div>
+            <h2 class="text-xl font-semibold text-on-surface mb-2">How do I delete my account?</h2>
+            <p>Account deletion requests can be submitted through the "Settings" page under "Deactivate Account." Please note that deleting your account will remove your access to the platform, but certain medical records may be retained for legal or regulatory compliance purposes. Contact support if you need assistance.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
