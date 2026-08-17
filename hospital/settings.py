@@ -146,3 +146,16 @@ STORAGES = {
 # Keep these for backward compatibility
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# eSewa ePay v2 (sandbox)
+ESEWA_PRODUCT_CODE = os.environ.get('ESEWA_PRODUCT_CODE', 'EPAYTEST')
+ESEWA_SECRET_KEY = os.environ.get('ESEWA_SECRET_KEY', '8gBm/:&EnhH.1/q')
+ESEWA_FORM_URL = os.environ.get('ESEWA_FORM_URL', 'https://rc-epay.esewa.com.np/api/epay/main/v2/form')
+ESEWA_STATUS_URL = os.environ.get('ESEWA_STATUS_URL', 'https://rc-epay.esewa.com.np/api/epay/transaction/status/')
+SITE_BASE_URL = os.environ.get('SITE_BASE_URL', 'http://127.0.0.1:8000')
+
+# Khalti (sandbox) - add your test key from dev.khalti.com when ready
+KHALTI_SECRET_KEY = os.environ.get('KHALTI_SECRET_KEY', '05bf95cc57244045b8df5fad06748dab')
+KHALTI_INITIATE_URL = 'https://dev.khalti.com/api/v2/epayment/initiate/'
+KHALTI_LOOKUP_URL = 'https://dev.khalti.com/api/v2/epayment/lookup/'

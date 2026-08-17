@@ -1,3 +1,10 @@
+import base64
+import hashlib
+import hmac
+import json
+import uuid
+from django.conf import settings as django_settings
+from django.views.decorators.csrf import csrf_exempt
 import calendar
 from datetime import date, datetime, time, timedelta
 from types import SimpleNamespace
@@ -12,7 +19,7 @@ from django.utils import timezone
 from admin_nishan.models import Appointment, BillingInvoice, Department, DoctorAvailability, LabReport, MedicalRecord, MedicineReminder, Notification, Prescription
 from doctor_siddhartha.models import DoctorProfile
 from hospital.access import ensure_patient_profile, patient_required
-from .models import PatientProfile
+from .models import PatientProfile, PaymentTransaction
 
 
 WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
@@ -484,14 +491,7 @@ def medical_records(request):
 
 # ─── LAB REPORTS ─────────────────────────────────────────────────────────────
 
-@patient_required
-def lab_reports(request):
-    context = {
-        "active_page": "labreports",
-        "patient": _patient_profile(request.user),
-        "lab_reports": LabReport.objects.filter(patient=request.user).select_related("doctor").order_by("-ordered_date", "-created_at"),
-    }
-    return render(request, "patient_roshan/lab_reports.html", context)
+
 
 
 # ─── PROFILE ─────────────────────────────────────────────────────────────────
@@ -613,14 +613,7 @@ def invoices(request):
 
 # ─── MESSAGES ────────────────────────────────────────────────────────────────
 
-@patient_required
-def patient_messages(request):
-    context = {
-        'active_page': 'messages',
-        'patient': _patient_profile(request.user),
-        'conversations': [],
-    }
-    return render(request, 'patient_roshan/messages.html', context)
+
 
 
 # ─── NOTIFICATIONS ───────────────────────────────────────────────────────────
@@ -752,3 +745,312 @@ def mark_medicine_taken(request, reminder_id):
         reminder.save(update_fields=['last_taken_on'])
         messages.success(request, f'{reminder.medicine_name} marked as taken.')
     return redirect('patient_roshan:medicine_reminders')
+
+
+@patient_required
+def pay_at_counter(request, invoice_id):
+    invoice = get_object_or_404(BillingInvoice, id=invoice_id, patient=request.user)
+    if request.method == 'POST':
+        invoice.status = 'pending_counter'
+        invoice.save()
+        Notification.objects.create(
+            recipient=request.user,
+            title='Counter payment selected',
+            message=f'Please visit the billing counter to pay Rs. {invoice.amount} for invoice {invoice.invoice_number}.',
+            category=Notification.CATEGORY_GENERAL,
+            action_url='/patient/billing/',
+        )
+        messages.success(request, 'Please visit the hospital billing counter to complete payment.')
+    return redirect('patient_roshan:billing')
+
+# ─── PAYMENT ─────────────────────────────────────────────────────────────────
+
+def _esewa_signature(message):
+    key = django_settings.ESEWA_SECRET_KEY.encode()
+    digest = hmac.new(key, message.encode(), hashlib.sha256).digest()
+    return base64.b64encode(digest).decode()
+
+
+@patient_required
+def pay_online(request, invoice_id):
+    invoice = get_object_or_404(BillingInvoice, id=invoice_id, patient=request.user)
+
+    if invoice.status == 'paid':
+        messages.info(request, 'This invoice is already paid.')
+        return redirect('patient_roshan:billing')
+
+    context = {
+        'active_page': 'billing',
+        'patient': _patient_profile(request.user),
+        'invoice': invoice,
+    }
+    return render(request, 'patient_roshan/payment_gateway.html', context)
+
+
+@patient_required
+def esewa_initiate(request, invoice_id):
+    invoice = get_object_or_404(BillingInvoice, id=invoice_id, patient=request.user)
+
+    transaction_uuid = f"HMS-{invoice.id}-{uuid.uuid4().hex[:10]}"
+    total_amount = f"{invoice.amount:.0f}"
+    product_code = django_settings.ESEWA_PRODUCT_CODE
+
+    PaymentTransaction.objects.create(
+        user=request.user,
+        invoice_id=invoice.id,
+        transaction_uuid=transaction_uuid,
+        gateway='esewa',
+        amount=invoice.amount,
+        status=PaymentTransaction.STATUS_INITIATED,
+    )
+
+    message = f"total_amount={total_amount},transaction_uuid={transaction_uuid},product_code={product_code}"
+    signature = _esewa_signature(message)
+
+    base = django_settings.SITE_BASE_URL.rstrip('/')
+
+    context = {
+        'form_url': django_settings.ESEWA_FORM_URL,
+        'amount': total_amount,
+        'tax_amount': '0',
+        'total_amount': total_amount,
+        'transaction_uuid': transaction_uuid,
+        'product_code': product_code,
+        'product_service_charge': '0',
+        'product_delivery_charge': '0',
+        'success_url': f"{base}/patient/billing/esewa/verify/",
+        'failure_url': f"{base}/patient/billing/esewa/failed/",
+        'signed_field_names': 'total_amount,transaction_uuid,product_code',
+        'signature': signature,
+    }
+    return render(request, 'patient_roshan/esewa_redirect.html', context)
+
+
+@csrf_exempt
+def esewa_verify(request):
+    encoded = request.GET.get('data')
+    if not encoded:
+        messages.error(request, 'No payment data received from eSewa.')
+        return redirect('patient_roshan:billing')
+
+    try:
+        decoded = json.loads(base64.b64decode(encoded).decode())
+    except Exception:
+        messages.error(request, 'Could not read the eSewa response.')
+        return redirect('patient_roshan:billing')
+
+    signed_fields = decoded.get('signed_field_names', '')
+    message = ','.join(f"{f}={decoded.get(f, '')}" for f in signed_fields.split(','))
+    expected = _esewa_signature(message)
+
+    if not hmac.compare_digest(expected, decoded.get('signature', '')):
+        messages.error(request, 'Payment signature verification failed.')
+        return redirect('patient_roshan:billing')
+
+    txn = PaymentTransaction.objects.filter(
+        transaction_uuid=decoded.get('transaction_uuid')
+    ).first()
+
+    if not txn:
+        messages.error(request, 'Transaction not found.')
+        return redirect('patient_roshan:billing')
+
+    if txn.status == PaymentTransaction.STATUS_COMPLETE:
+        messages.info(request, 'This payment was already processed.')
+        return redirect('patient_roshan:billing')
+
+    if decoded.get('status') != 'COMPLETE':
+        txn.status = PaymentTransaction.STATUS_FAILED
+        txn.save()
+        messages.error(request, 'Payment was not completed.')
+        return redirect('patient_roshan:billing')
+
+    invoice = BillingInvoice.objects.filter(id=txn.invoice_id, patient=txn.user).first()
+    if not invoice:
+        messages.error(request, 'Invoice not found.')
+        return redirect('patient_roshan:billing')
+
+    if abs(float(decoded.get('total_amount', '0').replace(',', '')) - float(invoice.amount)) > 0.01:
+        txn.status = PaymentTransaction.STATUS_FAILED
+        txn.save()
+        messages.error(request, 'Payment amount did not match the invoice.')
+        return redirect('patient_roshan:billing')
+
+    txn.status = PaymentTransaction.STATUS_COMPLETE
+    txn.gateway_ref = decoded.get('transaction_code', '')
+    txn.save()
+
+    invoice.status = 'paid'
+    invoice.paid_on = timezone.localdate()
+    invoice.save()
+
+    Notification.objects.create(
+        recipient=txn.user,
+        title='Payment successful',
+        message=f'Your eSewa payment of Rs. {invoice.amount} for invoice {invoice.invoice_number} was successful.',
+        category=Notification.CATEGORY_GENERAL,
+        action_url='/patient/billing/',
+    )
+
+    messages.success(request, f'Payment of Rs. {invoice.amount} completed via eSewa.')
+    return redirect('patient_roshan:billing')
+
+
+@csrf_exempt
+def esewa_failed(request):
+    messages.error(request, 'Payment was cancelled or failed. Please try again.')
+    return redirect('patient_roshan:billing')
+
+
+# ─── KHALTI ──────────────────────────────────────────────────────────────────
+
+@patient_required
+def khalti_initiate(request, invoice_id):
+    import requests
+
+    invoice = get_object_or_404(BillingInvoice, id=invoice_id, patient=request.user)
+
+    if invoice.status == 'paid':
+        messages.info(request, 'This invoice is already paid.')
+        return redirect('patient_roshan:billing')
+
+    purchase_order_id = f"HMS-{invoice.id}-{uuid.uuid4().hex[:10]}"
+    amount_paisa = int(float(invoice.amount) * 100)
+    base = django_settings.SITE_BASE_URL.rstrip('/')
+
+    PaymentTransaction.objects.create(
+        user=request.user,
+        invoice_id=invoice.id,
+        transaction_uuid=purchase_order_id,
+        gateway='khalti',
+        amount=invoice.amount,
+        status=PaymentTransaction.STATUS_INITIATED,
+    )
+
+    payload = {
+        "return_url": f"{base}/patient/billing/khalti/verify/",
+        "website_url": base,
+        "amount": amount_paisa,
+        "purchase_order_id": purchase_order_id,
+        "purchase_order_name": invoice.notes or f"Invoice {invoice.invoice_number}",
+        "customer_info": {
+            "name": request.user.get_full_name() or request.user.username,
+            "email": request.user.email or "patient@hms.com",
+            "phone": "9800000000",
+        },
+    }
+
+    headers = {
+        "Authorization": f"key {django_settings.KHALTI_SECRET_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    try:
+        res = requests.post(
+            django_settings.KHALTI_INITIATE_URL,
+            json=payload,
+            headers=headers,
+            timeout=15,
+        )
+        data = res.json()
+    except Exception:
+        messages.error(request, 'Could not reach Khalti. Please try again later.')
+        return redirect('patient_roshan:billing')
+
+    payment_url = data.get('payment_url')
+    pidx = data.get('pidx')
+
+    if not payment_url or not pidx:
+        messages.error(request, f"Khalti error: {data.get('detail') or 'Could not start payment.'}")
+        return redirect('patient_roshan:billing')
+
+    PaymentTransaction.objects.filter(transaction_uuid=purchase_order_id).update(gateway_ref=pidx)
+
+    return redirect(payment_url)
+
+
+@csrf_exempt
+def khalti_verify(request):
+    import requests
+
+    pidx = request.GET.get('pidx')
+    if not pidx:
+        messages.error(request, 'No payment reference received from Khalti.')
+        return redirect('patient_roshan:billing')
+
+    headers = {
+        "Authorization": f"key {django_settings.KHALTI_SECRET_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    try:
+        res = requests.post(
+            django_settings.KHALTI_LOOKUP_URL,
+            json={"pidx": pidx},
+            headers=headers,
+            timeout=15,
+        )
+        data = res.json()
+    except Exception:
+        messages.error(request, 'Could not verify payment with Khalti.')
+        return redirect('patient_roshan:billing')
+
+    txn = PaymentTransaction.objects.filter(gateway_ref=pidx, gateway='khalti').first()
+    if not txn:
+        messages.error(request, 'Transaction not found.')
+        return redirect('patient_roshan:billing')
+
+    if txn.status == PaymentTransaction.STATUS_COMPLETE:
+        messages.info(request, 'This payment was already processed.')
+        return redirect('patient_roshan:billing')
+
+    if data.get('status') != 'Completed':
+        txn.status = PaymentTransaction.STATUS_FAILED
+        txn.save()
+        messages.error(request, f"Payment {data.get('status', 'failed')}. Please try again.")
+        return redirect('patient_roshan:billing')
+
+    invoice = BillingInvoice.objects.filter(id=txn.invoice_id, patient=txn.user).first()
+    if not invoice:
+        messages.error(request, 'Invoice not found.')
+        return redirect('patient_roshan:billing')
+
+    if abs(int(data.get('total_amount', 0)) - int(float(invoice.amount) * 100)) > 1:
+        txn.status = PaymentTransaction.STATUS_FAILED
+        txn.save()
+        messages.error(request, 'Payment amount did not match the invoice.')
+        return redirect('patient_roshan:billing')
+
+    txn.status = PaymentTransaction.STATUS_COMPLETE
+    txn.save()
+
+    invoice.status = 'paid'
+    invoice.paid_on = timezone.localdate()
+    invoice.save()
+
+    Notification.objects.create(
+        recipient=txn.user,
+        title='Payment successful',
+        message=f'Your Khalti payment of Rs. {invoice.amount} for invoice {invoice.invoice_number} was successful.',
+        category=Notification.CATEGORY_GENERAL,
+        action_url='/patient/billing/',
+    )
+
+    messages.success(request, f'Payment of Rs. {invoice.amount} completed via Khalti.')
+    return redirect('patient_roshan:billing')
+
+
+@patient_required
+def invoice_receipt(request, invoice_id):
+    invoice = get_object_or_404(BillingInvoice, id=invoice_id, patient=request.user)
+    txn = PaymentTransaction.objects.filter(
+        invoice_id=invoice.id,
+        status=PaymentTransaction.STATUS_COMPLETE
+    ).first()
+    context = {
+        'active_page': 'billing',
+        'patient': _patient_profile(request.user),
+        'invoice': invoice,
+        'txn': txn,
+    }
+    return render(request, 'patient_roshan/receipt.html', context)

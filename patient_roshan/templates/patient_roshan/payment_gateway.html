@@ -1,0 +1,85 @@
+{% extends 'patient_roshan/base.html' %}
+{% block title %}Payment{% endblock %}
+{% block page_title %}Payment{% endblock %}
+
+{% block content %}
+{% with active_page='billing' %}
+
+<div class="max-w-md mx-auto">
+
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+
+        <div class="px-lg py-md border-b border-outline-variant bg-surface-container-low flex items-center justify-between">
+            <h3 class="font-headline-sm text-headline-sm text-on-surface">Complete Payment</h3>
+            <span class="material-symbols-outlined text-on-surface-variant">credit_card</span>
+        </div>
+
+        <div class="p-lg space-y-lg">
+
+            <div class="bg-surface-container rounded-lg p-md space-y-sm">
+                <div class="flex justify-between">
+                    <span class="font-body-sm text-on-surface-variant">Invoice</span>
+                    <span class="font-body-sm text-on-surface">{{ invoice.invoice_number }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-body-sm text-on-surface-variant">Description</span>
+                    <span class="font-body-sm text-on-surface">{{ invoice.notes }}</span>
+                </div>
+                <div class="flex justify-between pt-sm border-t border-outline-variant">
+                    <span class="font-label-md text-on-surface">Total Amount</span>
+                    <span class="font-headline-sm text-headline-sm text-primary">Rs. {{ invoice.amount }}</span>
+                </div>
+            </div>
+
+            <div>
+                <p class="font-label-md text-label-md text-on-surface-variant mb-md">Select Payment Method</p>
+
+                <div class="space-y-md">
+
+                    <a href="{% url 'patient_roshan:esewa_initiate' invoice.id %}"
+                       class="w-full border border-outline-variant rounded-lg p-md flex items-center gap-md hover:border-[#60BB46] hover:bg-[#60BB46]/5 transition-all group">
+                        <div class="w-12 h-12 rounded-lg bg-white border border-outline-variant flex items-center justify-center flex-shrink-0 overflow-hidden">
+                           <div class="w-full h-full flex items-center justify-center bg-[#60BB46] rounded-lg">
+    <span class="text-white font-bold text-[13px] tracking-tight">eSewa</span>
+</div>
+                        </div>
+                        <div class="flex-1 text-left">
+                            <p class="font-label-md text-label-md text-on-surface">Pay with eSewa</p>
+                            <p class="font-label-sm text-label-sm text-on-surface-variant">Digital wallet</p>
+                        </div>
+                        <span class="material-symbols-outlined text-on-surface-variant group-hover:text-[#60BB46] transition-colors">arrow_forward</span>
+                    </a>
+
+                    <a href="{% url 'patient_roshan:khalti_initiate' invoice.id %}"
+                       class="w-full border border-outline-variant rounded-lg p-md flex items-center gap-md hover:border-[#5C2D91] hover:bg-[#5C2D91]/5 transition-all group">
+                        <div class="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 bg-[#5C2D91]">
+                            <span class="text-white font-bold text-[13px] tracking-tight">Khalti</span>
+                        </div>
+                        <div class="flex-1 text-left">
+                            <p class="font-label-md text-label-md text-on-surface">Pay with Khalti</p>
+                            <p class="font-label-sm text-label-sm text-on-surface-variant">Digital wallet</p>
+                        </div>
+                        <span class="material-symbols-outlined text-on-surface-variant group-hover:text-[#5C2D91] transition-colors">arrow_forward</span>
+                    </a>
+
+                </div>
+            </div>
+
+            <div class="border-t border-outline-variant pt-md">
+                <p class="font-label-sm text-label-sm text-on-surface-variant flex items-center gap-xs">
+                    <span class="material-symbols-outlined text-[16px]">lock</span>
+                    Secured with HMAC-SHA256 signature verification
+                </p>
+            </div>
+
+            <a href="{% url 'patient_roshan:billing' %}"
+                class="block text-center font-label-md text-label-md text-on-surface-variant hover:underline">
+                Cancel and go back
+            </a>
+
+        </div>
+    </div>
+</div>
+
+{% endwith %}
+{% endblock %}

@@ -1,0 +1,254 @@
+{% extends 'patient_roshan/base.html' %}
+{% block title %}Receipt{% endblock %}
+{% block page_title %}Payment Receipt{% endblock %}
+
+{% block content %}
+{% with active_page='billing' %}
+
+<div class="max-w-3xl mx-auto">
+
+    <div id="receipt-doc" class="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+
+        {# ── Letterhead ── #}
+        <div class="px-xl pt-xl pb-lg border-b-2 border-primary">
+            <div class="flex items-start justify-between gap-lg">
+                <div class="flex items-start gap-md">
+                    <div class="w-14 h-14 rounded-lg bg-primary flex items-center justify-center flex-shrink-0">
+                        <span class="material-symbols-outlined text-white text-[30px]">local_hospital</span>
+                    </div>
+                    <div>
+                        <h1 class="font-headline-md text-headline-md text-primary leading-tight">HM System Hospital</h1>
+                        <p class="font-label-sm text-label-sm text-on-surface-variant mt-xs leading-relaxed">
+                            Kathmandu, Bagmati Province, Nepal<br/>
+                            Tel: +977-1-4567890 &nbsp;&middot;&nbsp; billing@hmsystem.com.np<br/>
+                            PAN No: 601234567
+                        </p>
+                    </div>
+                </div>
+                <div class="text-right flex-shrink-0">
+                    <p class="font-label-md text-label-md text-on-surface tracking-widest uppercase">Payment Receipt</p>
+                    {% if invoice.status == 'paid' %}
+                    <span class="inline-block mt-sm px-md py-xs bg-green-100 text-green-700 rounded font-label-sm text-label-sm border border-green-300">
+                        PAID
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# ── Meta row ── #}
+        <div class="px-xl py-md bg-surface-container-low border-b border-outline-variant grid grid-cols-2 md:grid-cols-4 gap-md">
+            <div>
+                <p class="font-label-sm text-label-sm text-on-surface-variant">Receipt No.</p>
+                <p class="font-label-md text-label-md text-on-surface">RCP-{{ invoice.invoice_number }}</p>
+            </div>
+            <div>
+                <p class="font-label-sm text-label-sm text-on-surface-variant">Invoice No.</p>
+                <p class="font-label-md text-label-md text-on-surface">{{ invoice.invoice_number }}</p>
+            </div>
+            <div>
+                <p class="font-label-sm text-label-sm text-on-surface-variant">Issue Date</p>
+                <p class="font-label-md text-label-md text-on-surface">{{ invoice.issued_on|date:"d M Y" }}</p>
+            </div>
+            <div>
+                <p class="font-label-sm text-label-sm text-on-surface-variant">Payment Date</p>
+                <p class="font-label-md text-label-md text-on-surface">{{ invoice.paid_on|date:"d M Y"|default:"Pending" }}</p>
+            </div>
+        </div>
+
+        {# ── Billed to ── #}
+        <div class="px-xl py-lg border-b border-outline-variant grid grid-cols-1 md:grid-cols-2 gap-lg">
+            <div>
+                <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-sm">Billed To</p>
+                <p class="font-label-md text-label-md text-on-surface">{{ request.user.get_full_name|default:request.user.username }}</p>
+                <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs leading-relaxed">
+                    Patient ID: #HM-{{ request.user.id }}<br/>
+                    {% if patient.phone %}{{ patient.phone }}<br/>{% endif %}
+                    {% if request.user.email %}{{ request.user.email }}<br/>{% endif %}
+                    {% if patient.address %}{{ patient.address }}{% endif %}
+                </p>
+            </div>
+            <div class="md:text-right">
+                <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider mb-sm">Payment Details</p>
+                <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+                    {% if txn %}
+                    Method: <span class="text-on-surface font-medium">{{ txn.get_gateway_display }}</span><br/>
+                    Txn ID: <span class="text-on-surface font-medium">{{ txn.transaction_uuid }}</span><br/>
+                    {% if txn.gateway_ref %}Ref: <span class="text-on-surface font-medium">{{ txn.gateway_ref }}</span>{% endif %}
+                    {% elif invoice.status == 'pending_counter' %}
+                    Method: <span class="text-on-surface font-medium">Cash at Counter</span><br/>
+                    Status: <span class="text-on-surface font-medium">Awaiting collection</span>
+                    {% else %}
+                    Method: <span class="text-on-surface font-medium">Cash at Counter</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        {# ── Itemised table ── #}
+        <div class="px-xl py-lg">
+            <table class="w-full border-collapse">
+                <thead>
+                    <tr class="border-b-2 border-outline">
+                        <th class="text-left py-sm font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">S.N.</th>
+                        <th class="text-left py-sm font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Particulars</th>
+                        <th class="text-center py-sm font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Qty</th>
+                        <th class="text-right py-sm font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Rate</th>
+                        <th class="text-right py-sm font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="border-b border-outline-variant">
+                        <td class="py-md font-body-sm text-on-surface">1</td>
+                        <td class="py-md font-body-sm text-on-surface">
+                            {{ invoice.notes|default:"Medical Consultation" }}
+                            {% if invoice.appointment %}
+                            <span class="block font-label-sm text-label-sm text-on-surface-variant mt-xs">
+                                Appointment: {{ invoice.appointment.appointment_date|date:"d M Y" }}
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="py-md font-body-sm text-on-surface text-center">1</td>
+                        <td class="py-md font-body-sm text-on-surface text-right">{{ invoice.amount }}</td>
+                        <td class="py-md font-body-sm text-on-surface text-right">{{ invoice.amount }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            {# ── Totals ── #}
+            <div class="flex justify-end mt-lg">
+                <div class="w-full md:w-72 space-y-xs">
+                    <div class="flex justify-between py-xs">
+                        <span class="font-body-sm text-on-surface-variant">Sub Total</span>
+                        <span class="font-body-sm text-on-surface">Rs. {{ invoice.amount }}</span>
+                    </div>
+                    <div class="flex justify-between py-xs">
+                        <span class="font-body-sm text-on-surface-variant">Discount</span>
+                        <span class="font-body-sm text-on-surface">Rs. 0.00</span>
+                    </div>
+                    <div class="flex justify-between py-xs border-b border-outline-variant pb-sm">
+                        <span class="font-body-sm text-on-surface-variant">VAT (0%)</span>
+                        <span class="font-body-sm text-on-surface">Rs. 0.00</span>
+                    </div>
+                    <div class="flex justify-between py-sm bg-surface-container px-md rounded">
+                        <span class="font-label-md text-label-md text-on-surface">Grand Total</span>
+                        <span class="font-label-md text-label-md text-primary">Rs. {{ invoice.amount }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {# ── Amount in words ── #}
+            <div class="mt-lg pt-md border-t border-outline-variant">
+                <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Amount in Words</p>
+                <p class="font-body-md text-body-md text-on-surface mt-xs italic" id="amount-words">
+                    &mdash;
+                </p>
+            </div>
+        </div>
+
+        {# ── Signatures ── #}
+        <div class="px-xl pb-xl pt-lg grid grid-cols-2 gap-xl">
+            <div>
+                <div class="border-t border-outline pt-sm">
+                    <p class="font-label-sm text-label-sm text-on-surface">Received By</p>
+                    <p class="font-label-sm text-label-sm text-on-surface-variant">Billing Department</p>
+                </div>
+            </div>
+            <div class="text-right">
+                <div class="border-t border-outline pt-sm">
+                    <p class="font-label-sm text-label-sm text-on-surface">Authorised Signature</p>
+                    <p class="font-label-sm text-label-sm text-on-surface-variant">HM System Hospital</p>
+                </div>
+            </div>
+        </div>
+
+        {# ── Footer ── #}
+        <div class="px-xl py-md bg-surface-container-low border-t border-outline-variant text-center">
+            <p class="font-label-sm text-label-sm text-on-surface-variant leading-relaxed">
+                Thank you for choosing HM System Hospital.<br/>
+                This is a computer-generated receipt and is valid without a physical signature.<br/>
+                Please retain this document for insurance or reimbursement claims.
+            </p>
+        </div>
+
+    </div>
+
+    {# ── Actions ── #}
+    <div class="flex gap-md mt-lg" id="receipt-actions">
+        <button onclick="window.print()"
+            class="flex-1 bg-primary text-white py-sm px-md rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity flex items-center justify-center gap-sm">
+            <span class="material-symbols-outlined text-[20px]">print</span>Print / Save as PDF
+        </button>
+        <a href="{% url 'patient_roshan:billing' %}"
+            class="flex-1 border border-outline-variant text-on-surface py-sm px-md rounded-lg font-label-md text-label-md hover:bg-surface-container transition-colors flex items-center justify-center gap-sm">
+            <span class="material-symbols-outlined text-[20px]">arrow_back</span>Back to Billing
+        </a>
+    </div>
+
+</div>
+
+{% endwith %}
+{% endblock %}
+
+{% block extra_js %}
+<style>
+@media print {
+    aside, header, footer, #receipt-actions { display: none !important; }
+    #receipt-doc { border: none !important; box-shadow: none !important; border-radius: 0 !important; }
+    body { background: white !important; }
+    main { padding: 0 !important; }
+}
+</style>
+<script>
+(function () {
+    var ones = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
+                'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen',
+                'Seventeen', 'Eighteen', 'Nineteen'];
+    var tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+    function twoDigits(n) {
+        if (n < 20) return ones[n];
+        return tens[Math.floor(n / 10)] + (n % 10 ? ' ' + ones[n % 10] : '');
+    }
+
+    function threeDigits(n) {
+        var out = '';
+        if (n > 99) {
+            out += ones[Math.floor(n / 100)] + ' Hundred';
+            if (n % 100) out += ' ';
+        }
+        if (n % 100) out += twoDigits(n % 100);
+        return out;
+    }
+
+    function toWords(num) {
+        if (num === 0) return 'Zero';
+        var parts = [];
+        var crore = Math.floor(num / 10000000);
+        num %= 10000000;
+        var lakh = Math.floor(num / 100000);
+        num %= 100000;
+        var thousand = Math.floor(num / 1000);
+        num %= 1000;
+        var rest = num;
+
+        if (crore) parts.push(threeDigits(crore) + ' Crore');
+        if (lakh) parts.push(threeDigits(lakh) + ' Lakh');
+        if (thousand) parts.push(threeDigits(thousand) + ' Thousand');
+        if (rest) parts.push(threeDigits(rest));
+        return parts.join(' ');
+    }
+
+    var raw = '{{ invoice.amount }}';
+    var value = parseFloat(raw.replace(/,/g, '')) || 0;
+    var rupees = Math.floor(value);
+    var paisa = Math.round((value - rupees) * 100);
+
+    var text = 'Rupees ' + toWords(rupees);
+    if (paisa > 0) text += ' and ' + toWords(paisa) + ' Paisa';
+    text += ' Only';
+
+    document.getElementById('amount-words').textContent = text;
+})();
+</script>
+{% endblock %}

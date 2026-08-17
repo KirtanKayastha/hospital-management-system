@@ -53,26 +53,44 @@
                 <tr class="hover:bg-surface-container-low transition-colors">
                     <td class="px-lg py-md font-body-sm text-on-surface">{{ invoice.invoice_number }}</td>
                     <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ invoice.created_at|date:"d M Y" }}</td>
-                    <td class="px-lg py-md font-body-sm text-on-surface">{{ invoice.description }}</td>
+                    <td class="px-lg py-md font-body-sm text-on-surface">{{ invoice.notes }}</td>
                     <td class="px-lg py-md font-body-md font-semibold text-on-surface">Rs. {{ invoice.amount }}</td>
-                    <td class="px-lg py-md">
-                        {% if invoice.status == 'unpaid' %}
-                            <span class="inline-flex items-center gap-xs px-sm py-xs bg-red-100 text-red-700 rounded-lg font-label-sm">
-                                <span class="w-2 h-2 rounded-full bg-red-500"></span>Unpaid
-                            </span>
-                        {% else %}
-                            <span class="inline-flex items-center gap-xs px-sm py-xs bg-green-100 text-green-700 rounded-lg font-label-sm">
-                                <span class="w-2 h-2 rounded-full bg-green-500"></span>Paid
-                            </span>
-                        {% endif %}
-                    </td>
-                    <td class="px-lg py-md text-right">
-                        {% if invoice.status == 'unpaid' %}
-                        <button class="bg-primary text-white px-md py-xs rounded-lg font-label-md text-label-md hover:opacity-90">Pay Now</button>
-                        {% else %}
-                        <button class="border border-outline-variant text-on-surface-variant px-md py-xs rounded-lg font-label-md text-label-md hover:bg-surface-container">Receipt</button>
-                        {% endif %}
-                    </td>
+                   <td class="px-lg py-md">
+    {% if invoice.status == 'unpaid' %}
+        <span class="inline-flex items-center gap-xs px-sm py-xs bg-red-100 text-red-700 rounded-lg font-label-sm">
+            <span class="w-2 h-2 rounded-full bg-red-500"></span>Unpaid
+        </span>
+    {% elif invoice.status == 'pending_counter' %}
+        <span class="inline-flex items-center gap-xs px-sm py-xs bg-yellow-100 text-yellow-700 rounded-lg font-label-sm">
+            <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>At Counter
+        </span>
+    {% else %}
+        <span class="inline-flex items-center gap-xs px-sm py-xs bg-green-100 text-green-700 rounded-lg font-label-sm">
+            <span class="w-2 h-2 rounded-full bg-green-500"></span>Paid
+        </span>
+    {% endif %}
+</td>
+<td class="px-lg py-md text-right">
+    {% if invoice.status == 'unpaid' %}
+    <div class="flex gap-sm justify-end">
+        <form method="POST" action="{% url 'patient_roshan:pay_at_counter' invoice.id %}">
+            {% csrf_token %}
+            <button type="submit" class="border border-outline-variant text-on-surface px-md py-xs rounded-lg font-label-md text-label-md hover:bg-surface-container transition-colors whitespace-nowrap">
+                Pay at Counter
+            </button>
+        </form>
+        <a href="{% url 'patient_roshan:pay_online' invoice.id %}"
+            class="bg-primary text-white px-md py-xs rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity whitespace-nowrap">
+            Pay Online
+        </a>
+    </div>
+    {% elif invoice.status == 'pending_counter' %}
+    <span class="font-label-sm text-label-sm text-on-surface-variant">Awaiting counter payment</span>
+    {% else %}
+    <a href="{% url 'patient_roshan:invoice_receipt' invoice.id %}"
+   class="inline-block border border-outline-variant text-on-surface-variant px-md py-xs rounded-lg font-label-md text-label-md hover:bg-surface-container transition-colors">Receipt</a>
+    {% endif %}
+</td>
                 </tr>
                 {% empty %}
                 <tr class="hover:bg-surface-container-low">

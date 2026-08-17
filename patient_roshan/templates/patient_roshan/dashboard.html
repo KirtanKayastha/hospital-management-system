@@ -61,7 +61,7 @@
             <span class="material-symbols-outlined text-primary text-[40px]" id="weather-icon">wb_sunny</span>
         </div>
         <div>
-            <p class="font-label-sm text-label-sm text-on-surface-variant">Kathmandu, Nepal</p>
+            <p class="font-label-sm text-label-sm text-on-surface-variant" id="weather-location">Detecting location...</p>
             <p class="font-headline-md text-headline-md text-on-surface" id="weather-temp">--°C</p>
             <p class="font-body-sm text-body-sm text-on-surface-variant" id="weather-desc">Loading weather...</p>
         </div>
@@ -228,53 +228,103 @@
 
 {% block extra_js %}
 <script>
-async function loadWeather() {
+function describeWeather(code, temp) {
+    let icon = 'wb_sunny';
+    let desc = 'Clear skies';
+    let advice = 'Great day to go for a walk outside.';
+
+    if (code >= 95) {
+        icon = 'thunderstorm'; desc = 'Thunderstorm';
+        advice = 'Stay indoors. Take your medications on time.';
+    } else if (code >= 80) {
+        icon = 'rainy'; desc = 'Rain showers';
+        advice = 'Sudden showers expected. Carry an umbrella.';
+    } else if (code >= 71 && code <= 77) {
+        icon = 'ac_unit'; desc = 'Snowy';
+        advice = 'Dress warmly. Avoid going out if possible.';
+    } else if (code >= 61 && code <= 67) {
+        icon = 'rainy'; desc = 'Rainy';
+        advice = 'Carry an umbrella today. Stay dry and warm.';
+    } else if (code >= 51 && code <= 57) {
+        icon = 'grain'; desc = 'Drizzle';
+        advice = 'Light rain expected. Keep a jacket handy.';
+    } else if (code >= 45 && code <= 48) {
+        icon = 'foggy'; desc = 'Foggy';
+        advice = 'Low visibility outside. Travel carefully.';
+    } else if (code >= 2 && code <= 3) {
+        icon = 'cloud'; desc = 'Cloudy';
+        advice = 'Cloudy day. Good time for indoor activities.';
+    } else if (code === 1) {
+        icon = 'partly_cloudy_day'; desc = 'Partly cloudy';
+        advice = 'Partly cloudy. A light walk would be refreshing.';
+    }
+
+    if (temp >= 35) advice = 'Very hot today. Stay hydrated and avoid direct sunlight.';
+    if (temp <= 10) advice = 'Cold day. Keep warm and drink hot fluids.';
+
+    return { icon, desc, advice };
+}
+
+async function showWeather(lat, lon, placeName) {
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + lat +
+                '&longitude=' + lon +
+                '&current=temperature_2m,relative_humidity_2m,weather_code&timezone=auto';
+
+    const res = await fetch(url);
+    const data = await res.json();
+
+    const temp = Math.round(data.current.temperature_2m);
+    const humidity = data.current.relative_humidity_2m;
+    const code = data.current.weather_code;
+    const w = describeWeather(code, temp);
+
+    document.getElementById('weather-temp').textContent = temp + '\u00B0C';
+    document.getElementById('weather-humidity').textContent = humidity + '%';
+    document.getElementById('weather-icon').textContent = w.icon;
+    document.getElementById('weather-desc').textContent = w.desc;
+    document.getElementById('weather-location').textContent = placeName;
+    document.getElementById('health-advice').textContent = w.advice;
+}
+
+async function resolvePlace(lat, lon) {
     try {
-        const res = await fetch('https://api.open-meteo.com/v1/forecast?latitude=27.7172&longitude=85.3240&current=temperature_2m,relative_humidity_2m,weather_code&timezone=Asia%2FKathmandu');
-        const data = await res.json();
-        const temp = Math.round(data.current.temperature_2m);
-        const humidity = data.current.relative_humidity_2m;
-        const code = data.current.weather_code;
-
-        document.getElementById('weather-temp').textContent = temp + '°C';
-        document.getElementById('weather-humidity').textContent = humidity + '%';
-
-        let icon = 'wb_sunny';
-        let desc = 'Clear skies';
-        let advice = 'Great day to go for a walk outside!';
-
-        if (code >= 61 && code <= 67) {
-            icon = 'rainy'; desc = 'Rainy';
-            advice = 'Carry an umbrella today. Stay dry and warm.';
-        } else if (code >= 71 && code <= 77) {
-            icon = 'ac_unit'; desc = 'Snowy';
-            advice = 'Dress warmly. Avoid going out if possible.';
-        } else if (code >= 51 && code <= 57) {
-            icon = 'grain'; desc = 'Drizzle';
-            advice = 'Light rain expected. Keep a jacket handy.';
-        } else if (code >= 2 && code <= 3) {
-            icon = 'cloud'; desc = 'Cloudy';
-            advice = 'Cloudy day. Good time for indoor activities.';
-        } else if (code === 1) {
-            icon = 'partly_cloudy_day'; desc = 'Partly cloudy';
-            advice = 'Partly cloudy. A light walk would be refreshing!';
-        } else if (code >= 80) {
-            icon = 'thunderstorm'; desc = 'Thunderstorm';
-            advice = 'Stay indoors. Take your medications on time.';
-        }
-
-        if (temp >= 35) advice = 'Very hot today. Stay hydrated and avoid direct sunlight.';
-        if (temp <= 10) advice = 'Cold day. Keep warm and drink hot fluids.';
-
-        document.getElementById('weather-icon').textContent = icon;
-        document.getElementById('weather-desc').textContent = desc + ' in Kathmandu';
-        document.getElementById('health-advice').textContent = advice;
-
-    } catch(e) {
-        document.getElementById('weather-desc').textContent = 'Weather unavailable';
-        document.getElementById('health-advice').textContent = 'Stay hydrated and take your medicines on time.';
+        const res = await fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=' +
+                                lat + '&longitude=' + lon + '&localityLanguage=en');
+        const geo = await res.json();
+        const city = geo.city || geo.locality || geo.principalSubdivision || 'Your location';
+        return city + (geo.countryName ? ', ' + geo.countryName : '');
+    } catch (e) {
+        return 'Your location';
     }
 }
+
+function loadWeather() {
+    const fallback = function () {
+        showWeather(27.7172, 85.3240, 'Kathmandu, Nepal').catch(function () {
+            document.getElementById('weather-desc').textContent = 'Weather unavailable';
+            document.getElementById('weather-location').textContent = 'Location unavailable';
+            document.getElementById('health-advice').textContent = 'Stay hydrated and take your medicines on time.';
+        });
+    };
+
+    if (!navigator.geolocation) { fallback(); return; }
+
+    navigator.geolocation.getCurrentPosition(
+        async function (pos) {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            try {
+                const place = await resolvePlace(lat, lon);
+                await showWeather(lat, lon, place);
+            } catch (e) {
+                fallback();
+            }
+        },
+        fallback,
+        { timeout: 8000 }
+    );
+}
+
 loadWeather();
 </script>
 {% endblock %}

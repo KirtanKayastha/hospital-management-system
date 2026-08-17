@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Redirecting to eSewa...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <style>body { font-family: 'Inter', sans-serif; }</style>
+</head>
+<body class="min-h-screen bg-[#f7f9fb] flex items-center justify-center">
+
+    <div class="text-center">
+        <div class="w-16 h-16 border-4 border-[#60BB46] border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+        <h1 class="text-xl font-semibold text-[#191c1e] mb-2">Redirecting to eSewa</h1>
+        <p class="text-sm text-[#434655]">Please wait, do not close this window.</p>
+    </div>
+
+    <form id="esewa-form" action="{{ form_url }}" method="POST">
+        <input type="hidden" name="amount" value="{{ amount }}">
+        <input type="hidden" name="tax_amount" value="{{ tax_amount }}">
+        <input type="hidden" name="total_amount" value="{{ total_amount }}">
+        <input type="hidden" name="transaction_uuid" value="{{ transaction_uuid }}">
+        <input type="hidden" name="product_code" value="{{ product_code }}">
+        <input type="hidden" name="product_service_charge" value="{{ product_service_charge }}">
+        <input type="hidden" name="product_delivery_charge" value="{{ product_delivery_charge }}">
+        <input type="hidden" name="success_url" value="{{ success_url }}">
+        <input type="hidden" name="failure_url" value="{{ failure_url }}">
+        <input type="hidden" name="signed_field_names" value="{{ signed_field_names }}">
+        <input type="hidden" name="signature" value="{{ signature }}">
+    </form>
+
+    <script>
+        document.getElementById('esewa-form').submit();
+    </script>
+
+</body>
+</html>

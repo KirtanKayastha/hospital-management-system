@@ -83,4 +83,36 @@ class Appointment(models.Model):
     class Meta:
         ordering = ['-date']
         verbose_name = 'Appointment'
-        verbose_name_plural = 'Appointments'	
+        verbose_name_plural = 'Appointments'
+
+
+class PaymentTransaction(models.Model):
+    STATUS_INITIATED = 'initiated'
+    STATUS_COMPLETE = 'complete'
+    STATUS_FAILED = 'failed'
+    STATUS_CHOICES = [
+        (STATUS_INITIATED, 'Initiated'),
+        (STATUS_COMPLETE, 'Complete'),
+        (STATUS_FAILED, 'Failed'),
+    ]
+
+    GATEWAY_CHOICES = [
+        ('esewa', 'eSewa'),
+        ('khalti', 'Khalti'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='payment_transactions')
+    invoice_id = models.IntegerField()
+    transaction_uuid = models.CharField(max_length=100, unique=True)
+    gateway = models.CharField(max_length=20, choices=GATEWAY_CHOICES, default='esewa')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_INITIATED)
+    gateway_ref = models.CharField(max_length=200, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.transaction_uuid} - {self.gateway} - {self.status}"
+
+    class Meta:
+        ordering = ['-created_at']

@@ -198,23 +198,14 @@
           {% if active_page == 'reminders' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
     <span class="material-symbols-outlined">medication</span>Medicine Reminders
 </a>
-<a href="{% url 'patient_roshan:lab_reports' %}"
-   class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
-          {% if active_page == 'labreports' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
-    <span class="material-symbols-outlined">science</span>Lab Reports
-</a>
+
             <!-- ACCOUNT -->
             <p class="px-md pt-md pb-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Account</p>
             <a href="{% url 'patient_roshan:billing' %}"
    class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
           {% if active_page == 'billing' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
     <span class="material-symbols-outlined">receipt_long</span>Billing &amp; Payments
-</a>
-          <a href="{% url 'patient_roshan:messages' %}"
-   class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
-          {% if active_page == 'messages' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
-    <span class="material-symbols-outlined">mail</span>Messages
-</a>
+
             <a href="{% url 'patient_roshan:notifications' %}"
    class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
           {% if active_page == 'notifications' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
@@ -231,6 +222,17 @@
     <span class="material-symbols-outlined">settings</span>Settings
 </a>
         </nav>
+
+        <div class="px-lg pb-md">
+    <div class="bg-secondary-container/30 border border-secondary/20 rounded-lg p-md">
+        <p class="font-label-sm text-label-sm text-on-secondary-container flex items-center gap-xs mb-xs">
+            <span class="material-symbols-outlined text-[16px]">lightbulb</span>Health Tip
+        </p>
+        <p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed" id="health-tip">
+            Loading tip...
+        </p>
+    </div>
+</div>
 
         <div class="p-lg border-t border-outline-variant">
             <div class="flex items-center gap-md p-sm hover:bg-surface-container rounded-xl cursor-pointer transition-colors">
@@ -300,7 +302,7 @@
             <div class="w-full px-lg md:px-xxl py-xl flex flex-col md:flex-row justify-between items-center gap-md max-w-container-max mx-auto">
                 <div class="flex flex-col items-center md:items-start">
                     <span class="font-headline-sm text-headline-sm font-bold text-on-surface">HM System</span>
-                    <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Â© 2025 HM System. All rights reserved.</p>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">&copy; 2026 HM System. All rights reserved.</p>
                 </div>
                 <div class="flex gap-xl">
                     <a class="font-label-sm text-label-sm text-on-surface-variant hover:underline hover:text-primary transition-all" href="#">Privacy Policy</a>
@@ -338,6 +340,29 @@
 }
 updateClock();
 setInterval(updateClock, 1000);
+
+
+const healthTips = [
+    "Drink at least 8 glasses of water daily to stay hydrated.",
+    "Aim for 7 to 8 hours of sleep every night for better recovery.",
+    "Take a 30-minute walk daily to keep your heart healthy.",
+    "Wash your hands regularly to prevent infections.",
+    "Include fruits and vegetables in every meal.",
+    "Take your prescribed medicines at the same time each day.",
+    "Limit salt intake to help maintain healthy blood pressure.",
+    "Stretch for five minutes if you sit for long hours.",
+    "Get your blood pressure checked at least twice a year.",
+    "Avoid skipping breakfast. It fuels your whole day.",
+    "Practice deep breathing for a few minutes to reduce stress.",
+    "Keep your vaccinations up to date.",
+    "Limit screen time before bed for better sleep quality.",
+    "Schedule a routine health checkup once every year."
+];
+
+const dayIndex = Math.floor(Date.now() / 86400000) % healthTips.length;
+const tipEl = document.getElementById('health-tip');
+if (tipEl) tipEl.textContent = healthTips[dayIndex];
+
 </script>
 </body>
 </html>
