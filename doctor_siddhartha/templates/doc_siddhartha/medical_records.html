@@ -6,23 +6,23 @@
 
 <div class="flex flex-col md:flex-row md:items-center justify-between gap-md">
     <div>
-        <h2 class="font-headline-lg text-headline-lg text-on-surface">Medical Records</h2>
-        <p class="text-on-surface-variant font-body-md">Records you authored for your patients.</p>
+        <h2 class="font-headline-lg text-[22px] md:text-headline-lg text-on-surface">Medical Records</h2>
+        <p class="text-on-surface-variant font-body-md text-sm md:text-base">Records you authored for your patients.</p>
     </div>
 </div>
 
 {% if records %}
 <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
     <div class="overflow-x-auto">
-        <table class="hm-table w-full text-left">
+        <table class="hm-table w-full text-left min-w-[720px]">
             <thead>
                 <tr class="bg-surface-container border-b border-outline-variant">
-                    <th class="px-lg py-md font-label-md text-on-surface-variant">Patient</th>
-                    <th class="px-lg py-md font-label-md text-on-surface-variant">Diagnosis</th>
-                    <th class="px-lg py-md font-label-md text-on-surface-variant">Status</th>
-                    <th class="px-lg py-md font-label-md text-on-surface-variant">Visit Date</th>
-                    <th class="px-lg py-md font-label-md text-on-surface-variant">Department</th>
-                    <th class="px-lg py-md font-label-md text-on-surface-variant text-right">Action</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant text-sm">Patient</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant text-sm">Diagnosis</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant text-sm">Status</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant text-sm">Visit Date</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant text-sm">Department</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant text-sm text-right">Action</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-outline-variant">
@@ -73,12 +73,12 @@
 {% block modals %}
 <div class="fixed inset-0 z-[100] {% if not editing_record %}hidden{% endif %}" id="view-record-modal">
 <a href="{% url 'doctor_siddhartha:medical_records' %}" class="absolute inset-0 bg-black/40 backdrop-blur-sm"></a>
-<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl card-shadow overflow-hidden max-h-[90vh] overflow-y-auto">
+<div class="absolute inset-x-0 bottom-0 md:inset-0 md:m-auto w-full md:max-w-lg md:h-fit bg-white rounded-t-2xl md:rounded-2xl card-shadow overflow-hidden max-h-[90vh] overflow-y-auto">
 {% if editing_record %}
 <form method="post" action="{% url 'doctor_siddhartha:edit_medical_record' editing_record.id %}">
 {% csrf_token %}
 <input type="hidden" name="next" value="medical_records"/>
-<div class="p-lg border-b border-outline-variant flex items-center justify-between bg-surface-container-lowest">
+<div class="p-lg border-b border-outline-variant flex items-center justify-between bg-surface-container-lowest sticky top-0">
 <h3 class="font-headline-sm text-headline-sm">Edit Medical Record</h3>
 <a href="{% url 'doctor_siddhartha:medical_records' %}" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high rounded-full p-1">close</a>
 </div>
@@ -87,7 +87,7 @@
     <label class="block font-label-md text-on-surface-variant mb-xs">Diagnosis</label>
     <input type="text" name="diagnosis" value="{{ editing_record.diagnosis }}" required class="w-full border border-outline-variant rounded-lg p-md"/>
 </div>
-<div class="grid grid-cols-2 gap-md">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
     <div>
         <label class="block font-label-md text-on-surface-variant mb-xs">Visit Date</label>
         <input type="date" name="visit_date" value="{{ editing_record.visit_date|date:'Y-m-d' }}" class="w-full border border-outline-variant rounded-lg p-md"/>
@@ -118,8 +118,8 @@
     <input type="date" name="follow_up_date" value="{{ editing_record.follow_up_date|date:'Y-m-d' }}" class="w-full border border-outline-variant rounded-lg p-md"/>
 </div>
 </div>
-<div class="p-lg bg-surface-container-low border-t border-outline-variant flex justify-end gap-md">
-<a href="{% url 'doctor_siddhartha:medical_records' %}" class="px-6 py-2 border border-outline-variant rounded-lg font-bold hover:bg-white transition-colors inline-block">Cancel</a>
+<div class="p-lg bg-surface-container-low border-t border-outline-variant flex flex-col-reverse sm:flex-row justify-end gap-md">
+<a href="{% url 'doctor_siddhartha:medical_records' %}" class="px-6 py-2 border border-outline-variant rounded-lg font-bold hover:bg-white transition-colors inline-block text-center">Cancel</a>
 <button type="submit" class="px-8 py-2 bg-primary text-white rounded-lg font-bold transition-transform active:scale-95">Update Record</button>
 </div>
 </form>

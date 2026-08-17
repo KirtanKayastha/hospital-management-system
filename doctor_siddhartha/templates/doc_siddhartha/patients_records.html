@@ -3,10 +3,10 @@
 {% block page_title %}Patients{% endblock %}
 {% block main_class %}flex-1 overflow-hidden flex flex-col md:flex-row p-md lg:p-lg gap-lg{% endblock %}
 {% block content %}
-<section class="w-full md:w-1/3 lg:w-[400px] flex flex-col gap-md">
+<section class="w-full md:w-1/3 lg:w-[400px] flex flex-col gap-md {% if selected_patient %}hidden md:flex{% endif %}">
 <div class="flex justify-between items-end mb-sm">
 <div>
-<h1 class="font-headline-md text-headline-md text-on-surface">Patients</h1>
+<h1 class="font-headline-md text-xl md:text-headline-md text-on-surface">Patients</h1>
 <p class="text-body-sm text-outline">{{ patients|length }} assigned patient{{ patients|length|pluralize }}</p>
 </div>
 </div>
@@ -21,20 +21,20 @@
 {% if patients %}
 <div class="flex flex-col">
     {% for appt in patients %}
-    <a href="?patient={{ appt.patient_id }}" class="p-lg flex items-center gap-md border-b border-outline-variant text-left transition-all hover:bg-surface-container-low {% if selected_patient and selected_patient.id == appt.patient_id %}bg-primary-fixed/20{% endif %} group">
+    <a href="?patient={{ appt.patient_id }}" class="p-md md:p-lg flex items-center gap-md border-b border-outline-variant text-left transition-all hover:bg-surface-container-low {% if selected_patient and selected_patient.id == appt.patient_id %}bg-primary-fixed/20{% endif %} group">
         {% if appt.patient_profile.profile_picture %}
         <img src="{{ appt.patient_profile.profile_picture.url }}" alt="{{ appt.patient_name }}"
-             class="w-12 h-12 rounded-full object-cover flex-shrink-0"/>
+             class="w-11 h-11 md:w-12 md:h-12 rounded-full object-cover shrink-0"/>
         {% else %}
-        <div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-outline text-lg flex-shrink-0">
+        <div class="w-11 h-11 md:w-12 md:h-12 rounded-full bg-surface-container-highest flex items-center justify-center font-bold text-outline text-lg shrink-0">
             {{ appt.patient.first_name|first|upper }}{{ appt.patient.last_name|first|upper }}
         </div>
         {% endif %}
-        <div class="flex-1">
-            <h3 class="font-bold text-on-surface">{{ appt.patient_name }}</h3>
+        <div class="flex-1 min-w-0">
+            <h3 class="font-bold text-on-surface truncate">{{ appt.patient_name }}</h3>
             <p class="text-body-sm text-outline">Last: {{ appt.display_date }}</p>
         </div>
-        <span class="material-symbols-outlined text-outline-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+        <span class="material-symbols-outlined text-outline-variant group-hover:translate-x-1 transition-transform shrink-0">chevron_right</span>
     </a>
     {% endfor %}
 </div>
@@ -48,8 +48,11 @@
 </div>
 </div>
 </section>
-<section class="flex-1 flex flex-col gap-md overflow-hidden">
+<section class="flex-1 flex flex-col gap-md overflow-hidden {% if not selected_patient %}hidden md:flex{% endif %}">
 {% if selected_patient %}
+<a href="{% url 'doctor_siddhartha:patients' %}" class="md:hidden inline-flex items-center gap-xs text-sm text-primary font-medium w-fit">
+    <span class="material-symbols-outlined text-base">arrow_back</span> Back to patient list
+</a>
 <div class="flex flex-col md:flex-row md:items-center justify-between gap-md mb-sm">
 <div class="flex items-center gap-md">
 {% if selected_patient_profile.profile_picture %}
@@ -60,8 +63,8 @@
     <span class="material-symbols-outlined text-3xl">medical_information</span>
 </div>
 {% endif %}
-<div>
-<h2 class="font-headline-sm text-headline-sm text-on-surface">{{ selected_patient.get_full_name|default:selected_patient.username }}</h2>
+<div class="min-w-0">
+<h2 class="font-headline-sm text-lg md:text-headline-sm text-on-surface truncate">{{ selected_patient.get_full_name|default:selected_patient.username }}</h2>
 <p class="text-body-sm text-outline">Patient ID: #HM-{{ selected_patient.id }}</p>
 </div>
 </div>
@@ -83,9 +86,9 @@
 </div>
 </div>
 <div class="bg-white rounded-xl card-shadow overflow-hidden">
-<div class="p-lg border-b border-outline-variant flex justify-between items-center">
+<div class="p-md md:p-lg border-b border-outline-variant flex justify-between items-center gap-sm">
 <h3 class="font-bold text-on-surface">Medical Records</h3>
-<button type="button" class="flex items-center gap-xs text-primary font-label-md text-label-sm hover:underline" onclick="document.getElementById('add-record-modal').classList.remove('hidden')">
+<button type="button" class="flex items-center gap-xs text-primary font-label-md text-label-sm hover:underline shrink-0" onclick="document.getElementById('add-record-modal').classList.remove('hidden')">
     <span class="material-symbols-outlined text-[18px]">add_circle</span>
     Add Record
 </button>
@@ -93,18 +96,18 @@
 <div class="divide-y divide-outline-variant">
 {% if patient_records %}
     {% for record in patient_records %}
-    <div class="p-lg flex items-center justify-between hover:bg-surface-container-low transition-colors">
-        <div class="flex items-center gap-lg">
-            <div class="w-12 h-12 bg-surface-container-low rounded-lg flex flex-col items-center justify-center">
+    <div class="p-md md:p-lg flex items-center justify-between gap-sm hover:bg-surface-container-low transition-colors">
+        <div class="flex items-center gap-md min-w-0">
+            <div class="w-12 h-12 bg-surface-container-low rounded-lg flex flex-col items-center justify-center shrink-0">
                 <span class="text-xs font-bold text-primary">{{ record.visit_date|date:"M"|upper }}</span>
                 <span class="text-lg font-bold text-on-surface">{{ record.visit_date|date:"d" }}</span>
             </div>
-            <div>
-                <h4 class="font-bold text-on-surface">{{ record.diagnosis }}</h4>
-                <p class="text-body-sm text-outline">{{ record.status }} &middot; {{ record.department.name|default:"General" }}</p>
+            <div class="min-w-0">
+                <h4 class="font-bold text-on-surface truncate">{{ record.diagnosis }}</h4>
+                <p class="text-body-sm text-outline truncate">{{ record.status }} &middot; {{ record.department.name|default:"General" }}</p>
             </div>
         </div>
-        <a href="?patient={{ selected_patient.id }}&edit_record={{ record.id }}" class="p-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant transition-colors">
+        <a href="?patient={{ selected_patient.id }}&edit_record={{ record.id }}" class="p-2 rounded-lg hover:bg-surface-container-low text-on-surface-variant transition-colors shrink-0">
             <span class="material-symbols-outlined text-[18px]">edit</span>
         </a>
     </div>
@@ -119,16 +122,16 @@
 </div>
 <div class="space-y-lg">
 <div class="bg-white rounded-xl card-shadow overflow-hidden">
-<div class="p-lg border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest">
+<div class="p-md md:p-lg border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest">
 <h3 class="font-bold text-on-surface">Prescriptions</h3>
 </div>
-<div class="p-lg space-y-md">
+<div class="p-md md:p-lg space-y-md">
 {% if patient_prescriptions %}
     {% for rx in patient_prescriptions %}
     <div class="p-md bg-surface-container-low rounded-lg border border-outline-variant/30">
-        <div class="flex justify-between items-start mb-1">
-            <h4 class="font-bold text-primary">{{ rx.diagnosis }}</h4>
-            <span class="text-[10px] font-bold text-secondary px-2 py-0.5 bg-secondary-container rounded">Active</span>
+        <div class="flex justify-between items-start mb-1 gap-2">
+            <h4 class="font-bold text-primary truncate">{{ rx.diagnosis }}</h4>
+            <span class="text-[10px] font-bold text-secondary px-2 py-0.5 bg-secondary-container rounded shrink-0">Active</span>
         </div>
         <p class="text-xs text-on-surface-variant">Prescribed: {{ rx.prescribed_on|date:"M d, Y" }}</p>
         <ul class="mt-2 space-y-1">
@@ -149,8 +152,8 @@
 </div>
 </div>
 {% else %}
-<div class="flex-1 flex items-center justify-center">
-<div class="text-center">
+<div class="flex-1 flex items-center justify-center min-h-[40vh]">
+<div class="text-center px-md">
     <span class="material-symbols-outlined text-5xl text-on-surface-variant">clinical_notes</span>
     <p class="font-headline-sm text-headline-sm text-on-surface mt-md">Select a patient</p>
     <p class="font-body-sm text-on-surface-variant">Choose a patient from the list to view their records.</p>
@@ -163,11 +166,11 @@
 {% block modals %}
 <div class="fixed inset-0 z-[100] hidden" id="add-record-modal">
 <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="document.getElementById('add-record-modal').classList.add('hidden')"></div>
-<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl card-shadow overflow-hidden max-h-[90vh] overflow-y-auto">
+<div class="absolute inset-x-0 bottom-0 md:inset-0 md:m-auto w-full md:max-w-lg md:h-fit bg-white rounded-t-2xl md:rounded-2xl card-shadow overflow-hidden max-h-[90vh] overflow-y-auto">
 {% if selected_patient %}
 <form method="post" action="{% url 'doctor_siddhartha:add_medical_record' selected_patient.id %}">
 {% csrf_token %}
-<div class="p-lg border-b border-outline-variant flex items-center justify-between bg-surface-container-lowest">
+<div class="p-lg border-b border-outline-variant flex items-center justify-between bg-surface-container-lowest sticky top-0">
 <h3 class="font-headline-sm text-headline-sm">Add Medical Record</h3>
 <button type="button" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high rounded-full p-1" onclick="document.getElementById('add-record-modal').classList.add('hidden')">close</button>
 </div>
@@ -176,7 +179,7 @@
     <label class="block font-label-md text-on-surface-variant mb-xs">Diagnosis</label>
     <input type="text" name="diagnosis" required class="w-full border border-outline-variant rounded-lg p-md"/>
 </div>
-<div class="grid grid-cols-2 gap-md">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
     <div>
         <label class="block font-label-md text-on-surface-variant mb-xs">Visit Date</label>
         <input type="date" name="visit_date" value="{% now 'Y-m-d' %}" class="w-full border border-outline-variant rounded-lg p-md"/>
@@ -207,7 +210,7 @@
     <input type="date" name="follow_up_date" class="w-full border border-outline-variant rounded-lg p-md"/>
 </div>
 </div>
-<div class="p-lg bg-surface-container-low border-t border-outline-variant flex justify-end gap-md">
+<div class="p-lg bg-surface-container-low border-t border-outline-variant flex flex-col-reverse sm:flex-row justify-end gap-md">
 <button type="button" class="px-6 py-2 border border-outline-variant rounded-lg font-bold hover:bg-white transition-colors" onclick="document.getElementById('add-record-modal').classList.add('hidden')">Cancel</button>
 <button type="submit" class="px-8 py-2 bg-primary text-white rounded-lg font-bold transition-transform active:scale-95">Save Record</button>
 </div>
@@ -218,11 +221,11 @@
 
 <div class="fixed inset-0 z-[100] {% if not editing_record %}hidden{% endif %}" id="edit-record-modal">
 <a href="?patient={{ selected_patient.id }}" class="absolute inset-0 bg-black/40 backdrop-blur-sm"></a>
-<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl card-shadow overflow-hidden max-h-[90vh] overflow-y-auto">
+<div class="absolute inset-x-0 bottom-0 md:inset-0 md:m-auto w-full md:max-w-lg md:h-fit bg-white rounded-t-2xl md:rounded-2xl card-shadow overflow-hidden max-h-[90vh] overflow-y-auto">
 {% if editing_record %}
 <form method="post" action="{% url 'doctor_siddhartha:edit_medical_record' editing_record.id %}">
 {% csrf_token %}
-<div class="p-lg border-b border-outline-variant flex items-center justify-between bg-surface-container-lowest">
+<div class="p-lg border-b border-outline-variant flex items-center justify-between bg-surface-container-lowest sticky top-0">
 <h3 class="font-headline-sm text-headline-sm">Edit Medical Record</h3>
 <a href="?patient={{ selected_patient.id }}" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high rounded-full p-1">close</a>
 </div>
@@ -231,7 +234,7 @@
     <label class="block font-label-md text-on-surface-variant mb-xs">Diagnosis</label>
     <input type="text" name="diagnosis" value="{{ editing_record.diagnosis }}" required class="w-full border border-outline-variant rounded-lg p-md"/>
 </div>
-<div class="grid grid-cols-2 gap-md">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-md">
     <div>
         <label class="block font-label-md text-on-surface-variant mb-xs">Visit Date</label>
         <input type="date" name="visit_date" value="{{ editing_record.visit_date|date:'Y-m-d' }}" class="w-full border border-outline-variant rounded-lg p-md"/>
@@ -262,8 +265,8 @@
     <input type="date" name="follow_up_date" value="{{ editing_record.follow_up_date|date:'Y-m-d' }}" class="w-full border border-outline-variant rounded-lg p-md"/>
 </div>
 </div>
-<div class="p-lg bg-surface-container-low border-t border-outline-variant flex justify-end gap-md">
-<a href="?patient={{ selected_patient.id }}" class="px-6 py-2 border border-outline-variant rounded-lg font-bold hover:bg-white transition-colors inline-block">Cancel</a>
+<div class="p-lg bg-surface-container-low border-t border-outline-variant flex flex-col-reverse sm:flex-row justify-end gap-md">
+<a href="?patient={{ selected_patient.id }}" class="px-6 py-2 border border-outline-variant rounded-lg font-bold hover:bg-white transition-colors inline-block text-center">Cancel</a>
 <button type="submit" class="px-8 py-2 bg-primary text-white rounded-lg font-bold transition-transform active:scale-95">Update Record</button>
 </div>
 </form>

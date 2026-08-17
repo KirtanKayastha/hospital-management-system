@@ -101,7 +101,7 @@
                     "headline-sm": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
                     "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
                     "headline-lg": ["28px", {"lineHeight": "36px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
-                    "headline-lg-mobile": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
+                    "headline-lg-mobile": ["22px", {"lineHeight": "30px", "letterSpacing": "-0.01em", "fontWeight": "700"}]
                 },
                 "boxShadow": {
                     "card": "0px 1px 2px 0px rgba(15, 23, 42, 0.05)",
@@ -125,7 +125,7 @@
     .custom-shadow-md,
     .card-shadow-hover:hover { box-shadow: 0px 4px 6px -1px rgba(15, 23, 42, 0.1); }
 
-    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #c3c6d7; border-radius: 10px; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
@@ -169,11 +169,16 @@
 <body class="bg-background text-on-surface font-body-md h-screen flex overflow-hidden">
 {% with un=request.resolver_match.url_name %}
 
-<aside class="hidden lg:flex flex-col w-64 h-screen sticky top-0 left-0 shrink-0 border-r border-outline-variant bg-surface-container-lowest shadow-sm">
-<div class="p-lg flex flex-col h-full">
-    <h1 class="font-headline-md text-headline-md font-bold text-primary mb-xl">HM System</h1>
+<aside id="sidebar" class="fixed lg:sticky top-0 left-0 z-50 flex flex-col w-64 h-screen shrink-0 border-r border-outline-variant bg-surface-container-lowest shadow-sm transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out">
+<div class="p-lg flex flex-col h-full overflow-y-auto custom-scrollbar">
+    <div class="flex items-center justify-between mb-xl shrink-0">
+        <h1 class="font-headline-md text-headline-md font-bold text-primary">HM System</h1>
+        <button type="button" class="lg:hidden text-on-surface-variant p-1" onclick="closeSidebar()" aria-label="Close menu">
+            <span class="material-symbols-outlined">close</span>
+        </button>
+    </div>
 
-    <div class="flex items-center gap-md mb-xl p-md rounded-xl bg-surface-container-low">
+    <div class="flex items-center gap-md mb-xl p-md rounded-xl bg-surface-container-low shrink-0">
         {% if request.user.doctor_profile.profile_picture %}
         <img src="{{ request.user.doctor_profile.profile_picture.url }}" alt="Profile" class="w-12 h-12 rounded-full object-cover shrink-0"/>
         {% else %}
@@ -181,7 +186,7 @@
             {{ request.user.doctor_profile.user.first_name|first|upper }}{{ request.user.doctor_profile.user.last_name|first|upper }}
         </div>
         {% endif %}
-        <div class="overflow-hidden">
+        <div class="overflow-hidden min-w-0">
             <p class="font-label-md text-label-md text-primary truncate">Dr. {{ request.user.doctor_profile.display_name }}</p>
             <p class="text-label-sm text-on-surface-variant truncate">{{ request.user.doctor_profile.specialization|default:"General Medicine" }}</p>
         </div>
@@ -208,33 +213,34 @@
             <span class="material-symbols-outlined text-[22px]"{% if un == 'medical_records' %} style="font-variation-settings: 'FILL' 1;"{% endif %}>medical_services</span>
             Medical Records
         </a>
-        <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-colors duration-150 {% if un == 'lab_reports' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}" href="{% url 'doctor_siddhartha:lab_reports' %}">
-            <span class="material-symbols-outlined text-[22px]"{% if un == 'lab_reports' %} style="font-variation-settings: 'FILL' 1;"{% endif %}>science</span>
-            Lab Reports
-        </a>
         <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-colors duration-150 {% if un == 'edit_profile' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}" href="{% url 'doctor_siddhartha:edit_profile' %}">
             <span class="material-symbols-outlined text-[22px]"{% if un == 'edit_profile' %} style="font-variation-settings: 'FILL' 1;"{% endif %}>person</span>
             Profile
         </a>
     </nav>
 
-    <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-error hover:bg-error-container/40 transition-colors duration-150" href="{% url 'auth_kirtan:logout' %}">
+    <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-error hover:bg-error-container/40 transition-colors duration-150 shrink-0" href="{% url 'auth_kirtan:logout' %}">
         <span class="material-symbols-outlined text-[22px]">logout</span>
         Logout
     </a>
 </div>
 </aside>
 
+<div id="sidebar-overlay" class="hidden fixed inset-0 bg-black/40 z-40 lg:hidden" onclick="closeSidebar()"></div>
+
 <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
 
-<header class="flex items-center justify-between px-lg h-16 shrink-0 sticky top-0 z-40 bg-surface-container-lowest border-b border-outline-variant">
+<header class="flex items-center justify-between px-md md:px-lg h-16 shrink-0 sticky top-0 z-30 bg-surface-container-lowest border-b border-outline-variant gap-sm">
+    <button type="button" class="lg:hidden shrink-0 text-on-surface-variant p-1" onclick="openSidebar()" aria-label="Open menu">
+        <span class="material-symbols-outlined">menu</span>
+    </button>
     {% block topbar_left %}
-    <form class="relative w-full max-w-md" method="get" action="{% url 'doctor_siddhartha:patients' %}">
+    <form class="relative w-full max-w-md min-w-0" method="get" action="{% url 'doctor_siddhartha:patients' %}">
         <span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
         <input class="w-full pl-xl pr-md py-2 bg-surface-container-low border border-outline-variant rounded-full text-body-sm focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none" placeholder="Search patients..." type="text" name="search"/>
     </form>
     {% endblock %}
-    <div class="flex items-center gap-md shrink-0 ml-lg">
+    <div class="flex items-center gap-sm md:gap-md shrink-0 ml-sm md:ml-lg">
         <span class="hidden lg:block font-headline-sm text-headline-sm text-on-surface">{% block page_title %}{% endblock %}</span>
         <a href="{% url 'doctor_siddhartha:notifications' %}" class="relative p-xs rounded-full text-on-surface-variant hover:bg-surface-container-high transition-all">
             <span class="material-symbols-outlined text-[22px]">notifications</span>
@@ -242,8 +248,8 @@
             <span class="absolute top-0 right-0 min-w-[16px] h-4 px-1 bg-error text-white rounded-full text-[10px] leading-4 text-center font-bold">{{ unread_notification_count }}</span>
             {% endif %}
         </a>
-        <a href="{% url 'doctor_siddhartha:edit_profile' %}" class="p-xs rounded-full text-on-surface-variant hover:bg-surface-container-high transition-all"><span class="material-symbols-outlined text-[22px]">settings</span></a>
-        <div class="h-8 w-px bg-outline-variant mx-xs"></div>
+        <a href="{% url 'doctor_siddhartha:edit_profile' %}" class="hidden sm:inline-block p-xs rounded-full text-on-surface-variant hover:bg-surface-container-high transition-all"><span class="material-symbols-outlined text-[22px]">settings</span></a>
+        <div class="hidden sm:block h-8 w-px bg-outline-variant mx-xs"></div>
         {% if request.user.doctor_profile.profile_picture %}
         <img src="{{ request.user.doctor_profile.profile_picture.url }}" alt="Profile" class="w-8 h-8 rounded-full object-cover shrink-0"/>
         {% else %}
@@ -254,7 +260,7 @@
     </div>
 </header>
 
-<main class="{% block main_class %}flex-1 overflow-y-auto p-lg{% endblock %}">
+<main class="{% block main_class %}flex-1 overflow-y-auto p-md md:p-lg{% endblock %}">
 {% block content %}{% endblock %}
 </main>
 
@@ -263,6 +269,16 @@
 {% block modals %}{% endblock %}
 {% endwith %}
 
+<script>
+    function openSidebar() {
+        document.getElementById('sidebar').classList.remove('-translate-x-full');
+        document.getElementById('sidebar-overlay').classList.remove('hidden');
+    }
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.add('-translate-x-full');
+        document.getElementById('sidebar-overlay').classList.add('hidden');
+    }
+</script>
 {% block extra_js %}{% endblock %}
 </body>
 </html>

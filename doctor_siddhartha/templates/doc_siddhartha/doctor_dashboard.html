@@ -2,9 +2,9 @@
 {% block title %}Doctor Dashboard{% endblock %}
 {% block page_title %}Dashboard{% endblock %}
 {% block topbar_left %}
-<div class="flex items-center gap-lg">
-    <span class="font-headline-sm text-headline-sm font-bold text-primary lg:hidden">MedCore Portal</span>
-    <p class="hidden lg:block text-label-sm text-on-surface-variant uppercase tracking-wider">{{ today_label }}</p>
+<div class="flex items-center gap-md min-w-0">
+    <span class="font-headline-sm text-headline-sm font-bold text-primary lg:hidden truncate">HM System</span>
+    <p class="hidden lg:block text-label-sm text-on-surface-variant uppercase tracking-wider truncate">{{ today_label }}</p>
 </div>
 {% endblock %}
 {% block content %}
@@ -12,62 +12,62 @@
 
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-md">
 <div>
-    <h2 class="font-headline-lg text-headline-lg text-on-surface">Doctor Dashboard</h2>
-    <p class="text-on-surface-variant font-body-md">Live overview of today's clinical workload.</p>
+    <h2 class="font-headline-lg text-[22px] md:text-headline-lg text-on-surface">Doctor Dashboard</h2>
+    <p class="text-on-surface-variant font-body-md text-sm md:text-base">Live overview of today's clinical workload.</p>
 </div>
-<span class="px-md py-xs bg-primary-fixed text-on-primary-fixed-variant rounded-full font-label-sm text-label-sm">{{ doctor_profile.specialization|default:"General Medicine" }}</span>
+<span class="w-fit px-md py-xs bg-primary-fixed text-on-primary-fixed-variant rounded-full font-label-sm text-label-sm">{{ doctor_profile.specialization|default:"General Medicine" }}</span>
 </div>
 
-<section class="grid gap-lg md:grid-cols-3">
-<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant flex items-center gap-lg">
-    <div class="w-14 h-14 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
-        <span class="material-symbols-outlined text-[28px]">group</span>
+<section class="grid grid-cols-1 sm:grid-cols-3 gap-md md:gap-lg">
+<div class="bg-surface-container-lowest p-md md:p-lg rounded-xl shadow-sm border border-outline-variant flex items-center gap-md md:gap-lg">
+    <div class="w-12 h-12 md:w-14 md:h-14 rounded-lg bg-primary/10 flex items-center justify-center text-primary shrink-0">
+        <span class="material-symbols-outlined text-[24px] md:text-[28px]">group</span>
     </div>
-    <div>
+    <div class="min-w-0">
         <p class="text-label-sm text-on-surface-variant uppercase tracking-wide">Total Patients</p>
-        <h3 class="font-headline-md text-headline-md text-on-surface">{{ total_patients }}</h3>
+        <h3 class="font-headline-md text-xl md:text-headline-md text-on-surface">{{ total_patients }}</h3>
     </div>
 </div>
-<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant flex items-center gap-lg">
-    <div class="w-14 h-14 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
-        <span class="material-symbols-outlined text-[28px]">event</span>
+<div class="bg-surface-container-lowest p-md md:p-lg rounded-xl shadow-sm border border-outline-variant flex items-center gap-md md:gap-lg">
+    <div class="w-12 h-12 md:w-14 md:h-14 rounded-lg bg-secondary/10 flex items-center justify-center text-secondary shrink-0">
+        <span class="material-symbols-outlined text-[24px] md:text-[28px]">event</span>
     </div>
-    <div>
+    <div class="min-w-0">
         <p class="text-label-sm text-on-surface-variant uppercase tracking-wide">Today's Appointments</p>
-        <h3 class="font-headline-md text-headline-md text-on-surface">{{ todays_appointments }}</h3>
+        <h3 class="font-headline-md text-xl md:text-headline-md text-on-surface">{{ todays_appointments }}</h3>
     </div>
 </div>
-<div class="bg-surface-container-lowest p-lg rounded-xl shadow-sm border border-outline-variant flex items-center gap-lg">
-    <div class="w-14 h-14 rounded-lg bg-tertiary/10 flex items-center justify-center text-tertiary shrink-0">
-        <span class="material-symbols-outlined text-[28px]">medication</span>
+<div class="bg-surface-container-lowest p-md md:p-lg rounded-xl shadow-sm border border-outline-variant flex items-center gap-md md:gap-lg">
+    <div class="w-12 h-12 md:w-14 md:h-14 rounded-lg bg-tertiary/10 flex items-center justify-center text-tertiary shrink-0">
+        <span class="material-symbols-outlined text-[24px] md:text-[28px]">medication</span>
     </div>
-    <div>
+    <div class="min-w-0">
         <p class="text-label-sm text-on-surface-variant uppercase tracking-wide">Pending Prescriptions</p>
-        <h3 class="font-headline-md text-headline-md text-on-surface">{{ pending_prescriptions }}</h3>
+        <h3 class="font-headline-md text-xl md:text-headline-md text-on-surface">{{ pending_prescriptions }}</h3>
     </div>
 </div>
 </section>
 
 {% if pending_appointments %}
 <section class="bg-surface-container-lowest rounded-xl border border-tertiary-fixed-dim/40 shadow-sm overflow-hidden">
-<div class="p-lg border-b border-outline-variant flex items-center justify-between bg-tertiary-fixed/20">
-    <h2 class="font-headline-sm text-headline-sm text-on-tertiary-fixed-variant">Pending Approvals</h2>
-                    <span class="hm-badge hm-badge-pending hm-badge-none">{{ pending_appointments|length }} Pending</span>
+<div class="p-md md:p-lg border-b border-outline-variant flex items-center justify-between bg-tertiary-fixed/20 gap-sm">
+    <h2 class="font-headline-sm text-base md:text-headline-sm text-on-tertiary-fixed-variant">Pending Approvals</h2>
+    <span class="hm-badge hm-badge-pending hm-badge-none shrink-0">{{ pending_appointments|length }} Pending</span>
 </div>
-<div class="p-lg space-y-md">
+<div class="p-md md:p-lg space-y-md">
     {% for appointment in pending_appointments %}
-    <div class="rounded-xl bg-surface-container-low p-lg flex flex-col sm:flex-row sm:items-center justify-between gap-md border border-outline-variant/40">
-        <div class="flex-1">
-            <p class="font-bold text-on-surface">{{ appointment.patient_name }}</p>
+    <div class="rounded-xl bg-surface-container-low p-md flex flex-col sm:flex-row sm:items-center justify-between gap-md border border-outline-variant/40">
+        <div class="flex-1 min-w-0">
+            <p class="font-bold text-on-surface truncate">{{ appointment.patient_name }}</p>
             <p class="text-body-sm text-on-surface-variant mt-xs">{{ appointment.display_date }} at {{ appointment.display_time }} &middot; {{ appointment.department_name }}</p>
             <p class="text-body-sm text-on-surface-variant mt-xs">{{ appointment.reason|truncatechars:80 }}</p>
         </div>
-        <div class="flex items-center gap-sm">
-            <a href="{% url 'doctor_siddhartha:approve_appointment' appointment.id %}" class="inline-flex items-center gap-xs px-md py-sm rounded-lg bg-secondary text-on-secondary font-label-md text-label-sm hover:opacity-90 transition-opacity">
+        <div class="flex items-center gap-sm shrink-0">
+            <a href="{% url 'doctor_siddhartha:approve_appointment' appointment.id %}" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-xs px-md py-sm rounded-lg bg-secondary text-on-secondary font-label-md text-label-sm hover:opacity-90 transition-opacity">
                 <span class="material-symbols-outlined text-[18px]">check</span>
                 Approve
             </a>
-            <a href="{% url 'doctor_siddhartha:reject_appointment' appointment.id %}" class="inline-flex items-center gap-xs px-md py-sm rounded-lg bg-error text-on-error font-label-md text-label-sm hover:opacity-90 transition-opacity">
+            <a href="{% url 'doctor_siddhartha:reject_appointment' appointment.id %}" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-xs px-md py-sm rounded-lg bg-error text-on-error font-label-md text-label-sm hover:opacity-90 transition-opacity">
                 <span class="material-symbols-outlined text-[18px]">close</span>
                 Reject
             </a>
@@ -78,18 +78,18 @@
 </section>
 {% endif %}
 
-<section class="grid gap-lg lg:grid-cols-2">
+<section class="grid gap-md md:gap-lg lg:grid-cols-2">
 <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
-    <div class="p-lg border-b border-outline-variant flex items-center justify-between">
-        <h2 class="font-headline-sm text-headline-sm text-on-surface">Today's Schedule</h2>
-        <a class="text-primary font-label-md text-label-sm hover:underline" href="{% url 'doctor_siddhartha:schedule' %}">View all</a>
+    <div class="p-md md:p-lg border-b border-outline-variant flex items-center justify-between">
+        <h2 class="font-headline-sm text-base md:text-headline-sm text-on-surface">Today's Schedule</h2>
+        <a class="text-primary font-label-md text-label-sm hover:underline shrink-0" href="{% url 'doctor_siddhartha:schedule' %}">View all</a>
     </div>
-    <div class="p-lg space-y-md">
+    <div class="p-md md:p-lg space-y-md">
         {% for appointment in today_schedule %}
         <div class="rounded-xl bg-surface-container-low p-md flex items-center justify-between gap-md">
-            <div>
-                <p class="font-bold text-on-surface">{{ appointment.patient_name }}</p>
-                <p class="text-body-sm text-on-surface-variant">{{ appointment.department_name }} &middot; {{ appointment.reason|truncatechars:60 }}</p>
+            <div class="min-w-0">
+                <p class="font-bold text-on-surface truncate">{{ appointment.patient_name }}</p>
+                <p class="text-body-sm text-on-surface-variant truncate">{{ appointment.department_name }} &middot; {{ appointment.reason|truncatechars:60 }}</p>
             </div>
             <div class="text-right shrink-0">
                 <p class="font-label-md text-label-sm text-on-surface">{{ appointment.display_time }}</p>
@@ -106,11 +106,11 @@
 </div>
 
 <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
-    <div class="p-lg border-b border-outline-variant flex items-center justify-between">
-        <h2 class="font-headline-sm text-headline-sm text-on-surface">Recent Patients</h2>
-        <a class="text-primary font-label-md text-label-sm hover:underline" href="{% url 'doctor_siddhartha:patients' %}">Open records</a>
+    <div class="p-md md:p-lg border-b border-outline-variant flex items-center justify-between">
+        <h2 class="font-headline-sm text-base md:text-headline-sm text-on-surface">Recent Patients</h2>
+        <a class="text-primary font-label-md text-label-sm hover:underline shrink-0" href="{% url 'doctor_siddhartha:patients' %}">Open records</a>
     </div>
-    <div class="p-lg space-y-md">
+    <div class="p-md md:p-lg space-y-md">
         {% for appointment in recent_patients %}
         <div class="rounded-xl bg-surface-container-low p-md flex items-center justify-between gap-md">
             <div class="flex items-center gap-md min-w-0">

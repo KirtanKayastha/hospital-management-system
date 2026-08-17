@@ -10,7 +10,6 @@ from admin_nishan.models import (
     BillingInvoice,
     Department,
     DoctorAvailability,
-    LabReport,
     MedicalRecord,
     Notification,
     Prescription,

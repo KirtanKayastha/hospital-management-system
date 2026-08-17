@@ -3,7 +3,7 @@
 {% block page_title %}Prescriptions{% endblock %}
 {% block main_class %}flex-1 overflow-y-auto relative no-scrollbar{% endblock %}
 {% block content %}
-<div class="p-lg max-w-container-max mx-auto space-y-lg pb-xxl">
+<div class="p-md md:p-lg max-w-container-max mx-auto space-y-lg pb-xxl">
 
 {% if messages %}
 <div class="space-y-sm">
@@ -16,11 +16,11 @@
 {% endif %}
 
 <section class="grid grid-cols-1 md:grid-cols-3 gap-lg">
-<form method="get" action="" class="md:col-span-2 bg-white rounded-xl p-lg shadow-sm border border-outline-variant flex flex-col gap-md">
+<form method="get" action="" class="md:col-span-2 bg-white rounded-xl p-md md:p-lg shadow-sm border border-outline-variant flex flex-col gap-md">
 <label class="font-label-md text-label-md text-on-surface-variant">Select Patient</label>
 <div class="relative group">
 <span class="absolute left-md top-1/2 -translate-y-1/2 material-symbols-outlined text-primary text-[20px]">person_search</span>
-<select name="patient" onchange="this.form.submit()" class="w-full pl-xl pr-md py-md rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md bg-white">
+<select name="patient" onchange="this.form.submit()" class="w-full pl-xl pr-md py-md rounded-lg border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md bg-white text-sm md:text-base">
     <option value="">-- Select a patient --</option>
     {% for p in patients %}
     <option value="{{ p.patient_id }}" {% if selected_patient and selected_patient.id == p.patient_id %}selected{% endif %}>
@@ -63,9 +63,9 @@
 </section>
 
 {% if selected_patient %}
-<div class="flex gap-md border-b border-outline-variant">
-<button class="pb-md px-md font-label-md text-primary border-b-2 border-primary transition-all" id="tab-new" onclick="switchTab('new')">{% if editing_prescription %}Edit Prescription{% else %}New Prescription{% endif %}</button>
-<button class="pb-md px-md font-label-md text-outline hover:text-on-surface transition-all" id="tab-past" onclick="switchTab('past')">View Past Prescriptions</button>
+<div class="flex gap-md border-b border-outline-variant overflow-x-auto no-scrollbar">
+<button class="pb-md px-md font-label-md text-primary border-b-2 border-primary transition-all whitespace-nowrap" id="tab-new" onclick="switchTab('new')">{% if editing_prescription %}Edit Prescription{% else %}New Prescription{% endif %}</button>
+<button class="pb-md px-md font-label-md text-outline hover:text-on-surface transition-all whitespace-nowrap" id="tab-past" onclick="switchTab('past')">View Past Prescriptions</button>
 </div>
 <div class="space-y-lg" id="content-new">
 <form method="post" action="" class="bg-white rounded-xl shadow-sm border border-outline-variant overflow-hidden">
@@ -74,23 +74,23 @@
 {% if editing_prescription %}
 <input type="hidden" name="prescription_id" value="{{ editing_prescription.id }}"/>
 {% endif %}
-<div class="p-lg border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest">
+<div class="p-md md:p-lg border-b border-outline-variant flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 bg-surface-container-lowest">
 <h2 class="font-headline-sm text-headline-sm text-on-surface">{% if editing_prescription %}Editing Prescription{% else %}Prescription Details{% endif %}</h2>
 <span class="text-label-sm text-outline">Date: {% now "M d, Y" %}</span>
 </div>
-<div class="p-lg space-y-lg">
+<div class="p-md md:p-lg space-y-lg">
 <div class="flex flex-col gap-sm">
 <label class="font-label-md text-label-md text-on-surface-variant">Diagnosis &amp; Clinical Notes</label>
-<textarea class="w-full p-md rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md" placeholder="Enter patient diagnosis, symptoms, and clinical findings..." rows="3" name="diagnosis">{% if editing_prescription %}{{ editing_prescription.diagnosis }}{% endif %}</textarea>
+<textarea class="w-full p-md rounded-lg border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-sm md:text-base" placeholder="Enter patient diagnosis, symptoms, and clinical findings..." rows="3" name="diagnosis">{% if editing_prescription %}{{ editing_prescription.diagnosis }}{% endif %}</textarea>
 </div>
 <div class="flex flex-col gap-sm">
 <div class="flex justify-between items-center">
 <label class="font-label-md text-label-md text-on-surface-variant">Prescribed Medicines</label>
 </div>
 <div class="overflow-x-auto rounded-lg border border-outline-variant">
-<table class="w-full text-left border-collapse" id="medicine-table">
+<table class="w-full text-left border-collapse min-w-[560px]" id="medicine-table">
 <thead>
-<tr class="bg-surface-container text-on-surface-variant font-label-md">
+<tr class="bg-surface-container text-on-surface-variant font-label-md text-xs md:text-sm">
 <th class="p-md border-b border-outline-variant">Medicine Name</th>
 <th class="p-md border-b border-outline-variant">Dosage</th>
 <th class="p-md border-b border-outline-variant">Frequency</th>
@@ -98,44 +98,44 @@
 <th class="p-md border-b border-outline-variant w-16"></th>
 </tr>
 </thead>
-<tbody class="font-body-md">
+<tbody class="font-body-md text-sm">
 {% if editing_prescription and editing_prescription.items.all %}
     {% for item in editing_prescription.items.all %}
     <tr class="hover:bg-surface-container-low border-b border-outline-variant">
-    <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="medicine_name" value="{{ item.medicine_name }}" placeholder="Enter medicine..."/></td>
-    <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="dosage" value="{{ item.dosage }}" placeholder="e.g. 5ml"/></td>
-    <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="frequency" value="{{ item.frequency }}" placeholder="e.g. 3x daily"/></td>
-    <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="duration" value="{{ item.duration }}" placeholder="e.g. 1 week"/></td>
+    <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-sm" type="text" name="medicine_name" value="{{ item.medicine_name }}" placeholder="Enter medicine..."/></td>
+    <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-sm" type="text" name="dosage" value="{{ item.dosage }}" placeholder="e.g. 5ml"/></td>
+    <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-sm" type="text" name="frequency" value="{{ item.frequency }}" placeholder="e.g. 3x daily"/></td>
+    <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-sm" type="text" name="duration" value="{{ item.duration }}" placeholder="e.g. 1 week"/></td>
     <td class="p-md text-center"><button type="button" class="text-outline hover:text-error transition-colors" onclick="removeRow(this)"><span class="material-symbols-outlined">delete</span></button></td>
     </tr>
     {% endfor %}
 {% else %}
 <tr class="hover:bg-surface-container-low border-b border-outline-variant">
-<td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="medicine_name" placeholder="Enter medicine..."/></td>
-<td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="dosage" placeholder="e.g. 5ml"/></td>
-<td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="frequency" placeholder="e.g. 3x daily"/></td>
-<td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="duration" placeholder="e.g. 1 week"/></td>
+<td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-sm" type="text" name="medicine_name" placeholder="Enter medicine..."/></td>
+<td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-sm" type="text" name="dosage" placeholder="e.g. 5ml"/></td>
+<td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-sm" type="text" name="frequency" placeholder="e.g. 3x daily"/></td>
+<td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-sm" type="text" name="duration" placeholder="e.g. 1 week"/></td>
 <td class="p-md text-center"><button type="button" class="text-outline hover:text-error transition-colors" onclick="removeRow(this)"><span class="material-symbols-outlined">delete</span></button></td>
 </tr>
 {% endif %}
 </tbody>
 </table>
 </div>
-<button type="button" class="flex items-center gap-xs text-primary font-label-md hover:underline" onclick="addRow()">
+<button type="button" class="flex items-center gap-xs text-primary font-label-md hover:underline w-fit" onclick="addRow()">
 <span class="material-symbols-outlined text-[18px]">add_circle</span>
 Add Medicine
 </button>
 </div>
 <div class="flex flex-col gap-sm">
 <label class="font-label-md text-label-md text-on-surface-variant">Additional Notes / Warnings</label>
-<textarea class="w-full p-md rounded-lg border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md" placeholder="Special instructions for patient..." rows="2" name="notes">{% if editing_prescription %}{{ editing_prescription.notes }}{% endif %}</textarea>
+<textarea class="w-full p-md rounded-lg border border-outline-variant focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all font-body-md text-sm md:text-base" placeholder="Special instructions for patient..." rows="2" name="notes">{% if editing_prescription %}{{ editing_prescription.notes }}{% endif %}</textarea>
 </div>
 </div>
-<div class="p-lg bg-surface-container-low border-t border-outline-variant flex flex-wrap gap-md justify-end">
+<div class="p-md md:p-lg bg-surface-container-low border-t border-outline-variant flex flex-col sm:flex-row sm:flex-wrap gap-md justify-end">
 {% if editing_prescription %}
-<a href="?patient={{ selected_patient.id }}" class="px-xl py-md rounded-lg border border-outline-variant text-on-surface font-label-md hover:bg-white transition-all">Cancel Edit</a>
+<a href="?patient={{ selected_patient.id }}" class="px-xl py-md rounded-lg border border-outline-variant text-on-surface font-label-md hover:bg-white transition-all text-center">Cancel Edit</a>
 {% endif %}
-<button type="submit" class="px-xl py-md rounded-lg bg-primary text-on-primary font-label-md hover:brightness-110 active:scale-95 transition-all flex items-center gap-sm shadow-sm">
+<button type="submit" class="px-xl py-md rounded-lg bg-primary text-on-primary font-label-md hover:brightness-110 active:scale-95 transition-all flex items-center justify-center gap-sm shadow-sm">
     <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">save</span>
     {% if editing_prescription %}Update Prescription{% else %}Save Prescription{% endif %}
 </button>
@@ -153,8 +153,8 @@ Add Medicine
 </div>
 <span class="text-label-sm text-outline">{{ rx.prescribed_on|date:"M d, Y" }}</span>
 </div>
-<h4 class="font-headline-sm text-headline-sm mb-xs">{{ rx.diagnosis }}</h4>
-<p class="text-body-sm text-on-surface-variant mb-md">Patient: {{ rx.patient_name }}</p>
+<h4 class="font-headline-sm text-headline-sm mb-xs truncate">{{ rx.diagnosis }}</h4>
+<p class="text-body-sm text-on-surface-variant mb-md truncate">Patient: {{ rx.patient_name }}</p>
 <ul class="space-y-1 mb-md">
     {% for item in rx.items.all %}
     <li class="text-xs text-on-surface-variant">{{ item.medicine_name }} — {{ item.dosage }}, {{ item.frequency }}</li>
@@ -216,10 +216,10 @@ Add Medicine
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-surface-container-lowest border-b border-outline-variant';
             tr.innerHTML = `
-                <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="medicine_name" placeholder="Enter medicine..."/></td>
-                <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="dosage" placeholder="e.g. 5ml"/></td>
-                <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="frequency" placeholder="e.g. 3x daily"/></td>
-                <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-body-md" type="text" name="duration" placeholder="e.g. 1 week"/></td>
+                <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-sm" type="text" name="medicine_name" placeholder="Enter medicine..."/></td>
+                <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-sm" type="text" name="dosage" placeholder="e.g. 5ml"/></td>
+                <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-sm" type="text" name="frequency" placeholder="e.g. 3x daily"/></td>
+                <td class="p-md"><input class="w-full bg-transparent border-none focus:ring-0 p-0 text-sm" type="text" name="duration" placeholder="e.g. 1 week"/></td>
                 <td class="p-md text-center"><button type="button" class="text-outline hover:text-error transition-colors" onclick="removeRow(this)"><span class="material-symbols-outlined">delete</span></button></td>`;
             tbody.appendChild(tr);
         }

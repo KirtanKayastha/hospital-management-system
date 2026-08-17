@@ -1,61 +1,88 @@
 {% extends 'doc_siddhartha/base.html' %}
 {% block title %}Schedule Management{% endblock %}
 {% block page_title %}Schedule{% endblock %}
-{% block main_class %}flex-1 overflow-y-auto p-lg bg-surface{% endblock %}
+{% block main_class %}flex-1 overflow-y-auto p-md md:p-lg bg-surface{% endblock %}
 {% block content %}
-<div class="max-w-7xl mx-auto">
+<div class="max-w-7xl mx-auto space-y-lg pb-xxl">
 
-<div class="flex flex-col md:flex-row md:items-center justify-between mb-lg gap-md">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-md">
 <div>
-<h2 class="font-headline-lg text-headline-lg text-on-surface">Schedule Management</h2>
-<p class="text-on-surface-variant font-body-md">Configure your availability and manage patient appointments.</p>
+<h2 class="font-headline-lg text-[22px] md:text-headline-lg text-on-surface">Schedule Management</h2>
+<p class="text-on-surface-variant font-body-md text-sm md:text-base">Configure your availability and manage patient appointments.</p>
 </div>
-<button class="bg-primary text-white py-2 px-6 rounded-lg font-bold flex items-center gap-2 custom-shadow-sm hover:opacity-90 transition-opacity active:scale-95" onclick="openModal('add')">
+<button class="w-full md:w-auto bg-primary text-white py-2 px-6 rounded-lg font-bold flex items-center justify-center gap-2 custom-shadow-sm hover:opacity-90 transition-opacity active:scale-95" onclick="openModal('add')">
     <span class="material-symbols-outlined">add</span>
     Set Availability
 </button>
 </div>
 
-<div class="grid grid-cols-12 gap-lg">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
 
-<div class="col-span-12 lg:col-span-9 space-y-lg">
+<div class="lg:col-span-9 space-y-lg">
 <div class="bg-white rounded-xl custom-shadow-sm border border-outline-variant overflow-hidden">
-<div class="p-lg flex items-center justify-between border-b border-outline-variant">
-<h3 class="font-headline-sm text-headline-sm text-on-surface">{{ week_start|date:"M d" }} - {{ week_end|date:"M d, Y" }}</h3>
-<span class="bg-secondary/10 text-secondary px-3 py-1 rounded-full text-label-sm font-bold">{{ appointments.count }} appointment{{ appointments.count|pluralize }} this week</span>
+<div class="p-md md:p-lg flex flex-col sm:flex-row sm:items-center justify-between gap-sm border-b border-outline-variant">
+<h3 class="font-headline-sm text-base md:text-headline-sm text-on-surface">{{ week_start|date:"M d" }} - {{ week_end|date:"M d, Y" }}</h3>
+<span class="w-fit bg-secondary/10 text-secondary px-3 py-1 rounded-full text-label-sm font-bold">{{ appointments.count }} appointment{{ appointments.count|pluralize }} this week</span>
 </div>
 
-<div class="calendar-grid bg-surface-container-lowest border-b border-outline-variant">
-    {% for day in week_days %}
-    <div class="p-4 text-center border-l border-outline-variant">
-        <p class="text-label-sm text-on-surface-variant">{{ day|date:"D" }}</p>
-        <p class="font-headline-sm text-headline-sm">{{ day|date:"d" }}</p>
-    </div>
-    {% endfor %}
-</div>
-<div class="p-lg grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-md">
-    {% for day in week_days %}
-    <div class="border-l border-outline-variant px-md space-y-sm min-h-[120px]">
-        {% for appt in appointments %}
-            {% if appt.appointment_date == day %}
-            <div class="rounded-lg bg-primary/10 border-l-4 border-primary p-2">
-                <p class="text-[10px] font-bold text-primary">{{ appt.display_time }}</p>
-                <p class="text-xs truncate text-on-surface font-semibold">{{ appt.patient_name }}</p>
-                <p class="text-[10px] text-on-surface-variant truncate">{{ appt.department_name }}</p>
-            </div>
-            {% endif %}
-        {% empty %}
+<!-- Desktop calendar grid -->
+<div class="hidden lg:block">
+    <div class="calendar-grid bg-surface-container-lowest border-b border-outline-variant">
+        {% for day in week_days %}
+        <div class="p-4 text-center border-l border-outline-variant">
+            <p class="text-label-sm text-on-surface-variant">{{ day|date:"D" }}</p>
+            <p class="font-headline-sm text-headline-sm">{{ day|date:"d" }}</p>
+        </div>
         {% endfor %}
     </div>
+    <div class="calendar-grid gap-md p-lg">
+        {% for day in week_days %}
+        <div class="border-l border-outline-variant px-md space-y-sm min-h-[120px]">
+            {% for appt in appointments %}
+                {% if appt.appointment_date == day %}
+                <div class="rounded-lg bg-primary/10 border-l-4 border-primary p-2">
+                    <p class="text-[10px] font-bold text-primary">{{ appt.display_time }}</p>
+                    <p class="text-xs truncate text-on-surface font-semibold">{{ appt.patient_name }}</p>
+                    <p class="text-[10px] text-on-surface-variant truncate">{{ appt.department_name }}</p>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Mobile stacked day list -->
+<div class="lg:hidden p-md space-y-md">
+    {% for day in week_days %}
+    <div class="border border-outline-variant rounded-lg overflow-hidden">
+        <div class="bg-surface-container-low px-md py-2 flex items-center justify-between">
+            <span class="text-sm font-semibold">{{ day|date:"D, M d" }}</span>
+        </div>
+        <div class="p-md space-y-2">
+            {% for appt in appointments %}
+                {% if appt.appointment_date == day %}
+                <div class="rounded-lg bg-primary/10 border-l-4 border-primary p-2">
+                    <p class="text-[10px] font-bold text-primary">{{ appt.display_time }}</p>
+                    <p class="text-xs truncate text-on-surface font-semibold">{{ appt.patient_name }}</p>
+                    <p class="text-[10px] text-on-surface-variant truncate">{{ appt.department_name }}</p>
+                </div>
+                {% endif %}
+            {% empty %}
+            <p class="text-xs text-on-surface-variant">No appointments.</p>
+            {% endfor %}
+        </div>
+    </div>
     {% endfor %}
 </div>
+
 {% if not appointments %}
-<p class="px-lg pb-lg text-body-sm text-on-surface-variant text-center">No appointments booked for this week yet — the grid above just shows the day layout.</p>
+<p class="px-md md:px-lg pb-md md:pb-lg text-body-sm text-on-surface-variant text-center">No appointments booked for this week yet — the layout above just shows the day structure.</p>
 {% endif %}
 </div>
 </div>
 
-<div class="col-span-12 lg:col-span-3 space-y-lg">
+<div class="lg:col-span-3 space-y-lg">
 
 <div class="bg-primary-container text-on-primary-container p-lg rounded-xl custom-shadow-sm">
 <h4 class="font-label-md text-on-primary-container/80 mb-sm">YOUR AVAILABILITY</h4>
@@ -63,11 +90,11 @@
 <div class="space-y-md">
     {% for slot in availability_slots %}
     <div class="flex items-center justify-between gap-sm">
-        <div>
+        <div class="min-w-0">
             <p class="font-body-md font-semibold">{{ slot.day_label }}</p>
             <p class="text-xs text-on-primary-container/70">{{ slot.start_time|time:"g:i A" }} - {{ slot.end_time|time:"g:i A" }}</p>
         </div>
-        <div class="flex items-center gap-xs">
+        <div class="flex items-center gap-xs shrink-0">
             {% if not slot.is_active %}
             <span class="text-[10px] font-bold uppercase text-on-primary-container/70">Inactive</span>
             {% endif %}
@@ -109,10 +136,10 @@
 {% block modals %}
 <div class="fixed inset-0 z-[100] hidden" id="availability-modal">
 <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal()"></div>
-<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl custom-shadow-md overflow-hidden">
+<div class="absolute inset-x-0 bottom-0 md:inset-0 md:m-auto w-full md:max-w-lg md:h-fit bg-white rounded-t-2xl md:rounded-2xl custom-shadow-md overflow-hidden max-h-[90vh] overflow-y-auto">
 <form method="post" action="/doctor/schedule/" id="availability-form">
     {% csrf_token %}
-<div class="p-lg border-b border-outline-variant flex items-center justify-between bg-surface-container-lowest">
+<div class="p-lg border-b border-outline-variant flex items-center justify-between bg-surface-container-lowest sticky top-0">
 <h3 class="font-headline-sm text-headline-sm" id="modal-title">Set New Availability</h3>
 <button type="button" class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high rounded-full p-1" onclick="closeModal()">close</button>
 </div>
@@ -129,7 +156,7 @@
         <option value="6">Sunday</option>
     </select>
 </div>
-<div class="grid grid-cols-2 gap-lg">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-lg">
     <div>
         <label class="block font-label-md text-on-surface-variant mb-sm">START TIME</label>
         <input type="time" name="start_time" class="w-full border border-outline-variant rounded-lg p-md" required/>
@@ -144,7 +171,7 @@
     <label for="is-active" class="font-label-md text-on-surface-variant">Active</label>
 </div>
 </div>
-<div class="p-lg bg-surface-container-low border-t border-outline-variant flex justify-end gap-md">
+<div class="p-lg bg-surface-container-low border-t border-outline-variant flex flex-col-reverse sm:flex-row justify-end gap-md">
 <button type="button" class="px-6 py-2 border border-outline-variant rounded-lg font-bold hover:bg-white transition-colors" onclick="closeModal()">Cancel</button>
 <button type="submit" class="px-8 py-2 bg-primary text-white rounded-lg font-bold custom-shadow-sm active:scale-95 transition-transform">Save</button>
 </div>
