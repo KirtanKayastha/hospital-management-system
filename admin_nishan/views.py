@@ -8,6 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from .forms import PatientForm, DoctorForm
 from django.contrib.auth.forms import SetPasswordForm
+from django.db.models import Q
 
 from admin_nishan.models import (
     Appointment,
@@ -120,7 +121,7 @@ def admin_dashboard(request):
     context = {
         "active_page": "dashboard",
         "total_patients": PatientProfile.objects.count(),
-        "total_doctors": DoctorProfile.objects.count(),
+        "total_doctors": DoctorProfile.objects.filter(status=DoctorProfile.STATUS_APPROVED).count(),
         "departments_count": Department.objects.count(),
         "todays_appointments": Appointment.objects.filter(appointment_date=today).count(),
         "confirmed_today": Appointment.objects.filter(
@@ -144,30 +145,61 @@ def admin_dashboard(request):
 
 @admin_required
 def admin_manage_patients(request):
-    patients = (
-        PatientProfile.objects.select_related("user")
-        .order_by("-user__date_joined")
-    )
+    search = request.GET.get("search", "")
+
+    patients = PatientProfile.objects.select_related("user")
+
+    if search:
+        patients = patients.filter(
+            Q(user__first_name__icontains=search) |
+            Q(user__last_name__icontains=search) |
+            Q(user__email__icontains=search) |
+            Q(phone__icontains=search)
+        )
+
+    patients = patients.order_by("-user__date_joined")
+
     context = {
         "active_page": "patients",
         "patients": patients,
         "total_patients": patients.count(),
+        "search": search,
     }
+
     return render(request, "admin_manage_patients.html", context)
 
 
 @admin_required
 def admin_manage_doctor(request):
-    doctors = (
-        DoctorProfile.objects.select_related("user", "department").order_by(
-            "user__first_name", "user__last_name"
-        )
+    search = request.GET.get("search", "")
+
+    doctors = DoctorProfile.objects.select_related(
+        "user",
+        "department"
+    ).filter(
+        status=DoctorProfile.STATUS_APPROVED
     )
+
+    if search:
+        doctors = doctors.filter(
+            Q(user__first_name__icontains=search) |
+            Q(user__last_name__icontains=search) |
+            Q(user__email__icontains=search) |
+            Q(phone__icontains=search)
+        )
+
+    doctors = doctors.order_by(
+        "user__first_name",
+        "user__last_name"
+    )
+
     context = {
         "active_page": "doctor",
         "doctors": doctors,
         "total_doctors": doctors.count(),
+        "search": search,
     }
+
     return render(request, "admin_manage_doctor.html", context)
 
 
@@ -219,16 +251,41 @@ def admin_appointments(request):
     return render(request, "admin_appointments.html", context)
 
 
+from django.db.models import Q
+from django.contrib.auth.models import User
+from patient_roshan.models import PatientProfile
+from doctor_siddhartha.models import DoctorProfile
+
+
 @admin_required
 def admin_accounts(request):
-    accounts = User.objects.all().order_by("-date_joined")
+
+    approved_doctor_ids = DoctorProfile.objects.filter(
+        status=DoctorProfile.STATUS_APPROVED
+    ).values_list("user_id", flat=True)
+
+    patient_ids = PatientProfile.objects.values_list(
+        "user_id",
+        flat=True
+    )
+
+    accounts = User.objects.filter(
+        is_staff=False
+    ).filter(
+        Q(id__in=patient_ids) |
+        Q(id__in=approved_doctor_ids)
+    ).distinct().order_by("-date_joined")
+
     context = {
         "active_page": "accounts",
         "accounts": accounts,
         "total_accounts": accounts.count(),
         "total_patients": PatientProfile.objects.count(),
-        "total_doctors": DoctorProfile.objects.count(),
+        "total_doctors": DoctorProfile.objects.filter(
+            status=DoctorProfile.STATUS_APPROVED
+        ).count(),
     }
+
     return render(request, "admin_accounts.html", context)
 
 

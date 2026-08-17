@@ -16,6 +16,33 @@
 
 <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
     <div class="overflow-x-auto">
+
+        <div class="mb-6">
+    <form method="GET" class="flex items-center gap-3 mt-4 ml-2">
+
+        <input
+            type="text"
+            name="search"
+            value="{{ search }}"
+            placeholder="Search by name, email or phone..."
+            class="w-full md:w-96 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+
+        <button
+            type="submit"
+            class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+
+            <span class="material-symbols-outlined text-sm">
+                search
+            </span>
+
+            Search
+
+        </button>
+
+    </form>
+</div>
+
         <table class="w-full text-left border-collapse">
             <thead class="bg-surface-container border-b border-outline-variant">
     <tr class="bg-surface-container">
@@ -25,7 +52,7 @@
         <th class="px-lg py-md">Email</th>
         <th class="px-lg py-md">Phone</th>
         <th class="px-lg py-md">Status</th>
-        <th class="px-lg py-md text-center">Actions</th>
+        <th class="px-lg py-md text-center w-80">Actions</th>
     </tr>
 </thead>
 
@@ -112,54 +139,44 @@
                     </td>
 
                     <td class="px-lg py-lg">
+    <div class="flex flex-col items-center gap-2">
 
-    <div class="flex flex-wrap gap-2">
+        <!-- First Row -->
+        <div class="flex gap-2">
+            <a href="{% url 'admin_nishan:edit_doctor' doc.id %}"
+               class="w-24 text-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                Edit
+            </a>
 
-        <a href="{% url 'admin_nishan:edit_doctor' doc.id %}"
-           class="px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <a href="{% url 'admin_nishan:change_doctor_password' doc.id %}"
+               class="w-24 text-center px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
+                Password
+            </a>
+        </div>
 
-            Edit
+        <!-- Second Row -->
+        <div class="flex gap-2">
+            {% if doc.user.is_active %}
+                <a href="{% url 'admin_nishan:disable_doctor' doc.id %}"
+                   onclick="return confirm('Disable doctor login?')"
+                   class="w-24 text-center px-3 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700">
+                    Disable
+                </a>
+            {% else %}
+                <a href="{% url 'admin_nishan:enable_doctor' doc.id %}"
+                   class="w-24 text-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    Enable
+                </a>
+            {% endif %}
 
-        </a>
-
-        <a href="{% url 'admin_nishan:change_doctor_password' doc.id %}"
-           class="px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
-
-            Password
-
-        </a>
-
-        {% if doc.user.is_active %}
-
-        <a href="{% url 'admin_nishan:disable_doctor' doc.id %}"
-           onclick="return confirm('Disable doctor login?')"
-           class="px-3 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700">
-
-            Disable
-
-        </a>
-
-        {% else %}
-
-        <a href="{% url 'admin_nishan:enable_doctor' doc.id %}"
-           class="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-
-            Enable
-
-        </a>
-
-        {% endif %}
-
-        <a href="{% url 'admin_nishan:delete_doctor' doc.id %}"
-           onclick="return confirm('Delete this doctor permanently?')"
-           class="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-
-            Delete
-
-        </a>
+            <a href="{% url 'admin_nishan:delete_doctor' doc.id %}"
+               onclick="return confirm('Delete this doctor permanently?')"
+               class="w-24 text-center px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                Delete
+            </a>
+        </div>
 
     </div>
-
 </td>
 
                 </tr>
