@@ -98,7 +98,7 @@ def approve_appointment(request, appointment_id):
         appointment=appointment,
     )
     if not BillingInvoice.objects.filter(appointment=appointment).exists():
-        BillingInvoice.objects.create(
+        invoice = BillingInvoice.objects.create(
             patient=appointment.patient,
             appointment=appointment,
             invoice_number=f"INV-{appointment.id:06d}",
@@ -106,6 +106,13 @@ def approve_appointment(request, appointment_id):
             status=BillingInvoice.STATUS_UNPAID,
             issued_on=timezone.localdate(),
             due_on=timezone.localdate() + timedelta(days=7),
+        )
+        notify(
+            appointment.patient,
+            "New Invoice Generated",
+            f"Invoice {invoice.invoice_number} for Rs. {invoice.amount} has been created for your appointment on {appointment.display_date}. Due date: {invoice.due_on|date:'M d, Y'}.",
+            category=Notification.CATEGORY_BILLING,
+            action_url="/patient/invoices/",
         )
     messages.success(request, f"Appointment with {appointment.patient_name} has been confirmed.")
     return redirect("doctor_siddhartha:dashboard")

@@ -14,10 +14,12 @@ from admin_nishan.models import (
     BillingInvoice,
     Department,
     MedicalRecord,
+    Notification,
     Prescription,
 )
 from doctor_siddhartha.models import DoctorProfile
 from hospital.access import admin_required
+from hospital.notifications import notify
 from patient_roshan.models import PatientProfile
 
 
@@ -574,11 +576,6 @@ def admin_billing(request):
 
 
 
-from django.shortcuts import render, redirect
-from patient_roshan.models import PatientProfile
-from .models import BillingInvoice
-
-
 @admin_required
 def create_invoice(request):
 
@@ -598,13 +595,21 @@ def create_invoice(request):
         amount = request.POST.get("amount")
         status = request.POST.get("status")
 
-        BillingInvoice.objects.create(
+        invoice = BillingInvoice.objects.create(
             patient=patient_profile.user,
             invoice_number=invoice_number,
             amount=amount,
             status=status,
             issued_on=timezone.localdate(),
             due_on=timezone.localdate() + timedelta(days=7),
+        )
+
+        notify(
+            patient_profile.user,
+            "New Invoice Generated",
+            f"Invoice {invoice.invoice_number} for Rs. {invoice.amount} has been created. Due date: {invoice.due_on|date:'M d, Y'}.",
+            category=Notification.CATEGORY_BILLING,
+            action_url="/patient/invoices/",
         )
 
         return redirect("admin_nishan:admin_billing")
