@@ -1,0 +1,214 @@
+{% extends 'admin_nishan/base.html' %}
+
+{% block title %}Create Invoice{% endblock %}
+{% block page_title %}Create Invoice{% endblock %}
+
+{% block content %}
+
+<div class="max-w-4xl mx-auto">
+
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-on-surface">
+                Create New Invoice
+            </h2>
+            <p class="text-on-surface-variant">
+                Generate an invoice for a patient.
+            </p>
+        </div>
+
+        <a href="{% url 'admin_nishan:admin_billing' %}"
+           class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
+            Back
+        </a>
+    </div>
+
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant p-6">
+
+        {% if edit_mode %}
+<form method="POST" action="{% url 'admin_nishan:edit_invoice' invoice.id %}">
+{% else %}
+<form method="POST" action="{% url 'admin_nishan:create_invoice' %}">
+{% endif %}
+            {% csrf_token %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <!-- Patient -->
+                <div>
+                    <label class="block mb-2 font-medium">
+                        Patient
+                    </label>
+
+                    <select name="patient"
+        class="w-full border border-gray-300 rounded-lg px-4 py-2">
+
+    {% for patient in patients %}
+    <option value="{{ patient.id }}"
+        {% if edit_mode and patient.id == invoice.patient.id %}
+            selected
+        {% endif %}>
+        {{ patient.user.get_full_name|default:patient.user.username }}
+    </option>
+    {% endfor %}
+</select>
+                </div>
+
+                <!-- Invoice Number -->
+                <div>
+                    <label class="block mb-2 font-medium">
+                        Invoice Number
+                    </label>
+
+                    <input type="text"
+                           value="{{ invoice_number }}"
+                           readonly
+                           class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 cursor-not-allowed">
+                </div>
+
+                <!-- Amount -->
+                <div>
+                    <label class="block mb-2 font-medium">
+                        Amount
+                    </label>
+
+                    <input type="number"
+       step="0.01"
+       name="amount"
+       value="{% if edit_mode %}{{ invoice.amount }}{% endif %}"
+       class="w-full border border-gray-300 rounded-lg px-4 py-2">
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label class="block mb-2 font-medium">
+                        Status
+                    </label>
+
+                    <select name="status"
+        class="w-full border border-gray-300 rounded-lg px-4 py-2">
+
+    <option value="Due"
+        {% if edit_mode and invoice.status == 'Due' %}selected{% endif %}>
+        Due
+    </option>
+
+    <option value="Paid"
+        {% if edit_mode and invoice.status == 'Paid' %}selected{% endif %}>
+        Paid
+    </option>
+
+</select>
+                </div>
+
+                <!-- Payment Method -->
+                <div>
+                    <label class="block mb-2 font-medium">
+                        Payment Method
+                    </label>
+
+                    <select name="payment_method"
+        id="payment_method"
+        onchange="toggleOnlineOptions()"
+        class="w-full border border-gray-300 rounded-lg px-4 py-2">
+
+    <option value="Cash"
+        {% if edit_mode and invoice.payment_method == 'Cash' %}selected{% endif %}>
+        Cash
+    </option>
+
+    <option value="Credit"
+        {% if edit_mode and invoice.payment_method == 'Credit' %}selected{% endif %}>
+        Credit
+    </option>
+
+    <option value="Khalti"
+        {% if edit_mode and invoice.payment_method == 'Khalti' %}selected{% endif %}>
+        Khalti
+    </option>
+
+    <option value="eSewa"
+        {% if edit_mode and invoice.payment_method == 'eSewa' %}selected{% endif %}>
+        eSewa
+    </option>
+
+</select>
+                </div>
+
+                <!-- Online Provider
+                <div id="online-options" class="hidden">
+                    <label class="block mb-2 font-medium">
+                        Online Payment Provider
+                    </label>
+
+                    <select name="online_provider"
+                            class="w-full border border-gray-300 rounded-lg px-4 py-2">
+
+                        <option value="">
+                            Select Provider
+                        </option>
+
+                        <option value="eSewa">
+                            eSewa
+                        </option>
+
+                        <option value="Khalti">
+                            Khalti
+                        </option>
+
+                    </select>
+                </div> -->
+
+            </div>
+
+            <!-- Description -->
+            <div class="mt-6">
+                <label class="block mb-2 font-medium">
+                    Description
+                </label>
+
+                <textarea name="description"
+                          rows="4"
+                          placeholder="Consultation fee, medicines, lab tests, room charges, etc."
+                          class="w-full border border-gray-300 rounded-lg px-4 py-2"></textarea>
+            </div>
+
+            <!-- Buttons -->
+            <div class="mt-6 flex justify-end gap-3">
+
+                <a href="{% url 'admin_nishan:admin_billing' %}"
+                   class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+                    Cancel
+                </a>
+
+                <button type="submit"
+                        class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                    {% if edit_mode %}
+    Update Invoice
+{% else %}
+    Create Invoice
+{% endif %}
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script>
+function toggleOnlineOptions() {
+    const paymentMethod = document.getElementById("payment_method").value;
+    const onlineOptions = document.getElementById("online-options");
+
+    if (paymentMethod === "Online Banking") {
+        onlineOptions.classList.remove("hidden");
+    } else {
+        onlineOptions.classList.add("hidden");
+    }
+}
+</script>
+
+{% endblock %}

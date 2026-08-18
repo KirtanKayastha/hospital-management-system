@@ -1,0 +1,51 @@
+{% extends 'admin_nishan/base.html' %}
+{% block title %}Edit Invoice{% endblock %}
+{% block page_title %}Edit Invoice{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto bg-white p-6 rounded-xl shadow">
+    <h2 class="text-2xl font-bold mb-6">Edit Invoice</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div class="mb-4">
+            <label class="block mb-2">Invoice Number</label>
+            <input type="text"
+                   value="{{ invoice.invoice_number }}"
+                   readonly
+                   class="w-full border rounded-lg px-4 py-2 bg-gray-100">
+        </div>
+
+        <div class="mb-4">
+            <label class="block mb-2">Amount</label>
+            <input type="number"
+                   step="0.01"
+                   name="amount"
+                   value="{{ invoice.amount }}"
+                   class="w-full border rounded-lg px-4 py-2">
+        </div>
+
+        <div class="mb-4">
+            <label class="block mb-2">Status</label>
+            <select name="status"
+                    class="w-full border rounded-lg px-4 py-2">
+                <option value="Due" {% if invoice.status == 'Due' %}selected{% endif %}>Due</option>
+                <option value="Paid" {% if invoice.status == 'Paid' %}selected{% endif %}>Paid</option>
+            </select>
+        </div>
+
+        <div class="flex justify-end gap-3">
+            <a href="{% url 'admin_nishan:admin_billing' %}"
+               class="px-4 py-2 bg-gray-500 text-white rounded-lg">
+                Cancel
+            </a>
+
+            <button type="submit"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-lg">
+                Update Invoice
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

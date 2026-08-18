@@ -9,6 +9,12 @@ from django.utils import timezone
 from .forms import PatientForm, DoctorForm
 from django.contrib.auth.forms import SetPasswordForm
 from django.db.models import Q
+from patient_roshan.models import PatientProfile
+from .models import Invoice
+from django.shortcuts import get_object_or_404, redirect, render
+from .models import Invoice
+
+
 
 from admin_nishan.models import (
     Appointment,
@@ -293,54 +299,81 @@ def admin_accounts(request):
 def admin_reports(request):
     today = timezone.localdate()
 
+    # Appointment Trends (Last 8 Weeks)
     week_start = today - timedelta(days=today.weekday())
+
     raw_trends = []
+
     for i in range(7, -1, -1):
         ws = week_start - timedelta(weeks=i)
         we = ws + timedelta(days=6)
+
         count = Appointment.objects.filter(
             appointment_date__range=(ws, we)
         ).count()
+
         raw_trends.append(count)
 
     max_trend = max(raw_trends) if raw_trends else 0
+
     appointment_trends = []
+
     for index, count in enumerate(raw_trends):
         height_pct = int((count / max_trend) * 100) if max_trend else 4
-        appointment_trends.append(
-            {"count": count, "height_pct": max(height_pct, 4), "label": f"W{index + 1}"}
-        )
 
+        appointment_trends.append({
+            "count": count,
+            "height_pct": max(height_pct, 4),
+            "label": f"W{index + 1}",
+        })
+
+    # Department Distribution
     department_distribution = (
-        Department.objects.annotate(appt_count=Count("appointments")).order_by(
-            "-appt_count"
-        )
-    )
-    total_dept = (
-        sum(d.appt_count for d in department_distribution) or 1
+        Department.objects
+        .annotate(appt_count=Count("appointments"))
+        .order_by("-appt_count")
     )
 
+    total_dept = (
+        sum(d.appt_count for d in department_distribution)
+        or 1
+    )
+
+    # Revenue from Invoice model
     total_revenue = (
-        BillingInvoice.objects.filter(status=BillingInvoice.STATUS_PAID).aggregate(
+        Invoice.objects.filter(
+            status="Paid"
+        ).aggregate(
             total=Sum("amount")
         )["total"]
         or 0
     )
 
+    print("Revenue:", total_revenue)
+
     context = {
         "active_page": "reports",
+
         "total_patients": PatientProfile.objects.count(),
         "total_doctors": DoctorProfile.objects.count(),
         "total_appointments": Appointment.objects.count(),
         "total_records": MedicalRecord.objects.count(),
         "total_prescriptions": Prescription.objects.count(),
+
         "total_revenue": total_revenue,
+
         "appointment_trends": appointment_trends,
         "max_trend": max_trend,
+
         "department_distribution": department_distribution,
         "total_dept": total_dept,
     }
-    return render(request, "admin_reports.html", context)
+
+    return render(
+        request,
+        "admin_reports.html",
+        context,
+    )
 
 @admin_required
 def edit_patient(request, patient_id):
@@ -512,29 +545,135 @@ def delete_patient(request, patient_id):
     return redirect("admin_nishan:admin_manage_patients")
 
 
+
+# def admin_billing(request):
+
+#     invoices = Invoice.objects.all().order_by("-id")
+
+#     context = {
+#         "active_page": "billing",
+#         "invoices": invoices,
+#     }
+
+#     return render(request, "admin_nishan/admin_billing.html", context)
 @admin_required
 def admin_billing(request):
-    invoices = BillingInvoice.objects.select_related("patient", "appointment").order_by("-issued_on", "-created_at")
-    status_filter = request.GET.get("status", "")
+
+    status_filter = request.GET.get("status")
+
+    invoices = Invoice.objects.all().order_by("-created_at")
+
     if status_filter:
         invoices = invoices.filter(status=status_filter)
-
-    if request.method == "POST":
-        invoice_id = request.POST.get("invoice_id")
-        invoice = get_object_or_404(BillingInvoice, pk=invoice_id)
-        new_status = request.POST.get("status")
-        if new_status in dict(BillingInvoice.STATUS_CHOICES):
-            invoice.status = new_status
-            if new_status == BillingInvoice.STATUS_PAID:
-                invoice.paid_on = timezone.localdate()
-            invoice.save(update_fields=["status", "paid_on"])
-            messages.success(request, f"Invoice {invoice.invoice_number} updated.")
-        return redirect("admin_nishan:admin_billing")
 
     context = {
         "active_page": "billing",
         "invoices": invoices,
         "status_filter": status_filter,
-        "status_choices": BillingInvoice.STATUS_CHOICES,
     }
-    return render(request, "admin_nishan/admin_billing.html", context)
+
+    return render(
+        request,
+        "admin_nishan/admin_billing.html",
+        context
+    )
+
+
+
+
+from django.shortcuts import render, redirect
+from patient_roshan.models import PatientProfile
+from .models import Invoice
+
+
+@admin_required
+def create_invoice(request):
+
+    last_invoice = Invoice.objects.order_by('-id').first()
+
+    if last_invoice:
+        invoice_number = f"INV-{last_invoice.id + 1:04d}"
+    else:
+        invoice_number = "INV-0001"
+
+    if request.method == "POST":
+
+        patient = PatientProfile.objects.get(
+            id=request.POST.get("patient")
+        )
+
+        amount = request.POST.get("amount")
+        status = request.POST.get("status")
+
+        payment_method = request.POST.get("payment_method")
+        online_provider = request.POST.get("online_provider")
+
+        if payment_method == "Online Banking":
+            payment_method = online_provider
+
+        Invoice.objects.create(
+            patient=patient,
+            invoice_number=invoice_number,
+            amount=amount,
+            status=status,
+            payment_method=payment_method,
+        )
+
+        return redirect("admin_nishan:admin_billing")
+
+    context = {
+        "patients": PatientProfile.objects.all(),
+        "invoice_number": invoice_number,
+    }
+
+    return render(
+        request,
+        "admin_nishan/admin_create_invoice.html",
+        context,
+    )
+
+
+from django.shortcuts import get_object_or_404, redirect, render
+
+@admin_required
+def edit_invoice(request, invoice_id):
+
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+
+    if request.method == "POST":
+        invoice.amount = request.POST.get("amount")
+        invoice.status = request.POST.get("status")
+        invoice.payment_method = request.POST.get("payment_method")
+        invoice.save()
+
+        return redirect("admin_nishan:admin_billing")
+
+    context = {
+        "invoice": invoice,
+        "patients": PatientProfile.objects.all(),
+        "invoice_number": invoice.invoice_number,
+        "edit_mode": True,
+    }
+
+    return render(
+        request,
+        "admin_nishan/admin_create_invoice.html",
+        context,
+    )
+
+@admin_required
+def delete_invoice(request, invoice_id):
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+    invoice.delete()
+
+    return redirect("admin_nishan:admin_billing")
+
+@admin_required
+def print_invoice(request, invoice_id):
+    invoice = get_object_or_404(Invoice, id=invoice_id)
+
+    return render(
+        request,
+        "admin_nishan/print_invoice.html",
+        {"invoice": invoice}
+    )
