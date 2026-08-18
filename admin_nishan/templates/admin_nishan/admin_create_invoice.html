@@ -70,14 +70,14 @@
                     </button>
                 </div>
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse min-w-[600px]" id="items-table">
+                    <table class="w-full text-left border-collapse min-w-[720px]" id="items-table">
                         <thead>
                             <tr class="bg-surface-container border-b border-outline-variant">
-                                <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Description</th>
-                                <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant w-24">Qty</th>
-                                <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant w-32">Unit Price</th>
-                                <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant w-32">Total</th>
-                                <th class="px-lg py-md w-16"></th>
+                                <th class="px-sm py-md font-label-md text-label-md text-on-surface-variant">Description</th>
+                                <th class="px-sm py-md font-label-md text-label-md text-on-surface-variant w-[110px]">Qty</th>
+                                <th class="px-sm py-md font-label-md text-label-md text-on-surface-variant w-[150px]">Unit Price</th>
+                                <th class="px-sm py-md font-label-md text-label-md text-on-surface-variant w-[140px] text-right">Total</th>
+                                <th class="px-sm py-md w-[56px]"></th>
                             </tr>
                         </thead>
                         <tbody id="items-body" class="divide-y divide-outline-variant">
@@ -142,7 +142,13 @@ let itemCounter = 0;
 {% if edit_mode and items %}
 let existingItems = [
 {% for item in items %}
-{ description: "{{ item.description|escapejs }}", quantity: {{ item.quantity }}, unit_price: "{{ item.unit_price|floatformat:2 }}", total: "{{ item.total|floatformat:2 }}" }{% if not forloop.last %},{% endif %}
+{ description: "{{ item.description|escapejs }}", quantity: {{ item.quantity }}, unit_price: "{{ item.unit_price|floatformat:2 }}" }{% if not forloop.last %},{% endif %}
+{% endfor %}
+];
+{% elif posted_items %}
+let existingItems = [
+{% for item in posted_items %}
+{ description: "{{ item.description|escapejs }}", quantity: {{ item.quantity }}, unit_price: "{{ item.unit_price|floatformat:2 }}" }{% if not forloop.last %},{% endif %}
 {% endfor %}
 ];
 {% else %}
@@ -178,17 +184,17 @@ function addItemRow(description, quantity, unitPrice) {
     const row = document.createElement('tr');
     row.className = 'hover:bg-surface-container-low transition-colors';
     row.innerHTML = `
-        <td class="px-lg py-md">
-            <input type="text" name="description[]" value="${description || ''}" required class="w-full px-4 py-2 min-h-[44px] border border-outline-variant rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary" placeholder="e.g. Consultation, Medicine, Lab Test">
+        <td class="px-sm py-md">
+            <input type="text" name="description[]" value="${description || ''}" required class="w-full px-3 py-2 min-h-[44px] border border-outline-variant rounded-lg bg-white text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary" placeholder="e.g. Consultation, Medicine, Lab Test">
         </td>
-        <td class="px-lg py-md">
-            <input type="number" name="quantity[]" value="${quantity || 1}" min="1" class="item-qty w-full px-4 py-2 min-h-[44px] border border-outline-variant rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary" onchange="updateTotals()">
+        <td class="px-sm py-md">
+            <input type="number" name="quantity[]" value="${quantity || 1}" min="1" step="1" required class="item-qty w-full px-3 py-2 min-h-[44px] border border-outline-variant rounded-lg bg-white text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary" oninput="updateTotals()">
         </td>
-        <td class="px-lg py-md">
-            <input type="number" step="0.01" name="unit_price[]" value="${unitPrice || 0}" min="0" class="item-price w-full px-4 py-2 min-h-[44px] border border-outline-variant rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary" onchange="updateTotals()">
+        <td class="px-sm py-md">
+            <input type="number" step="0.01" name="unit_price[]" value="${unitPrice || 0}" min="0" required class="item-price w-full px-3 py-2 min-h-[44px] border border-outline-variant rounded-lg bg-white text-on-surface focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary" oninput="updateTotals()">
         </td>
-        <td class="px-lg py-md font-body-md text-body-md text-on-surface font-semibold item-total">Rs. 0.00</td>
-        <td class="px-lg py-md">
+        <td class="px-sm py-md font-body-md text-body-md text-on-surface font-semibold item-total text-right whitespace-nowrap">Rs. 0.00</td>
+        <td class="px-sm py-md">
             <button type="button" onclick="removeItemRow(this)" class="p-2 text-error hover:bg-error-container rounded-lg transition-colors" title="Remove">
                 <span class="material-symbols-outlined text-[18px]">close</span>
             </button>

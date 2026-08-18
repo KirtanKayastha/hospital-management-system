@@ -253,6 +253,21 @@
             </div>
 
             <div class="p-md md:p-lg max-w-7xl mx-auto space-y-md md:space-y-lg">
+                {% if messages %}
+                <div class="space-y-sm">
+                    {% for message in messages %}
+                    <div class="flex items-start gap-sm px-md py-3 rounded-xl border font-body-md text-body-md
+                        {% if message.tags == 'error' %}bg-error-container border-error text-on-error-container
+                        {% elif message.tags == 'warning' %}bg-tertiary-fixed border-tertiary text-on-tertiary-fixed-variant
+                        {% else %}bg-secondary-fixed border-secondary text-on-secondary-fixed{% endif %}">
+                        <span class="material-symbols-outlined text-[20px] shrink-0">
+                            {% if message.tags == 'error' %}error{% elif message.tags == 'warning' %}warning{% else %}check_circle{% endif %}
+                        </span>
+                        <span>{{ message }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
                 {% block content %}{% endblock %}
             </div>
         </main>

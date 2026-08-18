@@ -35,8 +35,11 @@ path('settings/request-deletion/', views.request_deletion, name='request_deletio
 path('billing/<int:invoice_id>/pay-online/', views.pay_online, name='pay_online'),
 path('billing/<int:invoice_id>/esewa/', views.esewa_initiate, name='esewa_initiate'),
 path('billing/esewa/verify/', views.esewa_verify, name='esewa_verify'),
+path('billing/esewa/verify', views.esewa_verify),
 path('billing/esewa/failed/', views.esewa_failed, name='esewa_failed'),
+path('billing/esewa/failed', views.esewa_failed),
 path('billing/<int:invoice_id>/khalti/', views.khalti_initiate, name='khalti_initiate'),
 path('billing/khalti/verify/', views.khalti_verify, name='khalti_verify'),
+path('billing/khalti/verify', views.khalti_verify),
 path('billing/<int:invoice_id>/receipt/', views.invoice_receipt, name='invoice_receipt'),
 ]

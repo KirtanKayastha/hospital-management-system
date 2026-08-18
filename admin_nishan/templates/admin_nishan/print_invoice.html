@@ -48,7 +48,7 @@
 
     <h3>Totals</h3>
     <p><strong>Subtotal:</strong> Rs. {{ invoice.subtotal|floatformat:2 }}</p>
-    <p><strong>Tax ({{ invoice.tax_rate|floatformat:0 }}%):</strong> Rs. {{ invoice.tax_amount|floatformat:2 }}</p>
+    <p><strong>Tax ({{ invoice.tax_rate_percent|floatformat:2 }}%):</strong> Rs. {{ invoice.tax_amount|floatformat:2 }}</p>
     <p><strong>Grand Total:</strong> Rs. {{ invoice.grand_total|floatformat:2 }}</p>
 
     {% if invoice.notes %}

@@ -590,7 +590,7 @@ def prescriptions(request):
 @patient_required
 def billing(request):
     invoices = BillingInvoice.objects.filter(patient=request.user).order_by('-created_at')
-    pending_count = invoices.filter(status='unpaid').count()
+    pending_count = invoices.filter(status=BillingInvoice.STATUS_UNPAID).count()
     context = {
         'active_page': 'billing',
         'patient': _patient_profile(request.user),
@@ -786,7 +786,7 @@ def _esewa_signature(message):
 def pay_online(request, invoice_id):
     invoice = get_object_or_404(BillingInvoice, id=invoice_id, patient=request.user)
 
-    if invoice.status == 'paid':
+    if invoice.status == BillingInvoice.STATUS_PAID:
         messages.info(request, 'This invoice is already paid.')
         return redirect('patient_roshan:billing')
 
@@ -891,9 +891,9 @@ def esewa_verify(request):
     txn.gateway_ref = decoded.get('transaction_code', '')
     txn.save()
 
-    invoice.status = 'paid'
+    invoice.status = BillingInvoice.STATUS_PAID
     invoice.paid_on = timezone.localdate()
-    invoice.save()
+    invoice.save(update_fields=['status', 'paid_on'])
 
     Notification.objects.create(
         recipient=txn.user,
@@ -921,7 +921,7 @@ def khalti_initiate(request, invoice_id):
 
     invoice = get_object_or_404(BillingInvoice, id=invoice_id, patient=request.user)
 
-    if invoice.status == 'paid':
+    if invoice.status == BillingInvoice.STATUS_PAID:
         messages.info(request, 'This invoice is already paid.')
         return redirect('patient_roshan:billing')
 
@@ -1035,9 +1035,9 @@ def khalti_verify(request):
     txn.status = PaymentTransaction.STATUS_COMPLETE
     txn.save()
 
-    invoice.status = 'paid'
+    invoice.status = BillingInvoice.STATUS_PAID
     invoice.paid_on = timezone.localdate()
-    invoice.save()
+    invoice.save(update_fields=['status', 'paid_on'])
 
     Notification.objects.create(
         recipient=txn.user,

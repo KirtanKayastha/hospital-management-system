@@ -1,7 +1,10 @@
 from datetime import timedelta
+from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError, transaction
 from django.db.models import Count, Q, Sum
 from django.db.models.functions import TruncDate
 from django.shortcuts import get_object_or_404, redirect, render
@@ -524,55 +527,139 @@ def admin_billing(request):
 
 
 
+def _next_invoice_number(issued_on):
+    """Collision-proof: derive the suffix from the highest existing number for
+    that day, not from count(), which repeats after a deletion."""
+    prefix = f"INV-{issued_on.strftime('%Y%m%d')}-"
+    existing = BillingInvoice.objects.filter(
+        invoice_number__startswith=prefix
+    ).values_list("invoice_number", flat=True)
+    highest = 0
+    for number in existing:
+        suffix = number[len(prefix):]
+        if suffix.isdigit():
+            highest = max(highest, int(suffix))
+    return f"{prefix}{highest + 1:04d}"
+
+
+def _parse_items(request):
+    """Returns (items, errors). Values are coerced to int/Decimal here."""
+    descriptions = request.POST.getlist("description[]")
+    quantities = request.POST.getlist("quantity[]")
+    unit_prices = request.POST.getlist("unit_price[]")
+
+    items, errors = [], []
+    for index, desc in enumerate(descriptions):
+        desc = (desc or "").strip()
+        raw_qty = quantities[index] if index < len(quantities) else ""
+        raw_price = unit_prices[index] if index < len(unit_prices) else ""
+
+        if not desc and not (raw_qty or "").strip() and not (raw_price or "").strip():
+            continue  # entirely blank row, ignore
+        if not desc:
+            errors.append(f"Row {index + 1}: description is required.")
+            continue
+
+        try:
+            qty = int(raw_qty or 1)
+        except (TypeError, ValueError):
+            errors.append(f"Row {index + 1}: quantity must be a whole number.")
+            continue
+        if qty <= 0:
+            errors.append(f"Row {index + 1}: quantity must be greater than 0.")
+            continue
+
+        try:
+            price = Decimal(str(raw_price or "0"))
+        except (InvalidOperation, TypeError, ValueError):
+            errors.append(f"Row {index + 1}: unit price must be a number.")
+            continue
+        if price < 0:
+            errors.append(f"Row {index + 1}: unit price cannot be negative.")
+            continue
+
+        items.append({"description": desc, "quantity": qty, "unit_price": price})
+
+    return items, errors
+
+
+def _parse_tax_rate(raw, fallback=Decimal("0.13")):
+    """Form sends a percentage (13); the model stores a fraction (0.13)."""
+    if raw in (None, ""):
+        return fallback
+    try:
+        return (Decimal(str(raw)) / Decimal("100")).quantize(Decimal("0.0001"))
+    except (InvalidOperation, TypeError, ValueError):
+        return fallback
+
+
 @admin_required
 def create_invoice(request):
     today = timezone.localdate()
-    today_count = BillingInvoice.objects.filter(issued_on=today).count() + 1
-    invoice_number = f"INV-{today.strftime('%Y%m%d')}-{today_count:04d}"
+    invoice_number = _next_invoice_number(today)
 
     if request.method == "POST":
-        patient_profile = PatientProfile.objects.get(
-            id=request.POST.get("patient")
+        patient_id = (request.POST.get("patient") or "").strip()
+        patient_profile = (
+            PatientProfile.objects.filter(id=patient_id).first()
+            if patient_id.isdigit()
+            else None
         )
-        status = request.POST.get("status", BillingInvoice.STATUS_UNPAID)
-        notes = request.POST.get("notes", "")
-        due_on = request.POST.get("due_on") or None
-        tax_rate = request.POST.get("tax_rate") or 0.13
+        items, errors = _parse_items(request)
 
-        invoice = BillingInvoice.objects.create(
-            patient=patient_profile.user,
-            invoice_number=invoice_number,
-            amount=0,
-            subtotal=0,
-            tax_rate=tax_rate,
-            tax_amount=0,
-            grand_total=0,
-            status=status,
-            issued_on=today,
-            due_on=due_on,
-            notes=notes,
-        )
+        if not patient_profile:
+            errors.insert(0, "Select a valid patient.")
+        if not items:
+            errors.insert(0, "Add at least one line item before saving.")
 
-        descriptions = request.POST.getlist("description[]")
-        quantities = request.POST.getlist("quantity[]")
-        unit_prices = request.POST.getlist("unit_price[]")
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            return render(
+                request,
+                "admin_nishan/admin_create_invoice.html",
+                {
+                    "active_page": "billing",
+                    "patients": PatientProfile.objects.all(),
+                    "invoice_number": invoice_number,
+                    "edit_mode": False,
+                    "default_tax_rate": request.POST.get("tax_rate") or 13,
+                    "today": today,
+                    "selected_patient_id": int(patient_id) if patient_id.isdigit() else None,
+                    "posted_items": items,
+                    "posted_notes": request.POST.get("notes", ""),
+                },
+            )
 
-        for desc, qty, price in zip(descriptions, quantities, unit_prices):
-            if desc.strip():
-                InvoiceItem.objects.create(
-                    invoice=invoice,
-                    description=desc.strip(),
-                    quantity=int(qty or 1),
-                    unit_price=price or 0,
+        try:
+            with transaction.atomic():
+                invoice = BillingInvoice.objects.create(
+                    patient=patient_profile.user,
+                    invoice_number=_next_invoice_number(today),
+                    amount=0,
+                    subtotal=0,
+                    tax_rate=_parse_tax_rate(request.POST.get("tax_rate")),
+                    tax_amount=0,
+                    grand_total=0,
+                    status=request.POST.get("status") or BillingInvoice.STATUS_UNPAID,
+                    issued_on=today,
+                    due_on=request.POST.get("due_on") or None,
+                    notes=request.POST.get("notes", ""),
                 )
+                for item in items:
+                    InvoiceItem.objects.create(invoice=invoice, **item)
+                invoice.recalculate_totals()
+        except (IntegrityError, InvalidOperation, ValidationError) as exc:
+            messages.error(request, f"Could not create the invoice: {exc}")
+            return redirect("admin_nishan:create_invoice")
 
-        invoice.recalculate_totals()
         invoice.refresh_from_db()
 
         notify(
             patient_profile.user,
             "New Invoice Generated",
-            f"Invoice {invoice.invoice_number} for Rs. {invoice.grand_total:,.2f} has been created. Due date: {invoice.due_on.strftime('%b %d, %Y') if invoice.due_on else 'N/A'}.",
+            f"Invoice {invoice.invoice_number} for Rs. {invoice.grand_total:,.2f} has been created. "
+            f"Due date: {invoice.due_on.strftime('%b %d, %Y') if invoice.due_on else 'N/A'}.",
             category=Notification.CATEGORY_BILLING,
             action_url="/patient/invoices/",
         )
@@ -585,7 +672,7 @@ def create_invoice(request):
         "patients": PatientProfile.objects.all(),
         "invoice_number": invoice_number,
         "edit_mode": False,
-        "default_tax_rate": 0.13,
+        "default_tax_rate": 13,
         "today": today,
     }
 
@@ -601,34 +688,37 @@ def edit_invoice(request, invoice_id):
     invoice = get_object_or_404(BillingInvoice, id=invoice_id)
 
     if request.method == "POST":
-        invoice.status = request.POST.get("status", invoice.status)
-        invoice.notes = request.POST.get("notes", invoice.notes)
-        invoice.due_on = request.POST.get("due_on") or invoice.due_on
-        invoice.tax_rate = request.POST.get("tax_rate") or invoice.tax_rate
+        items, errors = _parse_items(request)
+        if not items:
+            errors.insert(0, "An invoice must have at least one line item.")
 
-        if invoice.status == BillingInvoice.STATUS_PAID and not invoice.paid_on:
-            invoice.paid_on = timezone.localdate()
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            return redirect("admin_nishan:edit_invoice", invoice_id=invoice.id)
 
-        invoice.save()
-
-        invoice.items.all().delete()
-
-        descriptions = request.POST.getlist("description[]")
-        quantities = request.POST.getlist("quantity[]")
-        unit_prices = request.POST.getlist("unit_price[]")
-
-        for desc, qty, price in zip(descriptions, quantities, unit_prices):
-            if desc.strip():
-                InvoiceItem.objects.create(
-                    invoice=invoice,
-                    description=desc.strip(),
-                    quantity=int(qty or 1),
-                    unit_price=price or 0,
+        try:
+            with transaction.atomic():
+                invoice.status = request.POST.get("status") or invoice.status
+                invoice.notes = request.POST.get("notes", invoice.notes)
+                invoice.due_on = request.POST.get("due_on") or invoice.due_on
+                invoice.tax_rate = _parse_tax_rate(
+                    request.POST.get("tax_rate"), fallback=invoice.tax_rate
                 )
 
-        invoice.recalculate_totals()
-        invoice.refresh_from_db()
+                if invoice.status == BillingInvoice.STATUS_PAID and not invoice.paid_on:
+                    invoice.paid_on = timezone.localdate()
 
+                invoice.save()
+                invoice.items.all().delete()
+                for item in items:
+                    InvoiceItem.objects.create(invoice=invoice, **item)
+                invoice.recalculate_totals()
+        except (IntegrityError, InvalidOperation, ValidationError) as exc:
+            messages.error(request, f"Could not update the invoice: {exc}")
+            return redirect("admin_nishan:edit_invoice", invoice_id=invoice.id)
+
+        invoice.refresh_from_db()
         messages.success(request, f"Invoice {invoice.invoice_number} updated successfully.")
         return redirect("admin_nishan:admin_billing")
 
@@ -639,7 +729,7 @@ def edit_invoice(request, invoice_id):
         "edit_mode": True,
         "selected_patient_id": invoice.patient.patient_profile.id if hasattr(invoice.patient, "patient_profile") else None,
         "items": invoice.items.all(),
-        "default_tax_rate": invoice.tax_rate,
+        "default_tax_rate": invoice.tax_rate_percent,
     }
 
     return render(
