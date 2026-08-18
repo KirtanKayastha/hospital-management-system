@@ -8,6 +8,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.contrib.auth.forms import SetPasswordForm
 
+from .forms import PatientForm, DoctorForm
+
 from admin_nishan.models import (
     Appointment,
     BillingInvoice,
@@ -570,7 +572,7 @@ def create_invoice(request):
         notify(
             patient_profile.user,
             "New Invoice Generated",
-            f"Invoice {invoice.invoice_number} for Rs. {invoice.grand_total:,.2f} has been created. Due date: {invoice.due_on|date:'M d, Y'}.",
+            f"Invoice {invoice.invoice_number} for Rs. {invoice.grand_total:,.2f} has been created. Due date: {invoice.due_on.strftime('%b %d, %Y') if invoice.due_on else 'N/A'}.",
             category=Notification.CATEGORY_BILLING,
             action_url="/patient/invoices/",
         )
