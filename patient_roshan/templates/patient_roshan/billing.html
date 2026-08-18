@@ -67,7 +67,7 @@
                         {% endif %}
                     </td>
 <td class="px-lg py-md text-right">
-    {% if invoice.status == 'unpaid' %}
+    {% if invoice.status == 'Unpaid' %}
     <div class="flex gap-sm justify-end">
         <form method="POST" action="{% url 'patient_roshan:pay_at_counter' invoice.id %}">
             {% csrf_token %}
