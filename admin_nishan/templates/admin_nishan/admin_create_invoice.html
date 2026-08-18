@@ -1,148 +1,221 @@
 {% extends 'admin_nishan/base.html' %}
-
-{% block title %}Create Invoice{% endblock %}
-{% block page_title %}Create New Invoice{% endblock %}
+{% load static %}
+{% block title %}{% if edit_mode %}Edit Invoice{% else %}Create Invoice{% endif %}{% endblock %}
+{% block page_title %}{% if edit_mode %}Edit Invoice{% else %}Create New Invoice{% endif %}{% endblock %}
 
 {% block content %}
-
-<div class="max-w-4xl mx-auto">
-
-    <div class="flex justify-between items-center mb-6">
+<div class="max-w-5xl mx-auto">
+    <div class="flex justify-between items-center mb-lg">
         <div>
-            <h2 class="text-2xl font-bold text-on-surface">
-                Create New Invoice
+            <h2 class="font-headline-md md:font-headline-lg text-headline-md md:text-headline-lg text-on-surface">
+                {% if edit_mode %}Edit Invoice{% else %}Create New Invoice{% endif %}
             </h2>
-            <p class="text-on-surface-variant">
-                Generate an invoice for a patient.
+            <p class="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface-variant mt-xs">
+                {% if edit_mode %}Modify invoice items and details.{% else %}Generate an itemized invoice for a patient.{% endif %}
             </p>
         </div>
-
         <a href="{% url 'admin_nishan:admin_billing' %}"
-           class="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition">
+           class="px-4 py-2 min-h-[44px] flex items-center justify-center bg-surface-container-low border border-outline-variant text-on-surface-variant rounded-lg hover:bg-surface-container-high transition-colors">
             Back
         </a>
     </div>
 
-    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant p-6">
-
-        {% if edit_mode %}
-<form method="POST" action="{% url 'admin_nishan:edit_invoice' invoice.id %}">
-{% else %}
-<form method="POST" action="{% url 'admin_nishan:create_invoice' %}">
-{% endif %}
+    <div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant p-lg md:p-xl">
+        <form method="POST" action="{% if edit_mode %}{% url 'admin_nishan:edit_invoice' invoice.id %}{% else %}{% url 'admin_nishan:create_invoice' %}{% endif %}" id="invoice-form">
             {% csrf_token %}
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-                <!-- Patient -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-lg mb-lg">
                 <div>
-                    <label class="block mb-2 font-medium">
-                        Patient
-                    </label>
-
-                    <select name="patient"
-        class="w-full border border-gray-300 rounded-lg px-4 py-2">
-
-    {% for patient in patients %}
-    <option value="{{ patient.id }}"
-        {% if edit_mode and patient.id == selected_patient_id %}
-            selected
-        {% endif %}>
-        {{ patient.user.get_full_name|default:patient.user.username }}
-    </option>
-    {% endfor %}
-</select>
+                    <label class="block mb-2 font-label-md text-label-md text-on-surface">Patient</label>
+                    <select name="patient" required class="w-full px-4 py-3 min-h-[44px] border border-outline-variant rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary">
+                        {% for patient in patients %}
+                        <option value="{{ patient.id }}" {% if edit_mode and patient.id == selected_patient_id %}selected{% endif %}>
+                            {{ patient.user.get_full_name|default:patient.user.username }}
+                        </option>
+                        {% endfor %}
+                    </select>
                 </div>
-
-                <!-- Invoice Number -->
                 <div>
-                    <label class="block mb-2 font-medium">
-                        Invoice Number
-                    </label>
-
-                    <input type="text"
-                           value="{{ invoice_number }}"
-                           readonly
-                           class="w-full border border-gray-300 rounded-lg px-4 py-2 bg-gray-100 cursor-not-allowed">
+                    <label class="block mb-2 font-label-md text-label-md text-on-surface">Invoice Number</label>
+                    <input type="text" value="{{ invoice_number }}" readonly class="w-full px-4 py-3 min-h-[44px] border border-outline-variant rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed">
                 </div>
-
-                <!-- Amount -->
                 <div>
-                    <label class="block mb-2 font-medium">
-                        Amount
-                    </label>
-
-                    <input type="number"
-       step="0.01"
-       name="amount"
-       value="{% if edit_mode %}{{ invoice.amount }}{% endif %}"
-       class="w-full border border-gray-300 rounded-lg px-4 py-2">
+                    <label class="block mb-2 font-label-md text-label-md text-on-surface">Issued On</label>
+                    <input type="date" name="issued_on" value="{% if edit_mode %}{{ invoice.issued_on|date:'Y-m-d' }}{% else %}{{ today|date:'Y-m-d' }}{% endif %}" class="w-full px-4 py-3 min-h-[44px] border border-outline-variant rounded-lg bg-white">
                 </div>
-
-                <!-- Status -->
                 <div>
-                    <label class="block mb-2 font-medium">
-                        Status
-                    </label>
-
-                    <select name="status"
-        class="w-full border border-gray-300 rounded-lg px-4 py-2">
-
-    <option value="Unpaid"
-        {% if edit_mode and invoice.status == 'Unpaid' %}selected{% endif %}>
-        Unpaid
-    </option>
-
-    <option value="Paid"
-        {% if edit_mode and invoice.status == 'Paid' %}selected{% endif %}>
-        Paid
-    </option>
-
-    <option value="Void"
-        {% if edit_mode and invoice.status == 'Void' %}selected{% endif %}>
-        Void
-    </option>
-
-</select>
+                    <label class="block mb-2 font-label-md text-label-md text-on-surface">Due Date</label>
+                    <input type="date" name="due_on" value="{% if edit_mode %}{{ invoice.due_on|date:'Y-m-d' }}{% endif %}" class="w-full px-4 py-3 min-h-[44px] border border-outline-variant rounded-lg bg-white">
                 </div>
-
+                <div>
+                    <label class="block mb-2 font-label-md text-label-md text-on-surface">Tax Rate (%)</label>
+                    <input type="number" step="0.01" name="tax_rate" value="{% if edit_mode %}{{ invoice.tax_rate }}{% else %}{{ default_tax_rate }}{% endif %}" class="w-full px-4 py-3 min-h-[44px] border border-outline-variant rounded-lg bg-white" id="tax-rate-input">
+                </div>
+                <div>
+                    <label class="block mb-2 font-label-md text-label-md text-on-surface">Status</label>
+                    <select name="status" class="w-full px-4 py-3 min-h-[44px] border border-outline-variant rounded-lg bg-white">
+                        <option value="Unpaid" {% if edit_mode and invoice.status == 'Unpaid' %}selected{% endif %}>Unpaid</option>
+                        <option value="Paid" {% if edit_mode and invoice.status == 'Paid' %}selected{% endif %}>Paid</option>
+                        <option value="Void" {% if edit_mode and invoice.status == 'Void' %}selected{% endif %}>Void</option>
+                    </select>
+                </div>
             </div>
 
-            <!-- Notes -->
-            <div class="mt-6">
-                <label class="block mb-2 font-medium">
-                    Notes
-                </label>
-
-                <textarea name="notes"
-                          rows="4"
-                          placeholder="Consultation fee, medicines, lab tests, room charges, etc."
-                          class="w-full border border-gray-300 rounded-lg px-4 py-2">{% if edit_mode %}{{ invoice.notes }}{% endif %}</textarea>
+            <div class="mb-lg">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-headline-sm text-headline-sm text-on-surface">Line Items</h3>
+                    <button type="button" onclick="addItemRow()" class="px-4 py-2 min-h-[44px] bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors inline-flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">add</span>
+                        Add Item
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse min-w-[600px]" id="items-table">
+                        <thead>
+                            <tr class="bg-surface-container border-b border-outline-variant">
+                                <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Description</th>
+                                <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant w-24">Qty</th>
+                                <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant w-32">Unit Price</th>
+                                <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant w-32">Total</th>
+                                <th class="px-lg py-md w-16"></th>
+                            </tr>
+                        </thead>
+                        <tbody id="items-body" class="divide-y divide-outline-variant">
+                        </tbody>
+                    </table>
+                </div>
+                <p id="no-items-msg" class="text-center text-on-surface-variant py-lg {% if edit_mode and items %}hidden{% endif %}">No items added yet. Click "Add Item" to start.</p>
             </div>
 
-            <!-- Buttons -->
-            <div class="mt-6 flex flex-col sm:flex-row sm:justify-end gap-3">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-lg mb-lg">
+                <div class="md:col-span-2">
+                    <label class="block mb-2 font-label-md text-label-md text-on-surface">Notes</label>
+                    <textarea name="notes" rows="3" class="w-full px-4 py-3 border border-outline-variant rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary">{% if edit_mode %}{{ invoice.notes }}{% endif %}</textarea>
+                </div>
+            </div>
 
+            <div class="bg-surface-container-low rounded-xl p-lg border border-outline-variant">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-md">
+                    <div class="space-y-sm">
+                        <div class="flex items-center gap-md">
+                            <span class="font-body-md text-body-md text-on-surface-variant">Subtotal:</span>
+                            <span class="font-body-md text-body-md text-on-surface font-semibold" id="subtotal-display">Rs. 0.00</span>
+                        </div>
+                        <div class="flex items-center gap-md">
+                            <span class="font-body-md text-body-md text-on-surface-variant">Tax (<span id="tax-rate-display">13</span>%):</span>
+                            <span class="font-body-md text-body-md text-on-surface font-semibold" id="tax-display">Rs. 0.00</span>
+                        </div>
+                        <div class="flex items-center gap-md">
+                            <span class="font-headline-sm text-headline-sm text-on-surface">Grand Total:</span>
+                            <span class="font-headline-sm text-headline-sm text-primary font-bold" id="grand-total-display">Rs. 0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-lg flex flex-col sm:flex-row sm:justify-end gap-3">
                 <a href="{% url 'admin_nishan:admin_billing' %}"
-                   class="px-6 py-2 min-h-[44px] flex items-center justify-center bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+                   class="px-6 py-2 min-h-[44px] flex items-center justify-center bg-surface-container-low border border-outline-variant text-on-surface-variant rounded-lg hover:bg-surface-container-high transition-colors">
                     Cancel
                 </a>
-
                 <button type="submit"
-                        class="px-6 py-2 min-h-[44px] bg-green-600 text-white rounded-lg hover:bg-green-700">
-                    {% if edit_mode %}
-    Update Invoice
-{% else %}
-    Create Invoice
-{% endif %}
+                        class="px-6 py-2 min-h-[44px] bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors">
+                    {% if edit_mode %}Update Invoice{% else %}Create Invoice{% endif %}
                 </button>
-
             </div>
-
         </form>
-
     </div>
-
 </div>
+{% endblock %}
 
+{% block scripts %}
+<script>
+const taxRateInput = document.getElementById('tax-rate-input');
+const taxRateDisplay = document.getElementById('tax-rate-display');
+const subtotalDisplay = document.getElementById('subtotal-display');
+const taxDisplay = document.getElementById('tax-display');
+const grandTotalDisplay = document.getElementById('grand-total-display');
+const itemsBody = document.getElementById('items-body');
+const noItemsMsg = document.getElementById('no-items-msg');
+let itemCounter = 0;
+
+{% if edit_mode and items %}
+let existingItems = [
+{% for item in items %}
+{ description: "{{ item.description|escapejs }}", quantity: {{ item.quantity }}, unit_price: "{{ item.unit_price|floatformat:2 }}", total: "{{ item.total|floatformat:2 }}" }{% if not forloop.last %},{% endif %}
+{% endfor %}
+];
+{% else %}
+let existingItems = [];
+{% endif %}
+
+function formatCurrency(value) {
+    return 'Rs. ' + parseFloat(value || 0).toFixed(2);
+}
+
+function updateTotals() {
+    let subtotal = 0;
+    let rows = itemsBody.querySelectorAll('tr');
+    rows.forEach(function(row) {
+        let qty = parseFloat(row.querySelector('.item-qty').value) || 0;
+        let price = parseFloat(row.querySelector('.item-price').value) || 0;
+        let total = qty * price;
+        row.querySelector('.item-total').textContent = formatCurrency(total);
+        subtotal += total;
+    });
+    let taxRate = parseFloat(taxRateInput.value) || 0;
+    let taxAmount = subtotal * (taxRate / 100);
+    let grandTotal = subtotal + taxAmount;
+
+    subtotalDisplay.textContent = formatCurrency(subtotal);
+    taxRateDisplay.textContent = taxRate.toFixed(2);
+    taxDisplay.textContent = formatCurrency(taxAmount);
+    grandTotalDisplay.textContent = formatCurrency(grandTotal);
+}
+
+function addItemRow(description, quantity, unitPrice) {
+    itemCounter++;
+    const row = document.createElement('tr');
+    row.className = 'hover:bg-surface-container-low transition-colors';
+    row.innerHTML = `
+        <td class="px-lg py-md">
+            <input type="text" name="description[]" value="${description || ''}" required class="w-full px-4 py-2 min-h-[44px] border border-outline-variant rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary" placeholder="e.g. Consultation, Medicine, Lab Test">
+        </td>
+        <td class="px-lg py-md">
+            <input type="number" name="quantity[]" value="${quantity || 1}" min="1" class="item-qty w-full px-4 py-2 min-h-[44px] border border-outline-variant rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary" onchange="updateTotals()">
+        </td>
+        <td class="px-lg py-md">
+            <input type="number" step="0.01" name="unit_price[]" value="${unitPrice || 0}" min="0" class="item-price w-full px-4 py-2 min-h-[44px] border border-outline-variant rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary" onchange="updateTotals()">
+        </td>
+        <td class="px-lg py-md font-body-md text-body-md text-on-surface font-semibold item-total">Rs. 0.00</td>
+        <td class="px-lg py-md">
+            <button type="button" onclick="removeItemRow(this)" class="p-2 text-error hover:bg-error-container rounded-lg transition-colors" title="Remove">
+                <span class="material-symbols-outlined text-[18px]">close</span>
+            </button>
+        </td>
+    `;
+    itemsBody.appendChild(row);
+    updateTotals();
+    if (noItemsMsg) noItemsMsg.classList.add('hidden');
+}
+
+function removeItemRow(btn) {
+    const row = btn.closest('tr');
+    row.remove();
+    updateTotals();
+    if (itemsBody.children.length === 0 && noItemsMsg) noItemsMsg.classList.remove('hidden');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    existingItems.forEach(function(item) {
+        addItemRow(item.description, item.quantity, item.unit_price);
+    });
+    if (existingItems.length === 0 && !'{% if edit_mode and items %}true{% endif %}') {
+        addItemRow();
+    }
+    updateTotals();
+});
+
+taxRateInput.addEventListener('input', updateTotals);
+</script>
 {% endblock %}

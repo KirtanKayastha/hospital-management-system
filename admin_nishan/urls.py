@@ -57,6 +57,8 @@ path(
     path("billing/", views.admin_billing, name="admin_billing"),
     path("billing/create-invoice/", views.create_invoice, name="create_invoice"),
     path('billing/edit/<int:invoice_id>/', views.edit_invoice, name='edit_invoice'),
+    path('billing/<int:invoice_id>/', views.invoice_detail, name='invoice_detail'),
+    path('billing/<int:invoice_id>/mark-paid/', views.mark_paid, name='mark_paid'),
     path('billing/print/<int:invoice_id>/', views.print_invoice, name='print_invoice'),
     path('billing/delete/<int:invoice_id>/', views.delete_invoice, name='delete_invoice'),
 

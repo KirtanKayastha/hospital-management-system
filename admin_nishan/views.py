@@ -6,13 +6,13 @@ from django.db.models import Count, Q, Sum
 from django.db.models.functions import TruncDate
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from .forms import PatientForm, DoctorForm
 from django.contrib.auth.forms import SetPasswordForm
 
 from admin_nishan.models import (
     Appointment,
     BillingInvoice,
     Department,
+    InvoiceItem,
     MedicalRecord,
     Notification,
     Prescription,
@@ -20,18 +20,6 @@ from admin_nishan.models import (
 from doctor_siddhartha.models import DoctorProfile
 from hospital.access import admin_required
 from hospital.notifications import notify
-from patient_roshan.models import PatientProfile
-
-
-from admin_nishan.models import (
-    Appointment,
-    BillingInvoice,
-    Department,
-    MedicalRecord,
-    Prescription,
-)
-from doctor_siddhartha.models import DoctorProfile
-from hospital.access import admin_required
 from patient_roshan.models import PatientProfile
 
 
@@ -503,16 +491,26 @@ def delete_patient(request, patient_id):
 def admin_billing(request):
 
     status_filter = request.GET.get("status")
+    search = (request.GET.get("search", "") or "").strip()
 
-    invoices = BillingInvoice.objects.all().order_by("-created_at")
+    invoices = BillingInvoice.objects.select_related("patient").all().order_by("-created_at")
 
     if status_filter:
         invoices = invoices.filter(status=status_filter)
+
+    if search:
+        invoices = invoices.filter(
+            Q(invoice_number__icontains=search) |
+            Q(patient__first_name__icontains=search) |
+            Q(patient__last_name__icontains=search) |
+            Q(patient__username__icontains=search)
+        )
 
     context = {
         "active_page": "billing",
         "invoices": invoices,
         "status_filter": status_filter,
+        "search": search,
     }
 
     return render(
@@ -526,40 +524,58 @@ def admin_billing(request):
 
 @admin_required
 def create_invoice(request):
-
-    last_invoice = BillingInvoice.objects.order_by('-id').first()
-
-    if last_invoice:
-        invoice_number = f"INV-{last_invoice.id + 1:04d}"
-    else:
-        invoice_number = "INV-0001"
+    today = timezone.localdate()
+    today_count = BillingInvoice.objects.filter(issued_on=today).count() + 1
+    invoice_number = f"INV-{today.strftime('%Y%m%d')}-{today_count:04d}"
 
     if request.method == "POST":
-
         patient_profile = PatientProfile.objects.get(
             id=request.POST.get("patient")
         )
-
-        amount = request.POST.get("amount")
-        status = request.POST.get("status")
+        status = request.POST.get("status", BillingInvoice.STATUS_UNPAID)
+        notes = request.POST.get("notes", "")
+        due_on = request.POST.get("due_on") or None
+        tax_rate = request.POST.get("tax_rate") or 0.13
 
         invoice = BillingInvoice.objects.create(
             patient=patient_profile.user,
             invoice_number=invoice_number,
-            amount=amount,
+            amount=0,
+            subtotal=0,
+            tax_rate=tax_rate,
+            tax_amount=0,
+            grand_total=0,
             status=status,
-            issued_on=timezone.localdate(),
-            due_on=timezone.localdate() + timedelta(days=7),
+            issued_on=today,
+            due_on=due_on,
+            notes=notes,
         )
+
+        descriptions = request.POST.getlist("description[]")
+        quantities = request.POST.getlist("quantity[]")
+        unit_prices = request.POST.getlist("unit_price[]")
+
+        for desc, qty, price in zip(descriptions, quantities, unit_prices):
+            if desc.strip():
+                InvoiceItem.objects.create(
+                    invoice=invoice,
+                    description=desc.strip(),
+                    quantity=int(qty or 1),
+                    unit_price=price or 0,
+                )
+
+        invoice.recalculate_totals()
+        invoice.refresh_from_db()
 
         notify(
             patient_profile.user,
             "New Invoice Generated",
-            f"Invoice {invoice.invoice_number} for Rs. {invoice.amount} has been created. Due date: {invoice.due_on|date:'M d, Y'}.",
+            f"Invoice {invoice.invoice_number} for Rs. {invoice.grand_total:,.2f} has been created. Due date: {invoice.due_on|date:'M d, Y'}.",
             category=Notification.CATEGORY_BILLING,
             action_url="/patient/invoices/",
         )
 
+        messages.success(request, f"Invoice {invoice.invoice_number} created successfully.")
         return redirect("admin_nishan:admin_billing")
 
     context = {
@@ -567,6 +583,8 @@ def create_invoice(request):
         "patients": PatientProfile.objects.all(),
         "invoice_number": invoice_number,
         "edit_mode": False,
+        "default_tax_rate": 0.13,
+        "today": today,
     }
 
     return render(
@@ -576,18 +594,40 @@ def create_invoice(request):
     )
 
 
-from django.shortcuts import get_object_or_404, redirect, render
-
 @admin_required
 def edit_invoice(request, invoice_id):
-
     invoice = get_object_or_404(BillingInvoice, id=invoice_id)
 
     if request.method == "POST":
-        invoice.amount = request.POST.get("amount")
-        invoice.status = request.POST.get("status")
+        invoice.status = request.POST.get("status", invoice.status)
+        invoice.notes = request.POST.get("notes", invoice.notes)
+        invoice.due_on = request.POST.get("due_on") or invoice.due_on
+        invoice.tax_rate = request.POST.get("tax_rate") or invoice.tax_rate
+
+        if invoice.status == BillingInvoice.STATUS_PAID and not invoice.paid_on:
+            invoice.paid_on = timezone.localdate()
+
         invoice.save()
 
+        invoice.items.all().delete()
+
+        descriptions = request.POST.getlist("description[]")
+        quantities = request.POST.getlist("quantity[]")
+        unit_prices = request.POST.getlist("unit_price[]")
+
+        for desc, qty, price in zip(descriptions, quantities, unit_prices):
+            if desc.strip():
+                InvoiceItem.objects.create(
+                    invoice=invoice,
+                    description=desc.strip(),
+                    quantity=int(qty or 1),
+                    unit_price=price or 0,
+                )
+
+        invoice.recalculate_totals()
+        invoice.refresh_from_db()
+
+        messages.success(request, f"Invoice {invoice.invoice_number} updated successfully.")
         return redirect("admin_nishan:admin_billing")
 
     context = {
@@ -595,7 +635,9 @@ def edit_invoice(request, invoice_id):
         "patients": PatientProfile.objects.all(),
         "invoice_number": invoice.invoice_number,
         "edit_mode": True,
-        "selected_patient_id": getattr(invoice.patient, "patient_profile", None) and invoice.patient.patient_profile.id,
+        "selected_patient_id": invoice.patient.patient_profile.id if hasattr(invoice.patient, "patient_profile") else None,
+        "items": invoice.items.all(),
+        "default_tax_rate": invoice.tax_rate,
     }
 
     return render(
@@ -603,6 +645,27 @@ def edit_invoice(request, invoice_id):
         "admin_nishan/admin_create_invoice.html",
         context,
     )
+
+
+@admin_required
+def mark_paid(request, invoice_id):
+    invoice = get_object_or_404(BillingInvoice, id=invoice_id)
+    invoice.status = BillingInvoice.STATUS_PAID
+    invoice.paid_on = timezone.localdate()
+    invoice.save(update_fields=["status", "paid_on"])
+    messages.success(request, f"Invoice {invoice.invoice_number} marked as paid.")
+    return redirect("admin_nishan:admin_billing")
+
+
+@admin_required
+def invoice_detail(request, invoice_id):
+    invoice = get_object_or_404(BillingInvoice.objects.select_related("patient"), id=invoice_id)
+    context = {
+        "active_page": "billing",
+        "invoice": invoice,
+    }
+    return render(request, "admin_nishan/admin_invoice_detail.html", context)
+
 
 @admin_required
 def delete_invoice(request, invoice_id):

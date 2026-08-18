@@ -1,0 +1,108 @@
+{% extends 'patient_roshan/base.html' %}
+{% load static %}
+{% block title %}Invoice {{ invoice.invoice_number }}{% endblock %}
+{% block page_title %}Invoice {{ invoice.invoice_number }}{% endblock %}
+
+{% block extra_head %}
+<style>
+@media print {
+    body { background: white !important; }
+    .no-print { display: none !important; }
+    .print-container { box-shadow: none !important; border: none !important; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto print-container bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+    <div class="p-lg md:p-xl">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl pb-lg border-b border-outline-variant">
+            <div>
+                <h3 class="font-headline-sm text-headline-sm text-on-surface">MediCare Hospital</h3>
+                <p class="font-body-sm text-body-sm text-on-surface-variant">123 Healthcare Ave, Medical District</p>
+                <p class="font-body-sm text-body-sm text-on-surface-variant">Phone: +977-1-1234567</p>
+            </div>
+            <div class="text-left md:text-right">
+                <p class="font-label-md text-label-md text-on-surface-variant">Invoice Number</p>
+                <p class="font-headline-sm text-headline-sm text-on-surface">{{ invoice.invoice_number }}</p>
+                <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Date: {{ invoice.issued_on|date:"M d, Y" }}</p>
+                <p class="font-body-sm text-body-sm text-on-surface-variant">Due: {{ invoice.due_on|date:"M d, Y"|default:"—" }}</p>
+            </div>
+        </div>
+
+        <div class="mb-xl">
+            <h4 class="font-label-md text-label-md text-on-surface-variant mb-sm">Patient</h4>
+            <p class="font-body-md text-body-md text-on-surface font-semibold">{{ invoice.patient.get_full_name|default:invoice.patient.username }}</p>
+            <p class="font-body-sm text-body-sm text-on-surface-variant">{{ invoice.patient.email|default:"—" }}</p>
+        </div>
+
+        <div class="overflow-x-auto mb-xl">
+            <table class="w-full text-left border-collapse min-w-[500px]">
+                <thead>
+                    <tr class="bg-surface-container border-b border-outline-variant">
+                        <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Description</th>
+                        <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant w-24 text-center">Qty</th>
+                        <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant w-32 text-right">Unit Price</th>
+                        <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant w-32 text-right">Total</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant">
+                    {% for item in invoice.items.all %}
+                    <tr class="hover:bg-surface-container-low transition-colors">
+                        <td class="px-lg py-md font-body-md text-body-md text-on-surface">{{ item.description }}</td>
+                        <td class="px-lg py-md font-body-md text-body-md text-on-surface text-center">{{ item.quantity }}</td>
+                        <td class="px-lg py-md font-body-md text-body-md text-on-surface text-right">Rs. {{ item.unit_price|floatformat:2 }}</td>
+                        <td class="px-lg py-md font-body-md text-body-md text-on-surface text-right font-semibold">Rs. {{ item.total|floatformat:2 }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="px-lg py-xl text-center font-body-sm text-on-surface-variant">No line items.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="flex flex-col md:flex-row md:items-start justify-between gap-lg">
+            <div class="md:w-1/2">
+                {% if invoice.notes %}
+                <h4 class="font-label-md text-label-md text-on-surface-variant mb-sm">Notes</h4>
+                <p class="font-body-sm text-body-sm text-on-surface-variant whitespace-pre-line">{{ invoice.notes }}</p>
+                {% endif %}
+            </div>
+            <div class="md:w-1/3 space-y-sm bg-surface-container-low p-lg rounded-xl border border-outline-variant">
+                <div class="flex justify-between">
+                    <span class="font-body-md text-body-md text-on-surface-variant">Subtotal</span>
+                    <span class="font-body-md text-body-md text-on-surface font-semibold">Rs. {{ invoice.subtotal|floatformat:2 }}</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-body-md text-body-md text-on-surface-variant">Tax ({{ invoice.tax_rate|floatformat:0 }}%)</span>
+                    <span class="font-body-md text-body-md text-on-surface font-semibold">Rs. {{ invoice.tax_amount|floatformat:2 }}</span>
+                </div>
+                <div class="flex justify-between pt-sm border-t border-outline-variant">
+                    <span class="font-headline-sm text-headline-sm text-on-surface">Grand Total</span>
+                    <span class="font-headline-sm text-headline-sm text-primary font-bold">Rs. {{ invoice.grand_total|floatformat:2 }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-xl pt-lg border-t border-outline-variant flex items-center justify-between no-print">
+            <div>
+                {% if invoice.status == 'Paid' %}
+                    <span class="hm-badge hm-badge-success">Paid on {{ invoice.paid_on|date:"M d, Y" }}</span>
+                {% elif invoice.status == 'Unpaid' %}
+                    <span class="hm-badge hm-badge-pending">Unpaid</span>
+                {% elif invoice.status == 'Void' %}
+                    <span class="hm-badge hm-badge-neutral">Void</span>
+                {% else %}
+                    <span class="hm-badge hm-badge-neutral">{{ invoice.get_status_display }}</span>
+                {% endif %}
+            </div>
+            <button onclick="window.print()" class="px-4 py-2 min-h-[44px] bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors inline-flex items-center gap-2">
+                <span class="material-symbols-outlined text-[18px]">print</span>
+                Print Bill
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -20,7 +20,7 @@
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Invoice #</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Date</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Appointment</th>
-                    <th class="px-lg py-md font-label-md text-on-surface-variant">Amount</th>
+                    <th class="px-lg py-md font-label-md text-on-surface-variant text-right">Grand Total</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Due Date</th>
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Status</th>
                 </tr>
@@ -28,7 +28,11 @@
             <tbody class="divide-y divide-outline-variant">
                 {% for invoice in invoices %}
                 <tr class="hover:bg-surface-container-low transition-colors">
-                    <td class="px-lg py-md font-body-sm text-on-surface font-medium">{{ invoice.invoice_number }}</td>
+                    <td class="px-lg py-md font-body-sm text-on-surface font-medium">
+                        <a href="{% url 'patient_roshan:invoice_detail' invoice.id %}" class="text-primary hover:underline">
+                            {{ invoice.invoice_number }}
+                        </a>
+                    </td>
                     <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ invoice.issued_on|date:"M d, Y" }}</td>
                     <td class="px-lg py-md font-body-sm text-on-surface-variant">
                         {% if invoice.appointment %}
@@ -37,13 +41,13 @@
                             —
                         {% endif %}
                     </td>
-                    <td class="px-lg py-md font-body-md font-semibold text-on-surface">Rs. {{ invoice.amount }}</td>
+                    <td class="px-lg py-md font-body-md font-semibold text-on-surface text-right">Rs. {{ invoice.grand_total|floatformat:2 }}</td>
                     <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ invoice.due_on|date:"M d, Y"|default:"—" }}</td>
                     <td class="px-lg py-md">
                         {% if invoice.status == 'Paid' %}
                             <span class="hm-badge hm-badge-success">Paid</span>
                         {% elif invoice.status == 'Unpaid' %}
-                            <span class="hm-badge" style="background: #996100; color: #ffeedd;">Unpaid</span>
+                            <span class="hm-badge hm-badge-pending">Unpaid</span>
                         {% elif invoice.status == 'Void' %}
                             <span class="hm-badge hm-badge-error">Void</span>
                         {% else %}

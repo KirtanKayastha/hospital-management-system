@@ -1,7 +1,8 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import Sum
 from django.utils import timezone
-from django.db import models
+from decimal import Decimal
 from patient_roshan.models import PatientProfile
 
 
@@ -289,49 +290,78 @@ class PrescriptionItem(models.Model):
 		return self.title
 
 
+class InvoiceItem(models.Model):
+    invoice = models.ForeignKey('BillingInvoice', on_delete=models.CASCADE, related_name='items')
+    description = models.CharField(max_length=255)
+    quantity = models.PositiveIntegerField(default=1)
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    total = models.DecimalField(max_digits=10, decimal_places=2, editable=False)
+
+    class Meta:
+        ordering = ['id']
+
+    def __str__(self):
+        return f"{self.description} x{self.quantity}"
+
+    def save(self, *args, **kwargs):
+        self.total = self.quantity * self.unit_price
+        super().save(*args, **kwargs)
+        self.invoice.recalculate_totals()
+
+
 class BillingInvoice(models.Model):
-	STATUS_DRAFT = "Draft"
-	STATUS_UNPAID = "Unpaid"
-	STATUS_PAID = "Paid"
-	STATUS_VOID = "Void"
+    STATUS_DRAFT = "Draft"
+    STATUS_UNPAID = "Unpaid"
+    STATUS_PAID = "Paid"
+    STATUS_VOID = "Void"
 
-	STATUS_CHOICES = [
-		(STATUS_DRAFT, "Draft"),
-		(STATUS_UNPAID, "Unpaid"),
-		(STATUS_PAID, "Paid"),
-		(STATUS_VOID, "Void"),
-	]
+    STATUS_CHOICES = [
+        (STATUS_DRAFT, "Draft"),
+        (STATUS_UNPAID, "Unpaid"),
+        (STATUS_PAID, "Paid"),
+        (STATUS_VOID, "Void"),
+    ]
 
-	invoice_number = models.CharField(max_length=30, unique=True)
-	patient = models.ForeignKey(
-		settings.AUTH_USER_MODEL,
-		on_delete=models.CASCADE,
-		related_name="billing_invoices",
-	)
-	appointment = models.ForeignKey(
-		Appointment,
-		on_delete=models.SET_NULL,
-		null=True,
-		blank=True,
-		related_name="billing_invoices",
-	)
-	amount = models.DecimalField(max_digits=10, decimal_places=2)
-	status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_UNPAID)
-	issued_on = models.DateField()
-	due_on = models.DateField(null=True, blank=True)
-	paid_on = models.DateField(null=True, blank=True)
-	notes = models.TextField(blank=True)
-	created_at = models.DateTimeField(auto_now_add=True)
+    invoice_number = models.CharField(max_length=30, unique=True)
+    patient = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="billing_invoices",
+    )
+    appointment = models.ForeignKey(
+        Appointment,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="billing_invoices",
+    )
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=0.13)
+    tax_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    grand_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_UNPAID)
+    issued_on = models.DateField()
+    due_on = models.DateField(null=True, blank=True)
+    paid_on = models.DateField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
-	class Meta:
-		ordering = ["-issued_on", "-created_at"]
+    class Meta:
+        ordering = ["-issued_on", "-created_at"]
 
-	def __str__(self):
-		return self.invoice_number
+    def __str__(self):
+        return self.invoice_number
 
-	@property
-	def display_amount(self):
-		return f"${self.amount:,.2f}"
+    @property
+    def display_amount(self):
+        return f"Rs. {self.grand_total:,.2f}"
+
+    def recalculate_totals(self):
+        self.subtotal = self.items.aggregate(total=Sum('total'))['total'] or Decimal('0')
+        self.tax_amount = self.subtotal * Decimal(str(self.tax_rate))
+        self.grand_total = self.subtotal + self.tax_amount
+        self.save(update_fields=['subtotal', 'tax_amount', 'grand_total'])
 
 
 class MedicineReminder(models.Model):

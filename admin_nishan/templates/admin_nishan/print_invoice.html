@@ -2,6 +2,14 @@
 <html>
 <head>
     <title>Invoice {{ invoice.invoice_number }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .text-right { text-align: right; }
+        .total-row td { font-weight: bold; background-color: #f9f9f9; }
+    </style>
 </head>
 <body onload="window.print()">
 
@@ -10,11 +18,43 @@
 
     <p><strong>Invoice No:</strong> {{ invoice.invoice_number }}</p>
     <p><strong>Patient:</strong> {{ invoice.patient.get_full_name|default:invoice.patient.username }}</p>
-    <p><strong>Amount:</strong> Rs. {{ invoice.amount }}</p>
-    <p><strong>Status:</strong> {{ invoice.status }}</p>
     <p><strong>Issued On:</strong> {{ invoice.issued_on|date:"M d, Y" }}</p>
     <p><strong>Due On:</strong> {{ invoice.due_on|date:"M d, Y"|default:"—" }}</p>
-    <p><strong>Notes:</strong> {{ invoice.notes|default:"—" }}</p>
+    <p><strong>Status:</strong> {{ invoice.status }}</p>
+
+    <h2>Items</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Description</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th class="text-right">Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in invoice.items.all %}
+            <tr>
+                <td>{{ item.description }}</td>
+                <td>{{ item.quantity }}</td>
+                <td>Rs. {{ item.unit_price|floatformat:2 }}</td>
+                <td class="text-right">Rs. {{ item.total|floatformat:2 }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4">No items.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h3>Totals</h3>
+    <p><strong>Subtotal:</strong> Rs. {{ invoice.subtotal|floatformat:2 }}</p>
+    <p><strong>Tax ({{ invoice.tax_rate|floatformat:0 }}%):</strong> Rs. {{ invoice.tax_amount|floatformat:2 }}</p>
+    <p><strong>Grand Total:</strong> Rs. {{ invoice.grand_total|floatformat:2 }}</p>
+
+    {% if invoice.notes %}
+    <h3>Notes</h3>
+    <p>{{ invoice.notes }}</p>
+    {% endif %}
 
 </body>
 </html>

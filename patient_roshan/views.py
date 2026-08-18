@@ -611,6 +611,17 @@ def invoices(request):
     return render(request, 'patient_roshan/invoices.html', context)
 
 
+@patient_required
+def invoice_detail(request, invoice_id):
+    invoice = get_object_or_404(BillingInvoice.objects.select_related("patient"), id=invoice_id, patient=request.user)
+    context = {
+        'active_page': 'invoices',
+        'patient': _patient_profile(request.user),
+        'invoice': invoice,
+    }
+    return render(request, 'patient_roshan/invoice_detail.html', context)
+
+
 # ─── MESSAGES ────────────────────────────────────────────────────────────────
 
 
@@ -756,7 +767,7 @@ def pay_at_counter(request, invoice_id):
         Notification.objects.create(
             recipient=request.user,
             title='Counter payment selected',
-            message=f'Please visit the billing counter to pay Rs. {invoice.amount} for invoice {invoice.invoice_number}.',
+            message=f'Please visit the billing counter to pay Rs. {invoice.grand_total} for invoice {invoice.invoice_number}.',
             category=Notification.CATEGORY_GENERAL,
             action_url='/patient/billing/',
         )
@@ -792,7 +803,7 @@ def esewa_initiate(request, invoice_id):
     invoice = get_object_or_404(BillingInvoice, id=invoice_id, patient=request.user)
 
     transaction_uuid = f"HMS-{invoice.id}-{uuid.uuid4().hex[:10]}"
-    total_amount = f"{invoice.amount:.0f}"
+    total_amount = f"{invoice.grand_total:.0f}"
     product_code = django_settings.ESEWA_PRODUCT_CODE
 
     PaymentTransaction.objects.create(
@@ -800,7 +811,7 @@ def esewa_initiate(request, invoice_id):
         invoice_id=invoice.id,
         transaction_uuid=transaction_uuid,
         gateway='esewa',
-        amount=invoice.amount,
+        amount=invoice.grand_total,
         status=PaymentTransaction.STATUS_INITIATED,
     )
 
@@ -870,7 +881,7 @@ def esewa_verify(request):
         messages.error(request, 'Invoice not found.')
         return redirect('patient_roshan:billing')
 
-    if abs(float(decoded.get('total_amount', '0').replace(',', '')) - float(invoice.amount)) > 0.01:
+    if abs(float(decoded.get('total_amount', '0').replace(',', '')) - float(invoice.grand_total)) > 0.01:
         txn.status = PaymentTransaction.STATUS_FAILED
         txn.save()
         messages.error(request, 'Payment amount did not match the invoice.')
@@ -887,12 +898,12 @@ def esewa_verify(request):
     Notification.objects.create(
         recipient=txn.user,
         title='Payment successful',
-        message=f'Your eSewa payment of Rs. {invoice.amount} for invoice {invoice.invoice_number} was successful.',
+        message=f'Your eSewa payment of Rs. {invoice.grand_total} for invoice {invoice.invoice_number} was successful.',
         category=Notification.CATEGORY_GENERAL,
         action_url='/patient/billing/',
     )
 
-    messages.success(request, f'Payment of Rs. {invoice.amount} completed via eSewa.')
+    messages.success(request, f'Payment of Rs. {invoice.grand_total} completed via eSewa.')
     return redirect('patient_roshan:billing')
 
 
@@ -915,7 +926,7 @@ def khalti_initiate(request, invoice_id):
         return redirect('patient_roshan:billing')
 
     purchase_order_id = f"HMS-{invoice.id}-{uuid.uuid4().hex[:10]}"
-    amount_paisa = int(float(invoice.amount) * 100)
+    amount_paisa = int(float(invoice.grand_total) * 100)
     base = django_settings.SITE_BASE_URL.rstrip('/')
 
     PaymentTransaction.objects.create(
@@ -923,7 +934,7 @@ def khalti_initiate(request, invoice_id):
         invoice_id=invoice.id,
         transaction_uuid=purchase_order_id,
         gateway='khalti',
-        amount=invoice.amount,
+        amount=invoice.grand_total,
         status=PaymentTransaction.STATUS_INITIATED,
     )
 
@@ -1015,7 +1026,7 @@ def khalti_verify(request):
         messages.error(request, 'Invoice not found.')
         return redirect('patient_roshan:billing')
 
-    if abs(int(data.get('total_amount', 0)) - int(float(invoice.amount) * 100)) > 1:
+    if abs(int(data.get('total_amount', 0)) - int(float(invoice.grand_total) * 100)) > 1:
         txn.status = PaymentTransaction.STATUS_FAILED
         txn.save()
         messages.error(request, 'Payment amount did not match the invoice.')
@@ -1031,12 +1042,12 @@ def khalti_verify(request):
     Notification.objects.create(
         recipient=txn.user,
         title='Payment successful',
-        message=f'Your Khalti payment of Rs. {invoice.amount} for invoice {invoice.invoice_number} was successful.',
+        message=f'Your Khalti payment of Rs. {invoice.grand_total} for invoice {invoice.invoice_number} was successful.',
         category=Notification.CATEGORY_GENERAL,
         action_url='/patient/billing/',
     )
 
-    messages.success(request, f'Payment of Rs. {invoice.amount} completed via Khalti.')
+    messages.success(request, f'Payment of Rs. {invoice.grand_total} completed via Khalti.')
     return redirect('patient_roshan:billing')
 
 
