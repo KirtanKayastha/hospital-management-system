@@ -151,10 +151,15 @@
 <body class="bg-surface text-on-surface flex min-h-screen">
 
     <!-- ========== SIDEBAR ========== -->
-    <aside class="w-64 bg-surface-container-lowest border-r border-outline-variant flex-col hidden md:flex sticky top-0 h-screen flex-shrink-0">
-        <div class="px-lg py-xl">
-            <span class="font-headline-md text-headline-md font-bold text-primary">HM System</span>
-            <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Patient Portal</p>
+    <aside id="sidebar" class="w-64 bg-surface-container-lowest border-r border-outline-variant flex flex-col fixed md:sticky top-0 left-0 z-50 h-screen flex-shrink-0 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+        <div class="px-lg py-xl flex items-start justify-between gap-md">
+            <div class="min-w-0">
+                <span class="font-headline-md text-headline-md font-bold text-primary">HM System</span>
+                <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Patient Portal</p>
+            </div>
+            <button type="button" class="md:hidden shrink-0 text-on-surface-variant p-1 rounded-full hover:bg-surface-container-high" onclick="closeSidebar()" aria-label="Close menu">
+                <span class="material-symbols-outlined">close</span>
+            </button>
         </div>
 
         <nav class="flex-1 px-md space-y-xs overflow-y-auto pb-md">
@@ -205,6 +210,7 @@
    class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
           {% if active_page == 'billing' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
     <span class="material-symbols-outlined">receipt_long</span>Billing &amp; Payments
+</a>
 
             <a href="{% url 'patient_roshan:notifications' %}"
    class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
@@ -255,16 +261,23 @@
         </div>
     </aside>
 
+    <div id="sidebar-overlay" class="hidden fixed inset-0 bg-black/40 z-40 md:hidden" onclick="closeSidebar()"></div>
+
     <!-- ========== MAIN ========== -->
     <main class="flex-1 flex flex-col min-w-0">
 
         <!-- Topbar -->
-        <header class="bg-surface-container-lowest border-b border-outline-variant px-lg md:px-xxl h-16 shrink-0 flex items-center justify-between sticky top-0 z-10">
-            <div>
-    <p class="font-label-sm text-label-sm text-on-surface-variant" id="greeting-text">Good morning,</p>
-    <h1 class="font-headline-md text-headline-md text-on-surface">{% block page_title %}Dashboard{% endblock %}</h1>
-</div>
-            <div class="flex items-center gap-lg">
+        <header class="bg-surface-container-lowest border-b border-outline-variant px-md md:px-xxl h-16 shrink-0 flex items-center justify-between gap-sm sticky top-0 z-30">
+            <div class="flex items-center gap-sm min-w-0">
+                <button type="button" class="md:hidden shrink-0 text-on-surface-variant p-1 rounded-full hover:bg-surface-container-high" onclick="openSidebar()" aria-label="Open menu">
+                    <span class="material-symbols-outlined">menu</span>
+                </button>
+                <div class="min-w-0">
+                    <p class="font-label-sm text-label-sm text-on-surface-variant truncate hidden sm:block" id="greeting-text">Good morning,</p>
+                    <h1 class="font-headline-sm md:font-headline-md text-headline-sm md:text-headline-md text-on-surface truncate">{% block page_title %}Dashboard{% endblock %}</h1>
+                </div>
+            </div>
+            <div class="flex items-center gap-sm md:gap-lg shrink-0">
                 <a href="{% url 'patient_roshan:notifications' %}" class="p-xs text-on-surface-variant hover:bg-surface-container-high rounded-full transition-colors relative">
                     <span class="material-symbols-outlined">notifications</span>
                     {% if unread_notification_count %}
@@ -272,49 +285,58 @@
                     {% endif %}
                 </a>
                  <!-- ========== Time , Date , Zone ========== -->
-                <div class="hidden sm:flex flex-col items-end">
-    <span id="live-clock" class="font-label-md text-label-md text-on-surface font-bold"></span>
-    <span id="live-date" class="font-label-sm text-label-sm text-on-surface-variant"></span>
-        <span class="font-label-sm text-label-sm text-on-surface-variant">Asia/Kathmandu</span>
-</div>
-                
-                <div class="flex items-center gap-md border-l border-outline-variant pl-lg">
-                    
-                        {% if request.user.patient_profile.profile_picture %}
-    <img src="{{ request.user.patient_profile.profile_picture.url }}" class="w-10 h-10 rounded-full border-2 border-primary object-cover"/>
-    {% else %}
-    <div class="w-10 h-10 rounded-full border-2 border-primary bg-primary flex items-center justify-center text-white font-bold text-sm">
-        {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
-    </div>
-    {% endif %}
+                <div class="hidden lg:flex flex-col items-end">
+                    <span id="live-clock" class="font-label-md text-label-md text-on-surface font-bold"></span>
+                    <span id="live-date" class="font-label-sm text-label-sm text-on-surface-variant"></span>
+                    <span class="font-label-sm text-label-sm text-on-surface-variant">Asia/Kathmandu</span>
+                </div>
+
+                <div class="flex items-center gap-md md:border-l md:border-outline-variant md:pl-lg">
+                    {% if request.user.patient_profile.profile_picture %}
+                    <img src="{{ request.user.patient_profile.profile_picture.url }}" class="w-10 h-10 rounded-full border-2 border-primary object-cover"/>
+                    {% else %}
+                    <div class="w-10 h-10 rounded-full border-2 border-primary bg-primary flex items-center justify-center text-white font-bold text-sm">
+                        {{ request.user.first_name|first|upper }}{{ request.user.last_name|first|upper }}
+                    </div>
+                    {% endif %}
+                </div>
             </div>
         </header>
 
         <!-- Page Content -->
         <div class="flex-1 overflow-y-auto">
-            <div class="p-lg md:p-xxl max-w-container-max mx-auto w-full">
+            <div class="p-md md:p-xxl max-w-container-max mx-auto w-full">
                 {% block content %}{% endblock %}
             </div>
         </div>
 
         <!-- Footer -->
         <footer class="bg-surface-container border-t border-outline-variant">
-            <div class="w-full px-lg md:px-xxl py-xl flex flex-col md:flex-row justify-between items-center gap-md max-w-container-max mx-auto">
+            <div class="w-full px-md md:px-xxl py-lg md:py-xl flex flex-col md:flex-row justify-between items-center gap-md max-w-container-max mx-auto">
                 <div class="flex flex-col items-center md:items-start">
                     <span class="font-headline-sm text-headline-sm font-bold text-on-surface">HM System</span>
-                    <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">&copy; 2026 HM System. All rights reserved.</p>
+                    <p class="font-body-sm text-body-sm text-on-surface-variant mt-xs text-center md:text-left">&copy; 2026 HM System. All rights reserved.</p>
                 </div>
-                <div class="flex gap-xl">
-                    <a class="font-label-sm text-label-sm text-on-surface-variant hover:underline hover:text-primary transition-all" href="#">Privacy Policy</a>
-                    <a class="font-label-sm text-label-sm text-on-surface-variant hover:underline hover:text-primary transition-all" href="#">Terms of Service</a>
-                    <a class="font-label-sm text-label-sm text-on-surface-variant hover:underline hover:text-primary transition-all" href="#">FAQ</a>
-                    <a class="font-label-sm text-label-sm text-on-surface-variant hover:underline hover:text-primary transition-all" href="#">Support</a>
+                <div class="flex flex-wrap justify-center gap-md md:gap-xl">
+                    <a class="font-label-sm text-label-sm text-on-surface-variant hover:underline hover:text-primary transition-all" href="/privacy-policy/">Privacy Policy</a>
+                    <a class="font-label-sm text-label-sm text-on-surface-variant hover:underline hover:text-primary transition-all" href="/terms/">Terms of Service</a>
+                    <a class="font-label-sm text-label-sm text-on-surface-variant hover:underline hover:text-primary transition-all" href="/faq/">FAQ</a>
+                    <a class="font-label-sm text-label-sm text-on-surface-variant hover:underline hover:text-primary transition-all" href="/support/">Support</a>
                 </div>
             </div>
         </footer>
     </main>
     {% block extra_js %}{% endblock %}
 <script>
+    function openSidebar() {
+        document.getElementById('sidebar').classList.remove('-translate-x-full');
+        document.getElementById('sidebar-overlay').classList.remove('hidden');
+    }
+    function closeSidebar() {
+        document.getElementById('sidebar').classList.add('-translate-x-full');
+        document.getElementById('sidebar-overlay').classList.add('hidden');
+    }
+
     const hour = new Date().getHours();
     const greeting = hour < 12 ? 'Good Morning' : hour < 17 ? 'Good Afternoon' : 'Good Evening';
     const el = document.getElementById('greeting-text');

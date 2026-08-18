@@ -6,7 +6,7 @@
 
 <div class="flex flex-col md:flex-row md:items-center justify-between gap-md">
     <div>
-        <h2 class="font-headline-lg text-headline-lg text-on-surface">Lab Reports</h2>
+        <h2 class="font-headline-md md:font-headline-lg text-headline-md md:text-headline-lg text-on-surface">Lab Reports</h2>
         <p class="text-on-surface-variant font-body-md">Lab reports you ordered for your patients.</p>
     </div>
 </div>
@@ -14,7 +14,7 @@
 {% if reports %}
 <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
     <div class="overflow-x-auto">
-        <table class="hm-table w-full text-left">
+        <table class="hm-table w-full text-left min-w-[900px]">
             <thead>
                 <tr class="bg-surface-container border-b border-outline-variant">
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Patient</th>
@@ -81,7 +81,7 @@
 {% block modals %}
 <div class="fixed inset-0 z-[100] hidden" id="lab-report-modal">
     <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="document.getElementById('lab-report-modal').classList.add('hidden')"></div>
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-white rounded-2xl card-shadow overflow-hidden max-h-[90vh] overflow-y-auto">
+    <div class="absolute inset-x-0 bottom-0 md:inset-0 md:m-auto w-full md:max-w-lg md:h-fit bg-white rounded-t-2xl md:rounded-2xl card-shadow overflow-hidden max-h-[90vh] overflow-y-auto">
         <form method="post" action="{% url 'doctor_siddhartha:lab_reports' %}" enctype="multipart/form-data">
             {% csrf_token %}
             <input type="hidden" name="report_id" id="modal-report-id"/>
@@ -112,9 +112,9 @@
                     <textarea name="summary" id="modal-summary" rows="3" class="w-full border border-outline-variant rounded-lg p-md"></textarea>
                 </div>
             </div>
-            <div class="p-lg bg-surface-container-low border-t border-outline-variant flex justify-end gap-md">
-                <button type="button" class="px-6 py-2 border border-outline-variant rounded-lg font-bold hover:bg-white transition-colors" onclick="document.getElementById('lab-report-modal').classList.add('hidden')">Cancel</button>
-                <button type="submit" class="px-8 py-2 bg-primary text-white rounded-lg font-bold transition-transform active:scale-95">Save Changes</button>
+            <div class="p-lg bg-surface-container-low border-t border-outline-variant flex flex-col sm:flex-row sm:justify-end gap-md">
+                <button type="button" class="px-6 py-2 min-h-[44px] border border-outline-variant rounded-lg font-bold hover:bg-white transition-colors" onclick="document.getElementById('lab-report-modal').classList.add('hidden')">Cancel</button>
+                <button type="submit" class="px-8 py-2 min-h-[44px] bg-primary text-white rounded-lg font-bold transition-transform active:scale-95">Save Changes</button>
             </div>
         </form>
     </div>

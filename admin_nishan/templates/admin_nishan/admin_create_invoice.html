@@ -121,15 +121,15 @@
             </div>
 
             <!-- Buttons -->
-            <div class="mt-6 flex justify-end gap-3">
+            <div class="mt-6 flex flex-col sm:flex-row sm:justify-end gap-3">
 
                 <a href="{% url 'admin_nishan:admin_billing' %}"
-                   class="px-6 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600">
+                   class="px-6 py-2 min-h-[44px] flex items-center justify-center bg-gray-500 text-white rounded-lg hover:bg-gray-600">
                     Cancel
                 </a>
 
                 <button type="submit"
-                        class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
+                        class="px-6 py-2 min-h-[44px] bg-green-600 text-white rounded-lg hover:bg-green-700">
                     {% if edit_mode %}
     Update Invoice
 {% else %}

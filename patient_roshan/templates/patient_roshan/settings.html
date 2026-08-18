@@ -6,7 +6,7 @@
 {% with active_page='settings' %}
 
 <div class="mb-lg">
-    <h1 class="font-headline-lg text-headline-lg text-on-surface">Manage your account preferences.</h1>
+    <h1 class="font-headline-md md:font-headline-lg text-headline-md md:text-headline-lg text-on-surface">Manage your account preferences.</h1>
 </div>
 
 {% if messages %}
@@ -255,7 +255,7 @@
 <!-- Delete Account Confirmation Modal -->
 <div id="deleteModal" class="fixed inset-0 z-[60] hidden">
     <div class="absolute inset-0 bg-on-surface/40 backdrop-blur-sm" onclick="document.getElementById('deleteModal').classList.add('hidden')"></div>
-    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-surface-container-lowest rounded-xl shadow-xl overflow-hidden">
+    <div class="absolute inset-x-0 bottom-0 md:inset-0 md:m-auto w-full md:max-w-md md:h-fit bg-surface-container-lowest rounded-t-xl md:rounded-xl shadow-xl overflow-hidden max-h-[90vh] overflow-y-auto">
         <div class="p-lg border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
             <h3 class="text-headline-sm font-bold text-error">Delete Account</h3>
             <button class="p-2 hover:bg-surface-container-high rounded-full transition-colors" onclick="document.getElementById('deleteModal').classList.add('hidden')">
@@ -279,11 +279,11 @@
                         placeholder="Type DELETE here" autocomplete="off"/>
                 </div>
             </div>
-            <div class="px-lg py-md border-t border-outline-variant flex justify-end gap-md">
-                <button type="button" class="px-lg py-2.5 rounded-lg font-label-md text-label-md text-on-surface-variant border border-outline-variant hover:bg-surface-container-high transition-all" onclick="document.getElementById('deleteModal').classList.add('hidden')">
+            <div class="px-lg py-md border-t border-outline-variant flex flex-col sm:flex-row justify-end gap-md">
+                <button type="button" class="px-lg py-2.5 min-h-[44px] rounded-lg font-label-md text-label-md text-on-surface-variant border border-outline-variant hover:bg-surface-container-high transition-all" onclick="document.getElementById('deleteModal').classList.add('hidden')">
                     Cancel
                 </button>
-                <button type="submit" class="px-lg py-2.5 rounded-lg font-label-md text-label-md bg-error text-on-error hover:bg-red-700 transition-all shadow-sm">
+                <button type="submit" class="px-lg py-2.5 min-h-[44px] rounded-lg font-label-md text-label-md bg-error text-on-error hover:bg-red-700 transition-all shadow-sm">
                     Delete My Account
                 </button>
             </div>

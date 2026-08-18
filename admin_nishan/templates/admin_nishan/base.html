@@ -142,16 +142,19 @@
 </head>
 <body class="text-on-surface bg-surface">
     <div class="min-h-screen lg:pl-64">
-        <aside class="bg-surface-container-lowest border-r border-outline-variant sidebar-transition lg:fixed lg:inset-y-0 lg:left-0 lg:w-64 w-full lg:h-screen flex flex-col z-40 shadow-sm">
+        <aside id="sidebar" class="bg-surface-container-lowest border-r border-outline-variant sidebar-transition fixed inset-y-0 left-0 w-64 h-screen flex flex-col z-50 shadow-sm transform -translate-x-full lg:translate-x-0">
             <div class="p-lg border-b border-outline-variant bg-gradient-to-br from-surface-container-lowest via-surface-container-lowest to-primary/5">
                 <div class="flex items-center gap-md">
-                    <div class="w-11 h-11 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-sm">
+                    <div class="w-11 h-11 rounded-xl bg-primary text-on-primary flex items-center justify-center shadow-sm shrink-0">
                         <span class="material-symbols-outlined">shield_person</span>
                     </div>
-                    <div>
+                    <div class="min-w-0 flex-1">
                         <p class="text-label-sm text-on-surface-variant uppercase tracking-[0.2em]">Admin Portal</p>
                         <h1 class="font-headline-sm text-headline-sm text-on-surface">MediCare</h1>
                     </div>
+                    <button type="button" class="lg:hidden shrink-0 text-on-surface-variant p-1 rounded-full hover:bg-surface-container-high" onclick="closeSidebar()" aria-label="Close menu">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
                 </div>
             </div>
 
@@ -210,25 +213,43 @@
             </div>
         </aside>
 
+        <div id="sidebar-overlay" class="hidden fixed inset-0 bg-black/40 z-40 lg:hidden" onclick="closeSidebar()"></div>
+
         <main class="min-h-screen bg-surface">
             <div class="border-b border-outline-variant bg-surface-container-lowest sticky top-0 z-30">
-                <div class="px-lg h-16 flex items-center justify-between gap-lg">
-                    <div>
-                        <p class="text-label-sm text-on-surface-variant uppercase tracking-[0.2em]">Admin Panel</p>
-                        <h2 class="font-headline-sm text-headline-sm text-on-surface">{% block page_title %}Dashboard{% endblock %}</h2>
+                <div class="px-md md:px-lg h-16 flex items-center justify-between gap-sm md:gap-lg">
+                    <div class="flex items-center gap-sm min-w-0">
+                        <button type="button" class="lg:hidden shrink-0 text-on-surface-variant p-1 rounded-full hover:bg-surface-container-high" onclick="openSidebar()" aria-label="Open menu">
+                            <span class="material-symbols-outlined">menu</span>
+                        </button>
+                        <div class="min-w-0">
+                            <p class="text-label-sm text-on-surface-variant uppercase tracking-[0.2em] hidden sm:block">Admin Panel</p>
+                            <h2 class="font-headline-sm text-headline-sm text-on-surface truncate">{% block page_title %}Dashboard{% endblock %}</h2>
+                        </div>
                     </div>
-                    <a href="{% url 'auth_kirtan:logout' %}" class="lg:hidden inline-flex items-center gap-sm px-md py-2 rounded-xl bg-surface-container-lowest border border-outline-variant text-on-surface-variant">
+                    <a href="{% url 'auth_kirtan:logout' %}" class="lg:hidden shrink-0 inline-flex items-center gap-sm px-md py-2 min-h-[44px] rounded-xl bg-surface-container-lowest border border-outline-variant text-on-surface-variant">
                         <span class="material-symbols-outlined">logout</span>
-                        <span class="text-label-md font-label-md">Logout</span>
+                        <span class="text-label-md font-label-md hidden sm:inline">Logout</span>
                     </a>
                 </div>
             </div>
 
-            <div class="p-lg max-w-7xl mx-auto space-y-lg">
+            <div class="p-md md:p-lg max-w-7xl mx-auto space-y-md md:space-y-lg">
                 {% block content %}{% endblock %}
             </div>
         </main>
     </div>
+
+    <script>
+        function openSidebar() {
+            document.getElementById('sidebar').classList.remove('-translate-x-full');
+            document.getElementById('sidebar-overlay').classList.remove('hidden');
+        }
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+            document.getElementById('sidebar-overlay').classList.add('hidden');
+        }
+    </script>
 
     {% block scripts %}{% endblock %}
 </body>

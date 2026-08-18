@@ -43,7 +43,8 @@
 
   <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
     <div class="p-lg border-b border-outline-variant"><h3 class="text-label-lg text-on-surface-variant uppercase">Prescribed Medicines</h3></div>
-    <table class="w-full text-left">
+    <div class="overflow-x-auto">
+    <table class="w-full text-left min-w-[620px]">
       <thead class="bg-surface-container">
         <tr class="bg-surface-container">
           <th class="p-md text-label-sm text-outline uppercase">Medicine</th>
@@ -65,6 +66,7 @@
         {% endfor %}
       </tbody>
     </table>
+    </div>
   </section>
 
   {% if rx.additional_notes %}

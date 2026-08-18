@@ -6,7 +6,7 @@
 {% with active_page='finddoctor' %}
 
 {# Search Filters #}
-<section class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant mb-lg">
+<section class="bg-surface-container-lowest rounded-xl p-md md:p-lg shadow-sm border border-outline-variant mb-lg">
     <form method="GET" action="{% url 'patient_roshan:find_doctor' %}">
         <div class="flex flex-col md:flex-row gap-lg items-end">
             <div class="flex-1">
@@ -51,8 +51,8 @@
 
 <div class="space-y-md">
     {% for doctor in doctors %}
-    <div class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant hover:shadow-md transition-all cursor-pointer group active:scale-[0.98]">
-    <div class="flex gap-lg">
+    <div class="bg-surface-container-lowest rounded-xl p-md md:p-lg shadow-sm border border-outline-variant hover:shadow-md transition-all cursor-pointer group active:scale-[0.98]">
+    <div class="flex flex-col sm:flex-row gap-md sm:gap-lg">
         <div class="w-20 h-20 rounded-xl overflow-hidden bg-secondary-container flex items-center justify-center text-2xl font-bold text-on-secondary-container flex-shrink-0">
             {% if doctor.has_profile_picture %}
             <img src="{{ doctor.profile_picture_url }}" alt="{{ doctor.name }}" class="w-full h-full object-cover"/>
@@ -74,7 +74,7 @@
                     <span class="px-md py-xs bg-surface-container rounded-full text-label-sm font-label-sm text-on-surface-variant border border-outline-variant">
                         {{ doctor.available_days }}
                     </span>
-                    <a href="{% url 'patient_roshan:book_appointment' %}?doctor={{ doctor.id }}" class="ml-auto bg-primary text-white px-md py-xs rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
+                    <a href="{% url 'patient_roshan:book_appointment' %}?doctor={{ doctor.id }}" class="w-full sm:w-auto sm:ml-auto text-center bg-primary text-white px-md py-sm min-h-[44px] inline-flex items-center justify-center rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
                         Book Now
                     </a>
                 </div>
@@ -82,7 +82,7 @@
         </div>
     </div>
     {% empty %}
-    <div class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant text-center py-xl">
+    <div class="bg-surface-container-lowest rounded-xl p-md md:p-lg shadow-sm border border-outline-variant text-center py-xl">
         <p class="font-body-md text-on-surface-variant">No doctors found for your search.</p>
     </div>
     {% endfor %}

@@ -14,7 +14,7 @@
 {# Header #}
 <div class="flex flex-col md:flex-row md:items-end justify-between gap-md mb-lg">
     <div>
-        <h1 class="font-headline-lg text-headline-lg text-on-surface">Appointment History</h1>
+        <h1 class="font-headline-md md:font-headline-lg text-headline-md md:text-headline-lg text-on-surface">Appointment History</h1>
         <p class="font-body-md text-on-surface-variant mt-xs">Manage and track all your past and upcoming appointments.</p>
     </div>
     <a href="{% url 'patient_roshan:book_appointment' %}" class="flex items-center gap-sm bg-primary-container text-white px-md py-sm rounded-lg font-label-md hover:opacity-90 shadow-sm transition-all active:scale-95">
@@ -48,7 +48,7 @@
 {# Table #}
 <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
     <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+        <table class="w-full text-left border-collapse min-w-[860px]">
             <thead>
                 <tr class="bg-surface-container border-b border-outline-variant">
                     <th class="px-lg py-md font-label-md text-on-surface-variant">Date &amp; Time</th>

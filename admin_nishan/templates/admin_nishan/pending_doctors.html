@@ -5,7 +5,7 @@
 {% block content %}
 <div class="flex justify-between items-end gap-lg flex-wrap">
     <div>
-        <h2 class="font-headline-lg text-headline-lg text-on-surface">Pending Doctor Approvals</h2>
+        <h2 class="font-headline-md md:font-headline-lg text-headline-md md:text-headline-lg text-on-surface">Pending Doctor Approvals</h2>
         <p class="font-body-md text-body-md text-on-surface-variant mt-xs">Review doctor registrations waiting for approval. {{ total_pending }} pending.</p>
     </div>
     <div class="px-lg py-md rounded-xl bg-tertiary-fixed text-on-tertiary-fixed-variant border border-outline-variant">
@@ -16,7 +16,7 @@
 
 <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
     <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
+        <table class="w-full text-left border-collapse min-w-[820px]">
             <thead class="bg-surface-container border-b border-outline-variant">
                 <tr class="bg-surface-container">
                     <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Doctor</th>

@@ -6,7 +6,7 @@
 {% with active_page='dashboard' %}
 
 {# --- Welcome Header with Profile Photo --- #}
-<div class="bg-surface-container-lowest rounded-xl p-lg shadow-sm border border-outline-variant mb-lg flex flex-col md:flex-row items-center gap-lg">
+<div class="bg-surface-container-lowest rounded-xl p-md md:p-lg shadow-sm border border-outline-variant mb-lg flex flex-col md:flex-row items-center gap-lg">
     <div class="relative">
         {% if patient.profile_picture %}
             <img src="{{ patient.profile_picture.url }}" alt="Profile"
@@ -86,7 +86,7 @@
             <a href="{% url 'patient_roshan:my_appointments' %}" class="text-primary font-label-md text-label-md hover:underline">View All</a>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-left">
+            <table class="w-full text-left min-w-[680px]">
                 <thead>
                     <tr class="bg-surface-container">
                         <th class="px-lg py-md font-label-md text-label-md text-on-surface-variant">Date &amp; Time</th>

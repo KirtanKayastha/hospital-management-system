@@ -3,34 +3,33 @@
 {% block page_title %}Manage Doctors{% endblock %}
 
 {% block content %}
-<div class="flex justify-between items-end mb-xl">
+<div class="flex justify-between items-end mb-lg md:mb-xl">
     <div>
-        <h2 class="font-headline-lg text-headline-lg text-on-surface">
+        <h2 class="font-headline-md md:font-headline-lg text-headline-md md:text-headline-lg text-on-surface">
             Manage Doctors
         </h2>
-        <p class="font-body-md text-body-md text-on-surface-variant mt-xs">
+        <p class="font-body-sm md:font-body-md text-body-sm md:text-body-md text-on-surface-variant mt-xs">
             Hospital medical staff ({{ total_doctors }} total).
         </p>
     </div>
 </div>
 
 <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
-    <div class="overflow-x-auto">
 
-        <div class="mb-6">
-    <form method="GET" class="flex items-center gap-3 mt-4 ml-2">
+        <div class="p-md md:p-lg border-b border-outline-variant">
+    <form method="GET" class="flex flex-col sm:flex-row sm:items-center gap-3">
 
         <input
             type="text"
             name="search"
             value="{{ search }}"
             placeholder="Search by name, email or phone..."
-            class="w-full md:w-96 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full md:w-96 px-4 py-2 min-h-[44px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
 
         <button
             type="submit"
-            class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+            class="flex items-center justify-center gap-2 px-4 py-2 min-h-[44px] bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
 
             <span class="material-symbols-outlined text-sm">
                 search
@@ -43,7 +42,8 @@
     </form>
 </div>
 
-        <table class="w-full text-left border-collapse">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse min-w-[900px]">
             <thead class="bg-surface-container border-b border-outline-variant">
     <tr class="bg-surface-container">
         <th class="px-lg py-md">ID</th>
