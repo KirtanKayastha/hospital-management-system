@@ -43,6 +43,16 @@ def _ensure_doctor_profile(user):
 
 
 def login_view(request):
+    if request.user.is_authenticated:
+        role = get_user_role(request.user)
+        if role == 'admin':
+            return redirect('/admin-panel/')
+        elif role == 'doctor':
+            return redirect('/doctor/dashboard/')
+        elif role == 'patient':
+            return redirect('/patient/')
+        return redirect('home')
+    
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
@@ -58,7 +68,9 @@ def login_view(request):
                 if role == 'patient':
                     ensure_patient_profile(user)
                 elif role == 'doctor':
-                    _ensure_doctor_profile(user)
+                    profile = _ensure_doctor_profile(user)
+                    if profile.status == 'Pending':
+                        return render(request, 'auth_kirtan/waiting_approval.html')
                 
                 # Role-based redirect
                 if role == 'admin':
@@ -77,6 +89,16 @@ def login_view(request):
     return render(request, 'auth_kirtan/login.html')
 
 def register_view(request):
+    if request.user.is_authenticated:
+        role = get_user_role(request.user)
+        if role == 'admin':
+            return redirect('/admin-panel/')
+        elif role == 'doctor':
+            return redirect('/doctor/dashboard/')
+        elif role == 'patient':
+            return redirect('/patient/')
+        return redirect('home')
+    
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')

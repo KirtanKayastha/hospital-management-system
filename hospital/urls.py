@@ -9,6 +9,8 @@ import traceback
 import os
 import subprocess
 
+from hospital.views import home_view
+
 
 
 def db_check(request):
@@ -49,7 +51,7 @@ def db_check(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('db-check/', db_check),
-    path('', TemplateView.as_view(template_name='home.html'), name='home'),
+    path('', home_view, name='home'),
 
     # Auth routes (Kirtan)
     path('', include('auth_kirtan.urls', namespace='auth_kirtan')),
