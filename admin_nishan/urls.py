@@ -57,23 +57,10 @@ path(
     path("accounts/delete/<int:user_id>/", views.delete_account, name="delete_account"),
     path("reports/", views.admin_reports, name="admin_reports"),
     path("billing/", views.admin_billing, name="admin_billing"),
-
-path(
-    "billing/",
-    views.admin_billing,
-    name="admin_billing"
-), 
-
-
-path(
-    "billing/create-invoice/",
-    views.create_invoice,
-    name="create_invoice"
-),
-
-path('billing/edit/<int:invoice_id>/', views.edit_invoice, name='edit_invoice'),
-path('billing/print/<int:invoice_id>/', views.print_invoice, name='print_invoice'),
-path('billing/delete/<int:invoice_id>/', views.delete_invoice, name='delete_invoice'),
+    path("billing/create-invoice/", views.create_invoice, name="create_invoice"),
+    path('billing/edit/<int:invoice_id>/', views.edit_invoice, name='edit_invoice'),
+    path('billing/print/<int:invoice_id>/', views.print_invoice, name='print_invoice'),
+    path('billing/delete/<int:invoice_id>/', views.delete_invoice, name='delete_invoice'),
 
 
 ]

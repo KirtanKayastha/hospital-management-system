@@ -64,10 +64,8 @@
                 <tr class="bg-surface-container border-b border-outline-variant">
                     <th class="px-lg py-md">Invoice #</th>
                     <th class="px-lg py-md">Patient</th>
-                    <th class="px-lg py-md">Appointment</th>
                     <th class="px-lg py-md">Amount</th>
-                    <th class="px-lg py-md">Issued</th>
-                    <th class="px-lg py-md">Due</th>
+                    <th class="px-lg py-md">Created</th>
                     <th class="px-lg py-md">Status</th>
                     <th class="px-lg py-md text-right">Actions</th>
                 </tr>
@@ -84,17 +82,7 @@
                     </td>
 
                     <td class="px-lg py-md">
-    {{ invoice.patient.user.get_full_name|default:invoice.patient.user.username }}
-</td>
-
-                    <td class="px-lg py-md">
-
-                        {% if invoice.appointment %}
-                            #APT-{{ invoice.appointment.id }}
-                        {% else %}
-                            —
-                        {% endif %}
-
+                        {{ invoice.patient.user.get_full_name|default:invoice.patient.user.username }}
                     </td>
 
                     <td class="px-lg py-md">
@@ -102,21 +90,15 @@
                     </td>
 
                     <td class="px-lg py-md">
-                        {{ invoice.issued_on|date:"M d, Y" }}
-                    </td>
-
-                    <td class="px-lg py-md">
-                        {{ invoice.due_on|date:"M d, Y"|default:"—" }}
+                        {{ invoice.created_at|date:"M d, Y" }}
                     </td>
 
                     <td class="px-lg py-md">
 
                         {% if invoice.status == 'Paid' %}
                             <span class="hm-badge hm-badge-success">Paid</span>
-                        {% elif invoice.status == 'Unpaid' %}
-                            <span class="hm-badge hm-badge-pending">Unpaid</span>
-                        {% elif invoice.status == 'Void' %}
-                            <span class="hm-badge hm-badge-neutral">Void</span>
+                        {% elif invoice.status == 'Due' %}
+                            <span class="hm-badge hm-badge-pending">Due</span>
                         {% else %}
                             <span class="hm-badge hm-badge-neutral">
                                 {{ invoice.status }}
@@ -135,9 +117,9 @@
         </a>
 
         <a href="{% url 'admin_nishan:delete_invoice' invoice.id %}"
-           onclick="return confirm('Delete this invoice?')"
-           class="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-           title="Delete">
+            onclick="return confirm('Delete this invoice?')"
+            class="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+            title="Delete">
             <span class="material-symbols-outlined text-xl">delete</span>
         </a>
 
@@ -155,7 +137,7 @@
                 {% empty %}
 
                 <tr>
-                    <td colspan="8" class="px-lg py-xl text-center">
+                    <td colspan="6" class="px-lg py-xl text-center">
                         No invoices found.
                     </td>
                 </tr>
