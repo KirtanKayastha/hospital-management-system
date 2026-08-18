@@ -9,11 +9,12 @@
     <hr>
 
     <p><strong>Invoice No:</strong> {{ invoice.invoice_number }}</p>
-    <p><strong>Patient:</strong> {{ invoice.patient.user.get_full_name }}</p>
+    <p><strong>Patient:</strong> {{ invoice.patient.get_full_name|default:invoice.patient.username }}</p>
     <p><strong>Amount:</strong> Rs. {{ invoice.amount }}</p>
     <p><strong>Status:</strong> {{ invoice.status }}</p>
-    <p><strong>Payment Method:</strong> {{ invoice.payment_method }}</p>
-    <p><strong>Created:</strong> {{ invoice.created_at }}</p>
+    <p><strong>Issued On:</strong> {{ invoice.issued_on|date:"M d, Y" }}</p>
+    <p><strong>Due On:</strong> {{ invoice.due_on|date:"M d, Y"|default:"—" }}</p>
+    <p><strong>Notes:</strong> {{ invoice.notes|default:"—" }}</p>
 
 </body>
 </html>

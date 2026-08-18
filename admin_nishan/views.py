@@ -2,19 +2,12 @@ from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.db.models import Count, Sum
+from django.db.models import Count, Q, Sum
 from django.db.models.functions import TruncDate
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from .forms import PatientForm, DoctorForm
 from django.contrib.auth.forms import SetPasswordForm
-from django.db.models import Q
-from patient_roshan.models import PatientProfile
-from .models import Invoice
-from django.shortcuts import get_object_or_404, redirect, render
-from .models import Invoice
-
-
 
 from admin_nishan.models import (
     Appointment,
@@ -339,10 +332,10 @@ def admin_reports(request):
         or 1
     )
 
-    # Revenue from Invoice model
+    # Revenue from BillingInvoice model
     total_revenue = (
-        Invoice.objects.filter(
-            status="Paid"
+        BillingInvoice.objects.filter(
+            status=BillingInvoice.STATUS_PAID
         ).aggregate(
             total=Sum("amount")
         )["total"]
@@ -548,7 +541,7 @@ def delete_patient(request, patient_id):
 
 # def admin_billing(request):
 
-#     invoices = Invoice.objects.all().order_by("-id")
+#     invoices = BillingInvoice.objects.all().order_by("-id")
 
 #     context = {
 #         "active_page": "billing",
@@ -561,7 +554,7 @@ def admin_billing(request):
 
     status_filter = request.GET.get("status")
 
-    invoices = Invoice.objects.all().order_by("-created_at")
+    invoices = BillingInvoice.objects.all().order_by("-created_at")
 
     if status_filter:
         invoices = invoices.filter(status=status_filter)
@@ -583,13 +576,13 @@ def admin_billing(request):
 
 from django.shortcuts import render, redirect
 from patient_roshan.models import PatientProfile
-from .models import Invoice
+from .models import BillingInvoice
 
 
 @admin_required
 def create_invoice(request):
 
-    last_invoice = Invoice.objects.order_by('-id').first()
+    last_invoice = BillingInvoice.objects.order_by('-id').first()
 
     if last_invoice:
         invoice_number = f"INV-{last_invoice.id + 1:04d}"
@@ -605,18 +598,11 @@ def create_invoice(request):
         amount = request.POST.get("amount")
         status = request.POST.get("status")
 
-        payment_method = request.POST.get("payment_method")
-        online_provider = request.POST.get("online_provider")
-
-        if payment_method == "Online Banking":
-            payment_method = online_provider
-
-        Invoice.objects.create(
+        BillingInvoice.objects.create(
             patient=patient,
             invoice_number=invoice_number,
             amount=amount,
             status=status,
-            payment_method=payment_method,
         )
 
         return redirect("admin_nishan:admin_billing")
@@ -638,12 +624,11 @@ from django.shortcuts import get_object_or_404, redirect, render
 @admin_required
 def edit_invoice(request, invoice_id):
 
-    invoice = get_object_or_404(Invoice, id=invoice_id)
+    invoice = get_object_or_404(BillingInvoice, id=invoice_id)
 
     if request.method == "POST":
         invoice.amount = request.POST.get("amount")
         invoice.status = request.POST.get("status")
-        invoice.payment_method = request.POST.get("payment_method")
         invoice.save()
 
         return redirect("admin_nishan:admin_billing")
@@ -663,14 +648,14 @@ def edit_invoice(request, invoice_id):
 
 @admin_required
 def delete_invoice(request, invoice_id):
-    invoice = get_object_or_404(Invoice, id=invoice_id)
+    invoice = get_object_or_404(BillingInvoice, id=invoice_id)
     invoice.delete()
 
     return redirect("admin_nishan:admin_billing")
 
 @admin_required
 def print_invoice(request, invoice_id):
-    invoice = get_object_or_404(Invoice, id=invoice_id)
+    invoice = get_object_or_404(BillingInvoice, id=invoice_id)
 
     return render(
         request,

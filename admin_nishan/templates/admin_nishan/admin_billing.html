@@ -40,14 +40,19 @@
 
     <option value="">All Statuses</option>
 
-    <option value="Due"
-        {% if status_filter == 'Due' %}selected{% endif %}>
-        Due
+    <option value="Unpaid"
+        {% if status_filter == 'Unpaid' %}selected{% endif %}>
+        Unpaid
     </option>
 
     <option value="Paid"
         {% if status_filter == 'Paid' %}selected{% endif %}>
         Paid
+    </option>
+
+    <option value="Void"
+        {% if status_filter == 'Void' %}selected{% endif %}>
+        Void
     </option>
 
 </select>
@@ -65,7 +70,8 @@
                     <th class="px-lg py-md">Invoice #</th>
                     <th class="px-lg py-md">Patient</th>
                     <th class="px-lg py-md">Amount</th>
-                    <th class="px-lg py-md">Created</th>
+                    <th class="px-lg py-md">Issued</th>
+                    <th class="px-lg py-md">Due</th>
                     <th class="px-lg py-md">Status</th>
                     <th class="px-lg py-md text-right">Actions</th>
                 </tr>
@@ -82,7 +88,7 @@
                     </td>
 
                     <td class="px-lg py-md">
-                        {{ invoice.patient.user.get_full_name|default:invoice.patient.user.username }}
+                        {{ invoice.patient.get_full_name|default:invoice.patient.username }}
                     </td>
 
                     <td class="px-lg py-md">
@@ -90,15 +96,21 @@
                     </td>
 
                     <td class="px-lg py-md">
-                        {{ invoice.created_at|date:"M d, Y" }}
+                        {{ invoice.issued_on|date:"M d, Y" }}
+                    </td>
+
+                    <td class="px-lg py-md">
+                        {{ invoice.due_on|date:"M d, Y"|default:"—" }}
                     </td>
 
                     <td class="px-lg py-md">
 
                         {% if invoice.status == 'Paid' %}
                             <span class="hm-badge hm-badge-success">Paid</span>
-                        {% elif invoice.status == 'Due' %}
-                            <span class="hm-badge hm-badge-pending">Due</span>
+                        {% elif invoice.status == 'Unpaid' %}
+                            <span class="hm-badge hm-badge-pending">Unpaid</span>
+                        {% elif invoice.status == 'Void' %}
+                            <span class="hm-badge hm-badge-neutral">Void</span>
                         {% else %}
                             <span class="hm-badge hm-badge-neutral">
                                 {{ invoice.status }}
@@ -137,7 +149,7 @@
                 {% empty %}
 
                 <tr>
-                    <td colspan="6" class="px-lg py-xl text-center">
+                    <td colspan="7" class="px-lg py-xl text-center">
                         No invoices found.
                     </td>
                 </tr>

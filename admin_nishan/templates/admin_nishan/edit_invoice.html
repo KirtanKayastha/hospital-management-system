@@ -30,8 +30,9 @@
             <label class="block mb-2">Status</label>
             <select name="status"
                     class="w-full border rounded-lg px-4 py-2">
-                <option value="Due" {% if invoice.status == 'Due' %}selected{% endif %}>Due</option>
+                <option value="Unpaid" {% if invoice.status == 'Unpaid' %}selected{% endif %}>Unpaid</option>
                 <option value="Paid" {% if invoice.status == 'Paid' %}selected{% endif %}>Paid</option>
+                <option value="Void" {% if invoice.status == 'Void' %}selected{% endif %}>Void</option>
             </select>
         </div>
 
