@@ -43,11 +43,11 @@
                         {% if invoice.status == 'Paid' %}
                             <span class="hm-badge hm-badge-success">Paid</span>
                         {% elif invoice.status == 'Unpaid' %}
-                            <span class="hm-badge hm-badge-pending">Unpaid</span>
+                            <span class="hm-badge" style="background: #996100; color: #ffeedd;">Unpaid</span>
                         {% elif invoice.status == 'Void' %}
-                            <span class="hm-badge hm-badge-neutral">Void</span>
+                            <span class="hm-badge hm-badge-error">Void</span>
                         {% else %}
-                            <span class="hm-badge hm-badge-neutral">{{ invoice.status }}</span>
+                            <span class="hm-badge hm-badge-neutral">{{ invoice.get_status_display }}</span>
                         {% endif %}
                     </td>
                 </tr>

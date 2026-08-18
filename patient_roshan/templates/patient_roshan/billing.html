@@ -55,21 +55,17 @@
                     <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ invoice.created_at|date:"d M Y" }}</td>
                     <td class="px-lg py-md font-body-sm text-on-surface">{{ invoice.notes }}</td>
                     <td class="px-lg py-md font-body-md font-semibold text-on-surface">Rs. {{ invoice.amount }}</td>
-                   <td class="px-lg py-md">
-    {% if invoice.status == 'unpaid' %}
-        <span class="inline-flex items-center gap-xs px-sm py-xs bg-red-100 text-red-700 rounded-lg font-label-sm">
-            <span class="w-2 h-2 rounded-full bg-red-500"></span>Unpaid
-        </span>
-    {% elif invoice.status == 'pending_counter' %}
-        <span class="inline-flex items-center gap-xs px-sm py-xs bg-yellow-100 text-yellow-700 rounded-lg font-label-sm">
-            <span class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></span>At Counter
-        </span>
-    {% else %}
-        <span class="inline-flex items-center gap-xs px-sm py-xs bg-green-100 text-green-700 rounded-lg font-label-sm">
-            <span class="w-2 h-2 rounded-full bg-green-500"></span>Paid
-        </span>
-    {% endif %}
-</td>
+                    <td class="px-lg py-md">
+                        {% if invoice.status == 'Paid' %}
+                            <span class="hm-badge hm-badge-success">Paid</span>
+                        {% elif invoice.status == 'Unpaid' %}
+                            <span class="hm-badge" style="background: #996100; color: #ffeedd;">Unpaid</span>
+                        {% elif invoice.status == 'Void' %}
+                            <span class="hm-badge hm-badge-error">Void</span>
+                        {% else %}
+                            <span class="hm-badge hm-badge-neutral">{{ invoice.get_status_display }}</span>
+                        {% endif %}
+                    </td>
 <td class="px-lg py-md text-right">
     {% if invoice.status == 'unpaid' %}
     <div class="flex gap-sm justify-end">
