@@ -44,8 +44,8 @@
         class="w-full border border-gray-300 rounded-lg px-4 py-2">
 
     {% for patient in patients %}
-    <option value="{{ patient.user.id }}"
-        {% if edit_mode and patient.user.id == invoice.patient.id %}
+    <option value="{{ patient.id }}"
+        {% if edit_mode and patient.id == selected_patient_id %}
             selected
         {% endif %}>
         {{ patient.user.get_full_name|default:patient.user.username }}

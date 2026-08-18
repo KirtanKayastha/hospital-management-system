@@ -642,6 +642,7 @@ def edit_invoice(request, invoice_id):
         "patients": PatientProfile.objects.all(),
         "invoice_number": invoice.invoice_number,
         "edit_mode": True,
+        "selected_patient_id": getattr(invoice.patient, "patient_profile", None) and invoice.patient.patient_profile.id,
     }
 
     return render(
