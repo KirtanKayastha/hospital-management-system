@@ -1,6 +1,62 @@
 {% extends 'admin_nishan/base.html' %}
+{% load static %}
 {% block title %}Manage Doctors{% endblock %}
 {% block page_title %}Manage Doctors{% endblock %}
+
+{% block extra_head %}
+<style>
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 6px 12px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.2s;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+    .action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .action-btn:active {
+        transform: translateY(0);
+    }
+    .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.4);
+        backdrop-filter: blur(4px);
+        z-index: 50;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.2s;
+    }
+    .modal-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    .modal-content {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        max-width: 400px;
+        width: 90%;
+        transform: scale(0.95);
+        transition: transform 0.2s;
+        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+    }
+    .modal-overlay.active .modal-content {
+        transform: scale(1);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="flex justify-between items-end mb-lg md:mb-xl">
@@ -15,52 +71,41 @@
 </div>
 
 <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
-
-        <div class="p-md md:p-lg border-b border-outline-variant">
-    <form method="GET" class="flex flex-col sm:flex-row sm:items-center gap-3">
-
-        <input
-            type="text"
-            name="search"
-            value="{{ search }}"
-            placeholder="Search by name, email or phone..."
-            class="w-full md:w-96 px-4 py-2 min-h-[44px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-
-        <button
-            type="submit"
-            class="flex items-center justify-center gap-2 px-4 py-2 min-h-[44px] bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-
-            <span class="material-symbols-outlined text-sm">
-                search
-            </span>
-
-            Search
-
-        </button>
-
-    </form>
-</div>
+    <div class="p-md md:p-lg border-b border-outline-variant">
+        <form method="GET" class="flex flex-col sm:flex-row sm:items-center gap-3">
+            <input
+                type="text"
+                name="search"
+                value="{{ search }}"
+                placeholder="Search by name, email or phone..."
+                class="w-full md:w-96 px-4 py-2 min-h-[44px] border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+            <button
+                type="submit"
+                class="flex items-center justify-center gap-2 px-4 py-2 min-h-[44px] bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                <span class="material-symbols-outlined text-sm">search</span>
+                Search
+            </button>
+        </form>
+    </div>
 
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse min-w-[900px]">
             <thead class="bg-surface-container border-b border-outline-variant">
-    <tr class="bg-surface-container">
-        <th class="px-lg py-md">ID</th>
-        <th class="px-lg py-md">Doctor</th>
-        <th class="px-lg py-md">Specialty</th>
-        <th class="px-lg py-md">Email</th>
-        <th class="px-lg py-md">Phone</th>
-        <th class="px-lg py-md">Status</th>
-        <th class="px-lg py-md text-center w-80">Actions</th>
-    </tr>
-</thead>
+                <tr class="bg-surface-container">
+                    <th class="px-lg py-md">ID</th>
+                    <th class="px-lg py-md">Doctor</th>
+                    <th class="px-lg py-md">Specialty</th>
+                    <th class="px-lg py-md">Email</th>
+                    <th class="px-lg py-md">Phone</th>
+                    <th class="px-lg py-md">Status</th>
+                    <th class="px-lg py-md text-center w-80">Actions</th>
+                </tr>
+            </thead>
 
             <tbody class="divide-y divide-outline-variant">
-
                 {% for doc in doctors %}
                 <tr class="hover:bg-surface-container-low transition-colors">
-
                     <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">
                         DOC-{{ doc.user.id }}
                     </td>
@@ -68,25 +113,15 @@
                     <td class="px-lg py-lg">
                         <div class="flex items-center gap-md">
                             {% if doc.profile_picture %}
-
-                            <img src="{{ doc.profile_picture.url }}" alt="Dr. {{ doc.display_name }}" class="w-10 h-10 rounded-full object-cover shrink-0"/>
-
+                                <img src="{{ doc.profile_picture.url }}" alt="Dr. {{ doc.display_name }}" class="w-10 h-10 rounded-full object-cover shrink-0"/>
                             {% else %}
-
-                            <div class="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold">
-                                {{ doc.user.first_name|first|upper }}{{ doc.user.last_name|first|upper }}
-                            </div>
-
+                                <div class="w-10 h-10 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold">
+                                    {{ doc.user.first_name|first|upper }}{{ doc.user.last_name|first|upper }}
+                                </div>
                             {% endif %}
-
                             <div>
-                                <p class="font-label-md text-label-md text-on-surface">
-                                    Dr. {{ doc.display_name }}
-                                </p>
-
-                                <p class="text-label-sm font-label-sm text-outline">
-                                    {{ doc.qualification|default:"" }}
-                                </p>
+                                <p class="font-label-md text-label-md text-on-surface">Dr. {{ doc.display_name }}</p>
+                                <p class="text-label-sm font-label-sm text-outline">{{ doc.qualification|default:"" }}</p>
                             </div>
                         </div>
                     </td>
@@ -95,116 +130,135 @@
                         <span class="px-md py-xs rounded-full bg-blue-100 text-blue-700 text-label-sm font-label-sm">
                             {{ doc.specialization|default:"General" }}
                         </span>
-
-                        <p class="text-xs text-on-surface-variant mt-xs">
-                            {{ doc.department.name }}
-                        </p>
+                        <p class="text-xs text-on-surface-variant mt-xs">{{ doc.department.name }}</p>
                     </td>
 
-                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">
-                        {{ doc.user.email|default:"—" }}
-                    </td>
-
-                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">
-                        {{ doc.phone|default:"—" }}
-                    </td>
+                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">{{ doc.user.email|default:"—" }}</td>
+                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">{{ doc.phone|default:"—" }}</td>
 
                     <td class="px-lg py-lg">
-
                         {% if doc.status == 'Active' %}
                             <span class="flex items-center gap-xs text-secondary font-semibold text-sm">
                                 <span class="w-2 h-2 rounded-full bg-secondary"></span>
                                 Active
                             </span>
-
                         {% elif doc.status == 'On Leave' %}
                             <span class="flex items-center gap-xs text-yellow-600 font-semibold text-sm">
                                 <span class="w-2 h-2 rounded-full bg-yellow-500"></span>
                                 On Leave
                             </span>
-
                         {% elif doc.status == 'Pending' %}
                             <span class="flex items-center gap-xs text-orange-600 font-semibold text-sm">
                                 <span class="w-2 h-2 rounded-full bg-orange-500"></span>
                                 Pending
                             </span>
-
                         {% else %}
                             <span class="flex items-center gap-xs text-outline font-semibold text-sm">
                                 <span class="w-2 h-2 rounded-full bg-outline"></span>
                                 {{ doc.status }}
                             </span>
                         {% endif %}
-
                     </td>
 
                     <td class="px-lg py-lg">
-    <div class="flex flex-col items-center gap-2">
-
-        <!-- First Row -->
-        <div class="flex gap-2">
-            <a href="{% url 'admin_nishan:edit_doctor' doc.id %}"
-               class="w-24 text-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                Edit
-            </a>
-
-            <a href="{% url 'admin_nishan:change_doctor_password' doc.id %}"
-               class="w-24 text-center px-3 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">
-                Password
-            </a>
-        </div>
-
-        <!-- Second Row -->
-        <div class="flex gap-2">
-            {% if doc.user.is_active %}
-                <a href="{% url 'admin_nishan:disable_doctor' doc.id %}"
-                   onclick="return confirm('Disable doctor login?')"
-                   class="w-24 text-center px-3 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700">
-                    Disable
-                </a>
-            {% else %}
-                <a href="{% url 'admin_nishan:enable_doctor' doc.id %}"
-                   class="w-24 text-center px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                    Enable
-                </a>
-            {% endif %}
-
-            <a href="{% url 'admin_nishan:delete_doctor' doc.id %}"
-               onclick="return confirm('Delete this doctor permanently?')"
-               class="w-24 text-center px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
-                Delete
-            </a>
-        </div>
-
-    </div>
-</td>
-
-                </tr>
-
-                {% empty %}
-
-                <tr class="hover:bg-surface-container-low">
-                    <td colspan="7" class="px-lg py-xl text-center">
-                        <span class="material-symbols-outlined text-4xl text-on-surface-variant">
-                            medical_services_off
-                        </span>
-
-                        <p class="font-body-md text-on-surface mt-md">
-                            No doctors found
-                        </p>
-
-                        <p class="font-body-sm text-on-surface-variant">
-                            Registered doctors will appear here.
-                        </p>
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="{% url 'admin_nishan:edit_doctor' doc.id %}" class="action-btn bg-blue-50 text-blue-700 hover:bg-blue-100" title="Edit">
+                                <span class="material-symbols-outlined text-[18px]">edit</span>
+                                <span class="hidden sm:inline">Edit</span>
+                            </a>
+                            <a href="{% url 'admin_nishan:change_doctor_password' doc.id %}" class="action-btn bg-amber-50 text-amber-700 hover:bg-amber-100" title="Change Password">
+                                <span class="material-symbols-outlined text-[18px]">key</span>
+                                <span class="hidden sm:inline">Password</span>
+                            </a>
+                            {% if doc.user.is_active %}
+                                <a href="{% url 'admin_nishan:disable_doctor' doc.id %}" 
+                                   class="action-btn bg-orange-50 text-orange-700 hover:bg-orange-100 modal-trigger" 
+                                   data-modal-title="Disable Doctor" 
+                                   data-modal-message="Are you sure you want to disable this doctor's account? They will not be able to log in until re-enabled."
+                                   data-modal-url="{% url 'admin_nishan:disable_doctor' doc.id %}"
+                                   title="Disable">
+                                    <span class="material-symbols-outlined text-[18px]">person_off</span>
+                                    <span class="hidden sm:inline">Disable</span>
+                                </a>
+                            {% else %}
+                                <a href="{% url 'admin_nishan:enable_doctor' doc.id %}" class="action-btn bg-green-50 text-green-700 hover:bg-green-100" title="Enable">
+                                    <span class="material-symbols-outlined text-[18px]">person</span>
+                                    <span class="hidden sm:inline">Enable</span>
+                                </a>
+                            {% endif %}
+                            <a href="{% url 'admin_nishan:delete_doctor' doc.id %}" 
+                               class="action-btn bg-red-50 text-red-700 hover:bg-red-100 modal-trigger" 
+                               data-modal-title="Delete Doctor" 
+                               data-modal-message="Are you sure you want to permanently delete this doctor and all associated data? This action cannot be undone."
+                               data-modal-url="{% url 'admin_nishan:delete_doctor' doc.id %}"
+                               title="Delete">
+                                <span class="material-symbols-outlined text-[18px]">delete</span>
+                                <span class="hidden sm:inline">Delete</span>
+                            </a>
+                        </div>
                     </td>
                 </tr>
-
+                {% empty %}
+                <tr class="hover:bg-surface-container-low">
+                    <td colspan="7" class="px-lg py-xl text-center">
+                        <span class="material-symbols-outlined text-4xl text-on-surface-variant">medical_services_off</span>
+                        <p class="font-body-md text-on-surface mt-md">No doctors found</p>
+                        <p class="font-body-sm text-on-surface-variant">Registered doctors will appear here.</p>
+                    </td>
+                </tr>
                 {% endfor %}
 
             </tbody>
-
         </table>
     </div>
 </section>
+
+<!-- Confirmation Modal -->
+<div id="confirm-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-red-600 text-2xl">warning</span>
+            </div>
+            <h3 id="modal-title" class="font-headline-md text-headline-md text-on-surface">Confirm Action</h3>
+        </div>
+        <p id="modal-message" class="font-body-md text-body-md text-on-surface-variant mb-6">Are you sure?</p>
+        <div class="flex justify-end gap-3">
+            <button onclick="closeModal()" class="px-4 py-2 min-h-[44px] rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-low transition-colors">
+                Cancel
+            </button>
+            <a id="modal-action-btn" href="#" class="px-4 py-2 min-h-[44px] rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors inline-flex items-center justify-center">
+                Confirm
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModal(title, message, url) {
+        document.getElementById('modal-title').textContent = title;
+        document.getElementById('modal-message').textContent = message;
+        const btn = document.getElementById('modal-action-btn');
+        btn.href = url;
+        document.getElementById('confirm-modal').classList.add('active');
+    }
+    function closeModal() {
+        document.getElementById('confirm-modal').classList.remove('active');
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.modal-trigger').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                e.preventDefault();
+                const title = this.getAttribute('data-modal-title');
+                const message = this.getAttribute('data-modal-message');
+                const url = this.getAttribute('data-modal-url');
+                openModal(title, message, url);
+            });
+        });
+        document.getElementById('confirm-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeModal();
+        });
+    });
+</script>
 
 {% endblock %}

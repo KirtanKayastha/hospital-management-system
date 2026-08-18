@@ -23,20 +23,6 @@ from hospital.notifications import notify
 from patient_roshan.models import PatientProfile
 
 
-@admin_required
-def delete_account(request, user_id):
-    target = get_object_or_404(User, pk=user_id)
-    if target.id == request.user.id:
-        messages.error(request, "You cannot delete your own account.")
-        return redirect("admin_nishan:admin_accounts")
-    if not request.user.is_superuser:
-        messages.error(request, "Only superusers can delete accounts.")
-        return redirect("admin_nishan:admin_accounts")
-    username = target.get_full_name() or target.username
-    target.delete()
-    messages.success(request, f"Account '{username}' has been deleted.")
-    return redirect("admin_nishan:admin_accounts")
-
 from admin_nishan.models import (
     Appointment,
     BillingInvoice,
@@ -250,44 +236,6 @@ def admin_appointments(request):
         "total_appointments": appointments.count(),
     }
     return render(request, "admin_appointments.html", context)
-
-
-from django.db.models import Q
-from django.contrib.auth.models import User
-from patient_roshan.models import PatientProfile
-from doctor_siddhartha.models import DoctorProfile
-
-
-@admin_required
-def admin_accounts(request):
-
-    approved_doctor_ids = DoctorProfile.objects.filter(
-        status=DoctorProfile.STATUS_APPROVED
-    ).values_list("user_id", flat=True)
-
-    patient_ids = PatientProfile.objects.values_list(
-        "user_id",
-        flat=True
-    )
-
-    accounts = User.objects.filter(
-        is_staff=False
-    ).filter(
-        Q(id__in=patient_ids) |
-        Q(id__in=approved_doctor_ids)
-    ).distinct().order_by("-date_joined")
-
-    context = {
-        "active_page": "accounts",
-        "accounts": accounts,
-        "total_accounts": accounts.count(),
-        "total_patients": PatientProfile.objects.count(),
-        "total_doctors": DoctorProfile.objects.filter(
-            status=DoctorProfile.STATUS_APPROVED
-        ).count(),
-    }
-
-    return render(request, "admin_accounts.html", context)
 
 
 @admin_required
