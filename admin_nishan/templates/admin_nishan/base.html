@@ -138,6 +138,28 @@
     .hm-badge-info     { background: #dbe1ff; color: #003ea8; }
     /* Unknown or fallback status */
     .hm-badge-neutral  { background: #eceef0; color: #434655; }
+
+    /* Shared action buttons */
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        padding: 6px 12px;
+        font-size: 0.875rem;
+        font-weight: 500;
+        border-radius: 8px;
+        transition: all 0.2s;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+    .action-btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .action-btn:active {
+        transform: translateY(0);
+    }
 </style>
 </head>
 <body class="text-on-surface bg-surface">
@@ -245,7 +267,65 @@
             document.getElementById('sidebar').classList.add('-translate-x-full');
             document.getElementById('sidebar-overlay').classList.add('hidden');
         }
+        function closeAdminModal() {
+            document.getElementById('admin-modal').classList.remove('active');
+        }
+        document.getElementById('admin-modal').addEventListener('click', function(e) {
+            if (e.target === this) closeAdminModal();
+        });
     </script>
+
+    <!-- Shared Confirmation Modal -->
+    <div id="admin-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex items-center justify-between mb-4">
+                <h3 id="modal-title" class="font-headline-md text-headline-md text-on-surface">Confirm Action</h3>
+                <button type="button" onclick="closeAdminModal()" class="p-1 rounded-lg hover:bg-surface-container-low transition-colors">
+                    <span class="material-symbols-outlined text-xl text-on-surface-variant">close</span>
+                </button>
+            </div>
+            <div id="modal-body" class="font-body-md text-body-md text-on-surface-variant mb-6">
+                <p id="modal-message">Are you sure?</p>
+            </div>
+            <div id="modal-footer" class="flex justify-end gap-3">
+                <button type="button" onclick="closeAdminModal()" class="px-4 py-2 min-h-[44px] rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-low transition-colors">Cancel</button>
+                <a id="modal-action-btn" href="#" class="px-4 py-2 min-h-[44px] rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors inline-flex items-center justify-center">Confirm</a>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.2s;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 400px;
+            width: 90%;
+            transform: scale(0.95);
+            transition: transform 0.2s;
+            box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+        }
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+    </style>
 
     {% block scripts %}{% endblock %}
 </body>

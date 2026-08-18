@@ -1,62 +1,6 @@
 {% extends 'admin_nishan/base.html' %}
-{% load static %}
 {% block title %}Manage Patients{% endblock %}
 {% block page_title %}Manage Patients{% endblock %}
-
-{% block extra_head %}
-<style>
-    .action-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 4px;
-        padding: 6px 12px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        border-radius: 8px;
-        transition: all 0.2s;
-        text-decoration: none;
-        white-space: nowrap;
-    }
-    .action-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .action-btn:active {
-        transform: translateY(0);
-    }
-    .modal-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.4);
-        backdrop-filter: blur(4px);
-        z-index: 50;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        visibility: hidden;
-        transition: all 0.2s;
-    }
-    .modal-overlay.active {
-        opacity: 1;
-        visibility: visible;
-    }
-    .modal-content {
-        background: white;
-        border-radius: 16px;
-        padding: 24px;
-        max-width: 400px;
-        width: 90%;
-        transform: scale(0.95);
-        transition: transform 0.2s;
-        box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
-    }
-    .modal-overlay.active .modal-content {
-        transform: scale(1);
-    }
-</style>
-{% endblock %}
 
 {% block content %}
 
@@ -151,7 +95,11 @@
                                 <span class="material-symbols-outlined text-[18px]">edit</span>
                                 <span class="hidden sm:inline">Edit</span>
                             </a>
-                            <a href="{% url 'admin_nishan:change_patient_password' profile.id %}" class="action-btn bg-amber-50 text-amber-700 hover:bg-amber-100" title="Change Password">
+                            <a href="{% url 'admin_nishan:change_patient_password' profile.id %}" 
+                               class="action-btn bg-amber-50 text-amber-700 hover:bg-amber-100 password-trigger" 
+                               data-url="{% url 'admin_nishan:change_patient_password' profile.id %}" 
+                               data-username="{{ profile.user.get_full_name|default:profile.user.username }}"
+                               title="Change Password">
                                 <span class="material-symbols-outlined text-[18px]">key</span>
                                 <span class="hidden sm:inline">Password</span>
                             </a>
@@ -199,52 +147,94 @@
 
 </section>
 
-<!-- Confirmation Modal -->
-<div id="confirm-modal" class="modal-overlay">
-    <div class="modal-content">
-        <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                <span class="material-symbols-outlined text-red-600 text-2xl">warning</span>
-            </div>
-            <h3 id="modal-title" class="font-headline-md text-headline-md text-on-surface">Confirm Action</h3>
-        </div>
-        <p id="modal-message" class="font-body-md text-body-md text-on-surface-variant mb-6">Are you sure?</p>
-        <div class="flex justify-end gap-3">
-            <button onclick="closeModal()" class="px-4 py-2 min-h-[44px] rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-low transition-colors">
-                Cancel
-            </button>
-            <a id="modal-action-btn" href="#" class="px-4 py-2 min-h-[44px] rounded-lg bg-red-600 text-white hover:bg-red-700 transition-colors inline-flex items-center justify-center">
-                Confirm
-            </a>
-        </div>
-    </div>
-</div>
+{% endblock %}
 
+{% block scripts %}
 <script>
-    function openModal(title, message, url) {
-        document.getElementById('modal-title').textContent = title;
-        document.getElementById('modal-message').textContent = message;
-        const btn = document.getElementById('modal-action-btn');
-        btn.href = url;
-        document.getElementById('confirm-modal').classList.add('active');
-    }
-    function closeModal() {
-        document.getElementById('confirm-modal').classList.remove('active');
-    }
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.modal-trigger').forEach(function(el) {
-            el.addEventListener('click', function(e) {
-                e.preventDefault();
-                const title = this.getAttribute('data-modal-title');
-                const message = this.getAttribute('data-modal-message');
-                const url = this.getAttribute('data-modal-url');
-                openModal(title, message, url);
-            });
-        });
-        document.getElementById('confirm-modal').addEventListener('click', function(e) {
-            if (e.target === this) closeModal();
+function openAdminModal(title, message, url, actionType) {
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-body').innerHTML = '<p id="modal-message" class="font-body-md text-body-md text-on-surface-variant mb-6">' + message + '</p>';
+    const btn = document.getElementById('modal-action-btn');
+    btn.href = url;
+    btn.className = 'px-4 py-2 min-h-[44px] rounded-lg transition-colors inline-flex items-center justify-center ' + (actionType === 'danger' ? 'bg-error text-on-error hover:bg-error/90' : 'bg-primary text-white hover:bg-primary/90');
+    document.getElementById('modal-footer').style.display = 'flex';
+    document.getElementById('admin-modal').classList.add('active');
+}
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-trigger').forEach(function(el) {
+        el.addEventListener('click', function(e) {
+            e.preventDefault();
+            const title = this.getAttribute('data-modal-title');
+            const message = this.getAttribute('data-modal-message');
+            const url = this.getAttribute('data-modal-url');
+            openAdminModal(title, message, url, 'danger');
         });
     });
-</script>
+    document.querySelectorAll('.password-trigger').forEach(function(el) {
+        el.addEventListener('click', function(e) {
+            e.preventDefault();
+            openPasswordModal(this.getAttribute('data-url'), this.getAttribute('data-username'));
+        });
+    });
+});
 
+function openPasswordModal(url, username) {
+    document.getElementById('modal-title').textContent = 'Change Password for ' + username;
+    document.getElementById('modal-body').innerHTML = `
+        <form id="password-modal-form" method="POST" action="${url}">
+            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+            <div class="space-y-4">
+                <div>
+                    <label class="block mb-2 font-label-md text-label-md text-on-surface">New Password</label>
+                    <input type="password" name="new_password1" required class="w-full px-4 py-3 min-h-[44px] border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary">
+                </div>
+                <div>
+                    <label class="block mb-2 font-label-md text-label-md text-on-surface">Confirm Password</label>
+                    <input type="password" name="new_password2" required class="w-full px-4 py-3 min-h-[44px] border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-container/20 focus:border-primary">
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-6">
+                <button type="button" onclick="closeAdminModal()" class="px-4 py-2 min-h-[44px] rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-low transition-colors">Cancel</button>
+                <button type="submit" class="px-4 py-2 min-h-[44px] rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors">Update Password</button>
+            </div>
+        </form>
+    `;
+    document.getElementById('modal-footer').style.display = 'none';
+    document.getElementById('admin-modal').classList.add('active');
+
+    const form = document.getElementById('password-modal-form');
+    if (form) {
+        form.onsubmit = function(e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+            fetch(form.action, {
+                method: 'POST',
+                body: formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            }).then(function(response) {
+                if (response.redirected) {
+                    window.location.reload();
+                } else if (response.ok) {
+                    return response.text().then(function(html) {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const errorLists = doc.querySelectorAll('.errorlist');
+                        let errorsHtml = '';
+                        errorLists.forEach(function(list) {
+                            errorsHtml += list.innerHTML;
+                        });
+                        if (errorsHtml) {
+                            document.getElementById('modal-body').innerHTML = '<div class="bg-error-container border border-error text-error px-4 py-3 rounded-lg">' + errorsHtml + '</div>';
+                        } else {
+                            document.getElementById('modal-body').innerHTML = '<p class="text-error">Password update failed. Please try again.</p>';
+                        }
+                    });
+                }
+            }).catch(function() {
+                document.getElementById('modal-body').innerHTML = '<p class="text-error">An error occurred. Please try again.</p>';
+            });
+        };
+    }
+}
+</script>
 {% endblock %}

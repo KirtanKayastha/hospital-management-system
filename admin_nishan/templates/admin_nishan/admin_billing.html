@@ -129,9 +129,11 @@
         </a>
 
         <a href="{% url 'admin_nishan:delete_invoice' invoice.id %}"
-            onclick="return confirm('Delete this invoice?')"
-            class="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-            title="Delete">
+           class="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 modal-trigger"
+           data-modal-title="Delete Invoice"
+           data-modal-message="Are you sure you want to delete invoice {{ invoice.invoice_number }}? This action cannot be undone."
+           data-modal-url="{% url 'admin_nishan:delete_invoice' invoice.id %}"
+           title="Delete">
             <span class="material-symbols-outlined text-xl">delete</span>
         </a>
 
@@ -164,4 +166,29 @@
 
 </section>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openAdminModal(title, message, url, actionType) {
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-body').innerHTML = '<p id="modal-message" class="font-body-md text-body-md text-on-surface-variant mb-6">' + message + '</p>';
+    const btn = document.getElementById('modal-action-btn');
+    btn.href = url;
+    btn.className = 'px-4 py-2 min-h-[44px] rounded-lg transition-colors inline-flex items-center justify-center ' + (actionType === 'danger' ? 'bg-error text-on-error hover:bg-error/90' : 'bg-primary text-white hover:bg-primary/90');
+    document.getElementById('modal-footer').style.display = 'flex';
+    document.getElementById('admin-modal').classList.add('active');
+}
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.modal-trigger').forEach(function(el) {
+        el.addEventListener('click', function(e) {
+            e.preventDefault();
+            const title = this.getAttribute('data-modal-title');
+            const message = this.getAttribute('data-modal-message');
+            const url = this.getAttribute('data-modal-url');
+            openAdminModal(title, message, url, 'danger');
+        });
+    });
+});
+</script>
 {% endblock %}
