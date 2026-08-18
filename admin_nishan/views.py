@@ -591,7 +591,7 @@ def create_invoice(request):
 
     if request.method == "POST":
 
-        patient = PatientProfile.objects.get(
+        patient_profile = PatientProfile.objects.get(
             id=request.POST.get("patient")
         )
 
@@ -599,17 +599,21 @@ def create_invoice(request):
         status = request.POST.get("status")
 
         BillingInvoice.objects.create(
-            patient=patient,
+            patient=patient_profile.user,
             invoice_number=invoice_number,
             amount=amount,
             status=status,
+            issued_on=timezone.localdate(),
+            due_on=timezone.localdate() + timedelta(days=7),
         )
 
         return redirect("admin_nishan:admin_billing")
 
     context = {
+        "active_page": "billing",
         "patients": PatientProfile.objects.all(),
         "invoice_number": invoice_number,
+        "edit_mode": False,
     }
 
     return render(
