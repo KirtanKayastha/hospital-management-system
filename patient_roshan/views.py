@@ -1013,8 +1013,10 @@ def khalti_verify(request):
 
     pidx = request.GET.get('pidx')
     if not pidx:
-        messages.error(request, 'No payment reference received from Khalti.')
-        return redirect('patient_roshan:billing')
+        return render(request, 'patient_roshan/payment_failed.html', {
+            'active_page': 'billing',
+            'reason': 'No payment reference was received from Khalti.',
+        })
 
     headers = {
         "Authorization": f"key {django_settings.KHALTI_SECRET_KEY}",
@@ -1030,8 +1032,15 @@ def khalti_verify(request):
         )
         data = res.json()
     except Exception:
-        messages.error(request, 'Could not verify payment with Khalti.')
-        return redirect('patient_roshan:billing')
+        # Do NOT fall back to the query-string status: those params are
+        # attacker-controllable, so trusting them would let anyone mark any
+        # invoice paid. Fail closed and let the patient retry.
+        return render(request, 'patient_roshan/payment_failed.html', {
+            'active_page': 'billing',
+            'reason': 'We could not reach Khalti to confirm this payment. '
+                      'No changes were made to your invoice — please try again in a moment.',
+            'transaction_id': request.GET.get('transaction_id', ''),
+        })
 
     # Khalti's callback carries purchase_order_id, which is our transaction_uuid.
     # Resolve by pidx first, then fall back to it: if initiate failed to persist
@@ -1057,19 +1066,36 @@ def khalti_verify(request):
             invoice = BillingInvoice.objects.filter(id=int(parts[1])).first()
 
     if not invoice:
-        messages.error(request, 'We could not match this payment to an invoice. Contact support.')
-        return redirect('patient_roshan:billing')
+        return render(request, 'patient_roshan/payment_failed.html', {
+            'active_page': 'billing',
+            'reason': 'We could not match this payment to an invoice. '
+                      'Please contact the billing counter with your transaction ID.',
+            'transaction_id': request.GET.get('transaction_id', ''),
+        })
 
     if txn and txn.status == PaymentTransaction.STATUS_COMPLETE:
-        messages.info(request, 'This payment was already processed.')
-        return redirect('patient_roshan:billing')
+        # Already settled: show the receipt rather than an error.
+        return render(request, 'patient_roshan/payment_success.html', {
+            'active_page': 'billing',
+            'patient': _patient_profile(invoice.patient),
+            'invoice': invoice,
+            'gateway': 'Khalti',
+            'transaction_id': data.get('transaction_id') or request.GET.get('transaction_id', ''),
+            'already_processed': True,
+        })
 
     if data.get('status') != 'Completed':
         if txn:
             txn.status = PaymentTransaction.STATUS_FAILED
             txn.save(update_fields=['status'])
-        messages.error(request, f"Payment {data.get('status', 'failed')}. Please try again.")
-        return redirect('patient_roshan:billing')
+        return render(request, 'patient_roshan/payment_failed.html', {
+            'active_page': 'billing',
+            'patient': _patient_profile(invoice.patient),
+            'invoice': invoice,
+            'reason': f"Khalti reported this payment as \"{data.get('status', 'Failed')}\". "
+                      f"Your invoice has not been changed.",
+            'transaction_id': request.GET.get('transaction_id', ''),
+        })
 
     # Amount comes from the server-side lookup, never from the query string.
     try:
@@ -1082,12 +1108,14 @@ def khalti_verify(request):
         if txn:
             txn.status = PaymentTransaction.STATUS_FAILED
             txn.save(update_fields=['status'])
-        messages.error(
-            request,
-            f'Payment amount did not match the invoice '
-            f'(paid Rs. {paid_paisa / 100:.2f}, expected Rs. {expected_paisa / 100:.2f}).'
-        )
-        return redirect('patient_roshan:billing')
+        return render(request, 'patient_roshan/payment_failed.html', {
+            'active_page': 'billing',
+            'patient': _patient_profile(invoice.patient),
+            'invoice': invoice,
+            'reason': f'The amount Khalti confirmed (Rs. {paid_paisa / 100:.2f}) does not match '
+                      f'this invoice (Rs. {expected_paisa / 100:.2f}), so it was not applied.',
+            'transaction_id': request.GET.get('transaction_id', ''),
+        })
 
     if txn:
         txn.status = PaymentTransaction.STATUS_COMPLETE
@@ -1116,8 +1144,13 @@ def khalti_verify(request):
         action_url='/patient/billing/',
     )
 
-    messages.success(request, f'Payment of Rs. {invoice.grand_total} completed via Khalti.')
-    return redirect('patient_roshan:billing')
+    return render(request, 'patient_roshan/payment_success.html', {
+        'active_page': 'billing',
+        'patient': _patient_profile(invoice.patient),
+        'invoice': invoice,
+        'gateway': 'Khalti',
+        'transaction_id': data.get('transaction_id') or request.GET.get('transaction_id', ''),
+    })
 
 
 @patient_required

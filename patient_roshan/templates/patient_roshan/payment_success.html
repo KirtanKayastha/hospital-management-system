@@ -1,0 +1,63 @@
+{% extends 'patient_roshan/base.html' %}
+{% block title %}Payment Successful{% endblock %}
+{% block page_title %}Payment Successful{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+        <div class="p-lg md:p-xl flex flex-col items-center text-center">
+            <div class="w-16 h-16 rounded-full bg-secondary-fixed flex items-center justify-center mb-lg">
+                <span class="material-symbols-outlined text-on-secondary-fixed text-4xl">check_circle</span>
+            </div>
+
+            <h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Payment Successful</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant mb-xl">
+                Your payment has been received and invoice
+                <span class="font-semibold text-on-surface">{{ invoice.invoice_number }}</span>
+                is now marked as paid.
+            </p>
+
+            <div class="w-full text-left bg-surface-container-low rounded-xl border border-outline-variant divide-y divide-outline-variant">
+                <div class="flex justify-between px-lg py-md">
+                    <span class="font-body-md text-on-surface-variant">Invoice</span>
+                    <span class="font-body-md text-on-surface font-semibold">{{ invoice.invoice_number }}</span>
+                </div>
+                <div class="flex justify-between px-lg py-md">
+                    <span class="font-body-md text-on-surface-variant">Amount paid</span>
+                    <span class="font-body-md text-on-surface font-semibold">Rs. {{ invoice.grand_total|floatformat:2 }}</span>
+                </div>
+                <div class="flex justify-between px-lg py-md">
+                    <span class="font-body-md text-on-surface-variant">Paid on</span>
+                    <span class="font-body-md text-on-surface font-semibold">{{ invoice.paid_on|date:"M d, Y"|default:"—" }}</span>
+                </div>
+                <div class="flex justify-between px-lg py-md">
+                    <span class="font-body-md text-on-surface-variant">Method</span>
+                    <span class="font-body-md text-on-surface font-semibold">{{ gateway|default:"Khalti" }}</span>
+                </div>
+                {% if transaction_id %}
+                <div class="flex justify-between px-lg py-md">
+                    <span class="font-body-md text-on-surface-variant">Transaction ID</span>
+                    <span class="font-body-sm text-on-surface break-all">{{ transaction_id }}</span>
+                </div>
+                {% endif %}
+                <div class="flex justify-between px-lg py-md">
+                    <span class="font-body-md text-on-surface-variant">Status</span>
+                    <span class="hm-badge hm-badge-success">Paid</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-md mt-xl w-full sm:w-auto">
+                <a href="{% url 'patient_roshan:invoice_detail' invoice.id %}"
+                   class="px-xl py-md min-h-[44px] rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors inline-flex items-center justify-center gap-sm">
+                    <span class="material-symbols-outlined text-[18px]">receipt_long</span>
+                    View Bill
+                </a>
+                <a href="{% url 'patient_roshan:billing' %}"
+                   class="px-xl py-md min-h-[44px] rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-low transition-colors inline-flex items-center justify-center">
+                    Back to Billing
+                </a>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

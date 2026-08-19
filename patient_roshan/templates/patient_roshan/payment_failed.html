@@ -1,0 +1,55 @@
+{% extends 'patient_roshan/base.html' %}
+{% block title %}Payment Failed{% endblock %}
+{% block page_title %}Payment Failed{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+        <div class="p-lg md:p-xl flex flex-col items-center text-center">
+            <div class="w-16 h-16 rounded-full bg-error-container flex items-center justify-center mb-lg">
+                <span class="material-symbols-outlined text-error text-4xl">error</span>
+            </div>
+
+            <h2 class="font-headline-md text-headline-md text-on-surface mb-xs">Payment Not Completed</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant mb-xl">
+                {{ reason|default:"We could not confirm this payment. Your invoice has not been changed." }}
+            </p>
+
+            {% if invoice %}
+            <div class="w-full text-left bg-surface-container-low rounded-xl border border-outline-variant divide-y divide-outline-variant">
+                <div class="flex justify-between px-lg py-md">
+                    <span class="font-body-md text-on-surface-variant">Invoice</span>
+                    <span class="font-body-md text-on-surface font-semibold">{{ invoice.invoice_number }}</span>
+                </div>
+                <div class="flex justify-between px-lg py-md">
+                    <span class="font-body-md text-on-surface-variant">Amount due</span>
+                    <span class="font-body-md text-on-surface font-semibold">Rs. {{ invoice.grand_total|floatformat:2 }}</span>
+                </div>
+                <div class="flex justify-between px-lg py-md">
+                    <span class="font-body-md text-on-surface-variant">Status</span>
+                    <span class="hm-badge hm-badge-pending">{{ invoice.status }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="flex flex-col sm:flex-row gap-md mt-xl w-full sm:w-auto">
+                {% if invoice %}
+                <a href="{% url 'patient_roshan:pay_online' invoice.id %}"
+                   class="px-xl py-md min-h-[44px] rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors inline-flex items-center justify-center gap-sm">
+                    <span class="material-symbols-outlined text-[18px]">refresh</span>
+                    Try Again
+                </a>
+                {% endif %}
+                <a href="{% url 'patient_roshan:billing' %}"
+                   class="px-xl py-md min-h-[44px] rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-low transition-colors inline-flex items-center justify-center">
+                    Back to Billing
+                </a>
+            </div>
+
+            <p class="font-label-sm text-label-sm text-on-surface-variant mt-lg">
+                If you were charged but see this page, contact the billing counter with your transaction ID.
+            </p>
+        </div>
+    </section>
+</div>
+{% endblock %}
