@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 
 from django.core.exceptions import ImproperlyConfigured
@@ -14,36 +15,62 @@ import cloudinary.api
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Load .env for local development. On Render/production the real environment
-# variables already exist and take precedence (override=False).
+# Load .env for local development. `.env` is gitignored and never deployed, so
+# letting it win avoids ambient shell variables (e.g. a stray DEBUG=release from
+# other tooling) silently overriding project config on a developer machine.
+# In production there is no .env file, so real platform env vars are used as-is.
 try:
     from dotenv import load_dotenv
-    load_dotenv(BASE_DIR / '.env', override=False)
+    load_dotenv(BASE_DIR / '.env', override=True)
 except ImportError:
     pass
 
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'
+
+def _as_bool(value, default=False):
+    if value is None or value == '':
+        return default
+    return str(value).strip().lower() in {'1', 'true', 'yes', 'on'}
 
 
-def env(name, default=None, required_in_production=False):
+DEBUG = _as_bool(os.environ.get('DEBUG'), default=True)
+
+# Collected below and reported once, so a missing third-party key degrades that
+# one feature instead of taking the whole site down.
+_MISSING_ENV = []
+
+
+def env(name, default=None, required_in_production=False, critical=False):
     """Read a setting from the environment.
 
     Secrets must never have a hardcoded fallback: a committed default silently
-    becomes the production value and leaks through version control. In DEBUG we
-    tolerate a missing value; with DEBUG=False we fail loudly at startup.
+    becomes the production value and leaks through version control.
+
+    `critical=True` means the app is unsafe to run without it, so we abort.
+    `required_in_production=True` only warns: losing email or media uploads
+    should not break every page, and Django swallows import-time exceptions
+    into a confusing "Unknown command" during manage.py, which hides the cause.
     """
     value = os.environ.get(name, '')
     if value:
         return value
-    if required_in_production and not DEBUG:
-        raise ImproperlyConfigured(
-            f"Missing required environment variable: {name}. "
-            f"Set it in your hosting provider's environment (see .env.example)."
-        )
+    if not DEBUG and (critical or required_in_production):
+        _MISSING_ENV.append(name)
+        if critical:
+            message = (
+                f"\n{'=' * 70}\n"
+                f"FATAL: required environment variable {name} is not set.\n"
+                f"Set it in your hosting provider's environment (see .env.example).\n"
+                f"{'=' * 70}\n"
+            )
+            # Print before raising: Django hides settings-import exceptions
+            # behind "Unknown command", so the reason would otherwise be lost.
+            sys.stderr.write(message)
+            sys.stderr.flush()
+            raise ImproperlyConfigured(f"Missing required environment variable: {name}")
     return default
 
 
-SECRET_KEY = env('SECRET_KEY', required_in_production=True)
+SECRET_KEY = env('SECRET_KEY', critical=True)
 if not SECRET_KEY:
     # DEBUG-only ephemeral key; rotates each restart, never committed.
     from django.core.management.utils import get_random_secret_key
@@ -202,3 +229,25 @@ SITE_BASE_URL = env('SITE_BASE_URL', 'http://127.0.0.1:8000')
 KHALTI_SECRET_KEY = env('KHALTI_SECRET_KEY', '', required_in_production=True)
 KHALTI_INITIATE_URL = env('KHALTI_INITIATE_URL', 'https://dev.khalti.com/api/v2/epayment/initiate/')
 KHALTI_LOOKUP_URL = env('KHALTI_LOOKUP_URL', 'https://dev.khalti.com/api/v2/epayment/lookup/')
+
+
+# ============ CONFIG WARNINGS ============
+# Report every non-fatal gap once, so the build log names what is unset instead
+# of the feature failing mysteriously later at runtime.
+if _MISSING_ENV:
+    _impact = {
+        'CLOUDINARY_CLOUD_NAME': 'image/media uploads',
+        'CLOUDINARY_API_KEY': 'image/media uploads',
+        'CLOUDINARY_API_SECRET': 'image/media uploads',
+        'MAILGUN_API_KEY': 'outgoing email (password reset)',
+        'ESEWA_SECRET_KEY': 'eSewa payments',
+        'KHALTI_SECRET_KEY': 'Khalti payments',
+    }
+    sys.stderr.write(
+        "\n[CONFIG WARNING] Running with DEBUG=False but these environment "
+        "variables are not set:\n"
+    )
+    for _name in _MISSING_ENV:
+        sys.stderr.write(f"  - {_name}  -> disables: {_impact.get(_name, 'related feature')}\n")
+    sys.stderr.write("  See .env.example. The site will run, but those features will fail.\n\n")
+    sys.stderr.flush()
