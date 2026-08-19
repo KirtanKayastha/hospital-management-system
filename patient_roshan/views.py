@@ -858,42 +858,69 @@ def esewa_verify(request):
         messages.error(request, 'Payment signature verification failed.')
         return redirect('patient_roshan:billing')
 
-    txn = PaymentTransaction.objects.filter(
-        transaction_uuid=decoded.get('transaction_uuid')
-    ).first()
+    transaction_uuid = decoded.get('transaction_uuid') or ''
+    txn = PaymentTransaction.objects.filter(transaction_uuid=transaction_uuid).first()
 
-    if not txn:
-        messages.error(request, 'Transaction not found.')
+    # transaction_uuid is HMS-<invoice_id>-<hash>; recover the invoice from it so a
+    # missing transaction row cannot swallow a signature-verified payment.
+    invoice = None
+    if txn:
+        invoice = BillingInvoice.objects.filter(id=txn.invoice_id).first()
+    elif transaction_uuid.startswith('HMS-'):
+        parts = transaction_uuid.split('-')
+        if len(parts) >= 2 and parts[1].isdigit():
+            invoice = BillingInvoice.objects.filter(id=int(parts[1])).first()
+
+    if not invoice:
+        messages.error(request, 'We could not match this payment to an invoice. Contact support.')
         return redirect('patient_roshan:billing')
 
-    if txn.status == PaymentTransaction.STATUS_COMPLETE:
+    if txn and txn.status == PaymentTransaction.STATUS_COMPLETE:
         messages.info(request, 'This payment was already processed.')
         return redirect('patient_roshan:billing')
 
     if decoded.get('status') != 'COMPLETE':
-        txn.status = PaymentTransaction.STATUS_FAILED
-        txn.save()
+        if txn:
+            txn.status = PaymentTransaction.STATUS_FAILED
+            txn.save(update_fields=['status'])
         messages.error(request, 'Payment was not completed.')
         return redirect('patient_roshan:billing')
 
-    invoice = BillingInvoice.objects.filter(id=txn.invoice_id, patient=txn.user).first()
-    if not invoice:
-        messages.error(request, 'Invoice not found.')
+    try:
+        paid = float(str(decoded.get('total_amount', '0')).replace(',', ''))
+    except (TypeError, ValueError):
+        paid = 0.0
+
+    if abs(paid - float(invoice.grand_total)) > 0.01:
+        if txn:
+            txn.status = PaymentTransaction.STATUS_FAILED
+            txn.save(update_fields=['status'])
+        messages.error(
+            request,
+            f'Payment amount did not match the invoice '
+            f'(paid Rs. {paid:.2f}, expected Rs. {float(invoice.grand_total):.2f}).'
+        )
         return redirect('patient_roshan:billing')
 
-    if abs(float(decoded.get('total_amount', '0').replace(',', '')) - float(invoice.grand_total)) > 0.01:
-        txn.status = PaymentTransaction.STATUS_FAILED
-        txn.save()
-        messages.error(request, 'Payment amount did not match the invoice.')
-        return redirect('patient_roshan:billing')
+    if txn:
+        txn.status = PaymentTransaction.STATUS_COMPLETE
+        txn.gateway_ref = decoded.get('transaction_code', '')
+        txn.save(update_fields=['status', 'gateway_ref'])
+    else:
+        txn = PaymentTransaction.objects.create(
+            user=invoice.patient,
+            invoice_id=invoice.id,
+            transaction_uuid=transaction_uuid,
+            gateway='esewa',
+            gateway_ref=decoded.get('transaction_code', ''),
+            amount=invoice.grand_total,
+            status=PaymentTransaction.STATUS_COMPLETE,
+        )
 
-    txn.status = PaymentTransaction.STATUS_COMPLETE
-    txn.gateway_ref = decoded.get('transaction_code', '')
-    txn.save()
-
-    invoice.status = BillingInvoice.STATUS_PAID
-    invoice.paid_on = timezone.localdate()
-    invoice.save(update_fields=['status', 'paid_on'])
+    if invoice.status != BillingInvoice.STATUS_PAID:
+        invoice.status = BillingInvoice.STATUS_PAID
+        invoice.paid_on = timezone.localdate()
+        invoice.save(update_fields=['status', 'paid_on'])
 
     Notification.objects.create(
         recipient=txn.user,
@@ -943,7 +970,7 @@ def khalti_initiate(request, invoice_id):
         "website_url": base,
         "amount": amount_paisa,
         "purchase_order_id": purchase_order_id,
-        "purchase_order_name": invoice.notes or f"Invoice {invoice.invoice_number}",
+        "purchase_order_name": f"Invoice {invoice.invoice_number}",
         "customer_info": {
             "name": request.user.get_full_name() or request.user.username,
             "email": request.user.email or "patient@hms.com",
@@ -1006,41 +1033,83 @@ def khalti_verify(request):
         messages.error(request, 'Could not verify payment with Khalti.')
         return redirect('patient_roshan:billing')
 
+    # Khalti's callback carries purchase_order_id, which is our transaction_uuid.
+    # Resolve by pidx first, then fall back to it: if initiate failed to persist
+    # gateway_ref, matching on pidx alone would strand a real payment.
+    purchase_order_id = request.GET.get('purchase_order_id') or ''
     txn = PaymentTransaction.objects.filter(gateway_ref=pidx, gateway='khalti').first()
-    if not txn:
-        messages.error(request, 'Transaction not found.')
+    if not txn and purchase_order_id:
+        txn = PaymentTransaction.objects.filter(
+            transaction_uuid=purchase_order_id, gateway='khalti'
+        ).first()
+        if txn and not txn.gateway_ref:
+            txn.gateway_ref = pidx
+            txn.save(update_fields=['gateway_ref'])
+
+    # Recover the invoice from the purchase_order_id (HMS-<invoice_id>-<hash>)
+    # so a missing transaction row cannot swallow a completed payment.
+    invoice = None
+    if txn:
+        invoice = BillingInvoice.objects.filter(id=txn.invoice_id).first()
+    elif purchase_order_id.startswith('HMS-'):
+        parts = purchase_order_id.split('-')
+        if len(parts) >= 2 and parts[1].isdigit():
+            invoice = BillingInvoice.objects.filter(id=int(parts[1])).first()
+
+    if not invoice:
+        messages.error(request, 'We could not match this payment to an invoice. Contact support.')
         return redirect('patient_roshan:billing')
 
-    if txn.status == PaymentTransaction.STATUS_COMPLETE:
+    if txn and txn.status == PaymentTransaction.STATUS_COMPLETE:
         messages.info(request, 'This payment was already processed.')
         return redirect('patient_roshan:billing')
 
     if data.get('status') != 'Completed':
-        txn.status = PaymentTransaction.STATUS_FAILED
-        txn.save()
+        if txn:
+            txn.status = PaymentTransaction.STATUS_FAILED
+            txn.save(update_fields=['status'])
         messages.error(request, f"Payment {data.get('status', 'failed')}. Please try again.")
         return redirect('patient_roshan:billing')
 
-    invoice = BillingInvoice.objects.filter(id=txn.invoice_id, patient=txn.user).first()
-    if not invoice:
-        messages.error(request, 'Invoice not found.')
+    # Amount comes from the server-side lookup, never from the query string.
+    try:
+        paid_paisa = int(data.get('total_amount', 0))
+    except (TypeError, ValueError):
+        paid_paisa = 0
+    expected_paisa = int(round(float(invoice.grand_total) * 100))
+
+    if abs(paid_paisa - expected_paisa) > 1:
+        if txn:
+            txn.status = PaymentTransaction.STATUS_FAILED
+            txn.save(update_fields=['status'])
+        messages.error(
+            request,
+            f'Payment amount did not match the invoice '
+            f'(paid Rs. {paid_paisa / 100:.2f}, expected Rs. {expected_paisa / 100:.2f}).'
+        )
         return redirect('patient_roshan:billing')
 
-    if abs(int(data.get('total_amount', 0)) - int(float(invoice.grand_total) * 100)) > 1:
-        txn.status = PaymentTransaction.STATUS_FAILED
-        txn.save()
-        messages.error(request, 'Payment amount did not match the invoice.')
-        return redirect('patient_roshan:billing')
+    if txn:
+        txn.status = PaymentTransaction.STATUS_COMPLETE
+        txn.save(update_fields=['status'])
+    else:
+        txn = PaymentTransaction.objects.create(
+            user=invoice.patient,
+            invoice_id=invoice.id,
+            transaction_uuid=purchase_order_id or pidx,
+            gateway='khalti',
+            gateway_ref=pidx,
+            amount=invoice.grand_total,
+            status=PaymentTransaction.STATUS_COMPLETE,
+        )
 
-    txn.status = PaymentTransaction.STATUS_COMPLETE
-    txn.save()
-
-    invoice.status = BillingInvoice.STATUS_PAID
-    invoice.paid_on = timezone.localdate()
-    invoice.save(update_fields=['status', 'paid_on'])
+    if invoice.status != BillingInvoice.STATUS_PAID:
+        invoice.status = BillingInvoice.STATUS_PAID
+        invoice.paid_on = timezone.localdate()
+        invoice.save(update_fields=['status', 'paid_on'])
 
     Notification.objects.create(
-        recipient=txn.user,
+        recipient=invoice.patient,
         title='Payment successful',
         message=f'Your Khalti payment of Rs. {invoice.grand_total} for invoice {invoice.invoice_number} was successful.',
         category=Notification.CATEGORY_GENERAL,
