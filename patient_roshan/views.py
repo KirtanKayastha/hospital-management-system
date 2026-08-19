@@ -47,8 +47,18 @@ def _doctor_card(profile):
     availability = user.availability_slots.filter(is_active=True).order_by("day_of_week", "start_time")
     review_count = user.doctor_appointments.filter(status=Appointment.STATUS_COMPLETED).count()
     rating = round(min(5.0, 4.0 + (review_count * 0.1)), 1) if review_count else 0.0
-    available_slots = [f"{slot.day_label[:3]} {slot.start_time.strftime('%I:%M %p')} - {slot.end_time.strftime('%I:%M %p')}" for slot in availability]
-    available_days = ", ".join(dict(availability.model.DAY_CHOICES).get(slot.day_of_week, str(slot.day_of_week)) for slot in availability)
+    available_slots = []
+    for slot in availability:
+        label = f"{slot.day_label[:3]} {slot.start_time.strftime('%I:%M %p')} - {slot.end_time.strftime('%I:%M %p')}"
+        # Overlapping/repeated windows would otherwise render the same chip twice.
+        if label not in available_slots:
+            available_slots.append(label)
+    available_days = ", ".join(
+        dict.fromkeys(
+            dict(availability.model.DAY_CHOICES).get(slot.day_of_week, str(slot.day_of_week))
+            for slot in availability
+        )
+    )
     return {
         "id": user.id,
         "initials": profile.initials,
@@ -98,20 +108,25 @@ def _build_time_slots(doctor_user, target_date):
             status__in=[Appointment.STATUS_PENDING, Appointment.STATUS_CONFIRMED],
         ).values_list("appointment_time", flat=True)
     )
-    slots = []
+    slots = {}
     for availability in _availability_for_date(doctor_user, target_date):
         current_time = datetime.combine(target_date, availability.start_time)
         end_time = datetime.combine(target_date, availability.end_time)
         while current_time + timedelta(minutes=30) <= end_time:
             slot_time = current_time.time()
             slot_value = slot_time.strftime("%H:%M")
-            slots.append({
-                "value": slot_value,
-                "label": slot_time.strftime("%I:%M %p"),
-                "is_booked": slot_time in booked_times,
-            })
+            # A doctor may have several availability windows for the same day and
+            # they can overlap (e.g. 10:00-17:00 plus 11:00-12:00). Key by clock
+            # time so an overlapping window cannot emit the same slot twice.
+            if slot_value not in slots:
+                slots[slot_value] = {
+                    "value": slot_value,
+                    "label": slot_time.strftime("%I:%M %p"),
+                    "is_booked": slot_time in booked_times,
+                }
             current_time += timedelta(minutes=30)
-    return slots
+    # "HH:MM" is zero-padded 24h, so lexical sort is chronological.
+    return [slots[value] for value in sorted(slots)]
 
 
 def _calendar_days(selected_date):

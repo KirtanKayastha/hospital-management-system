@@ -1,6 +1,9 @@
 from datetime import date, datetime, timedelta
+from decimal import Decimal
+import logging
 
 from django.contrib import messages
+from django.db import DatabaseError, IntegrityError, transaction
 from django.db.models import Count, Max, Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -10,6 +13,7 @@ from admin_nishan.models import (
     BillingInvoice,
     Department,
     DoctorAvailability,
+    InvoiceItem,
     MedicalRecord,
     Notification,
     Prescription,
@@ -20,6 +24,27 @@ from hospital.notifications import notify, notify_appointment
 from hospital.reminders import build_reminders_for_prescription
 from patient_roshan.models import PatientProfile
 from .models import DoctorProfile
+
+logger = logging.getLogger(__name__)
+
+
+def _unique_appointment_invoice_number(appointment):
+    """`INV-<appointment id>` is readable but can already exist if an earlier
+    invoice for this appointment was deleted, so fall back to a dated sequence
+    rather than raising IntegrityError mid-approval."""
+    candidate = f"INV-{appointment.id:06d}"
+    if not BillingInvoice.objects.filter(invoice_number=candidate).exists():
+        return candidate
+    today = timezone.localdate()
+    prefix = f"INV-{today.strftime('%Y%m%d')}-"
+    highest = 0
+    for number in BillingInvoice.objects.filter(
+        invoice_number__startswith=prefix
+    ).values_list("invoice_number", flat=True):
+        suffix = number[len(prefix):]
+        if suffix.isdigit():
+            highest = max(highest, int(suffix))
+    return f"{prefix}{highest + 1:04d}"
 
 
 def _default_department():
@@ -88,32 +113,75 @@ def approve_appointment(request, appointment_id):
     if appointment.status != Appointment.STATUS_PENDING:
         messages.error(request, "This appointment is no longer pending.")
         return redirect("doctor_siddhartha:dashboard")
-    appointment.status = Appointment.STATUS_CONFIRMED
-    appointment.save(update_fields=["status"])
-    notify_appointment(
-        appointment.patient,
-        "Appointment confirmed",
-        f"Dr. {request.user.get_full_name() or request.user.username} confirmed your appointment on "
-        f"{appointment.display_date} at {appointment.display_time}.",
-        appointment=appointment,
-    )
-    if not BillingInvoice.objects.filter(appointment=appointment).exists():
-        invoice = BillingInvoice.objects.create(
-            patient=appointment.patient,
-            appointment=appointment,
-            invoice_number=f"INV-{appointment.id:06d}",
-            amount=appointment.doctor.doctor_profile.consultation_fee or 0,
-            status=BillingInvoice.STATUS_UNPAID,
-            issued_on=timezone.localdate(),
-            due_on=timezone.localdate() + timedelta(days=7),
-        )
-        notify(
+
+    profile = getattr(appointment.doctor, "doctor_profile", None)
+    fee = Decimal(str(getattr(profile, "consultation_fee", 0) or 0))
+
+    try:
+        # One unit of work: never leave an appointment confirmed with a
+        # half-built invoice if anything below fails.
+        with transaction.atomic():
+            appointment.status = Appointment.STATUS_CONFIRMED
+            appointment.save(update_fields=["status"])
+
+            # Keyed on the appointment so a double submit cannot bill twice.
+            invoice, invoice_created = BillingInvoice.objects.get_or_create(
+                appointment=appointment,
+                defaults={
+                    "patient": appointment.patient,
+                    "invoice_number": _unique_appointment_invoice_number(appointment),
+                    "amount": fee,
+                    "subtotal": fee,
+                    "tax_rate": Decimal("0"),
+                    "tax_amount": Decimal("0"),
+                    "grand_total": fee,
+                    "status": BillingInvoice.STATUS_UNPAID,
+                    "issued_on": timezone.localdate(),
+                    "due_on": timezone.localdate() + timedelta(days=7),
+                },
+            )
+
+            if invoice_created:
+                # Bill through the itemised path so subtotal/tax/grand_total are
+                # consistent with every other invoice; otherwise grand_total stays
+                # 0 and the patient is shown (and charged) Rs. 0.00.
+                InvoiceItem.objects.create(
+                    invoice=invoice,
+                    description="Consultation fee",
+                    quantity=1,
+                    unit_price=fee,
+                )
+                invoice.recalculate_totals()
+                invoice.refresh_from_db()
+    except (IntegrityError, DatabaseError) as exc:
+        messages.error(request, f"Could not confirm this appointment: {exc}")
+        return redirect("doctor_siddhartha:dashboard")
+
+    # Notifications are best-effort and deliberately outside the transaction: a
+    # formatting bug here previously raised a 500 *after* the appointment had
+    # already been confirmed, which is what made the first click fail and the
+    # second click appear to succeed.
+    try:
+        notify_appointment(
             appointment.patient,
-            "New Invoice Generated",
-            f"Invoice {invoice.invoice_number} for Rs. {invoice.amount} has been created for your appointment on {appointment.display_date}. Due date: {invoice.due_on|date:'M d, Y'}.",
-            category=Notification.CATEGORY_BILLING,
-            action_url="/patient/invoices/",
+            "Appointment confirmed",
+            f"Dr. {request.user.get_full_name() or request.user.username} confirmed your appointment on "
+            f"{appointment.display_date} at {appointment.display_time}.",
+            appointment=appointment,
         )
+        if invoice_created:
+            due = invoice.due_on.strftime("%b %d, %Y") if invoice.due_on else "N/A"
+            notify(
+                appointment.patient,
+                "New Invoice Generated",
+                f"Invoice {invoice.invoice_number} for Rs. {invoice.grand_total:,.2f} has been created "
+                f"for your appointment on {appointment.display_date}. Due date: {due}.",
+                category=Notification.CATEGORY_BILLING,
+                action_url="/patient/invoices/",
+            )
+    except Exception:
+        logger.exception("Failed to send approval notifications for appointment %s", appointment.pk)
+
     messages.success(request, f"Appointment with {appointment.patient_name} has been confirmed.")
     return redirect("doctor_siddhartha:dashboard")
 
