@@ -2,7 +2,7 @@ from datetime import timedelta
 from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
 from django.db.models import Count, Q, Sum
@@ -22,10 +22,18 @@ from admin_nishan.models import (
     Notification,
     Prescription,
 )
-from doctor_siddhartha.models import DoctorProfile
+from doctor_siddhartha.models import DoctorApplication, DoctorProfile
 from hospital.access import admin_required
 from hospital.notifications import notify
 from patient_roshan.models import PatientProfile
+
+
+def _ensure_default_department():
+    department, _ = Department.objects.get_or_create(
+        slug="general-medicine",
+        defaults={"name": "General Medicine", "description": "General patient care and triage."},
+    )
+    return department
 
 
 @admin_required
@@ -185,17 +193,99 @@ def admin_manage_doctor(request):
 
 @admin_required
 def pending_doctors(request):
-    pending_doctors = (
+    # New signups live as applications (no User yet). Legacy pending profiles
+    # already have a User, so both lists are shown.
+    applications = (
+        DoctorApplication.objects.select_related("department")
+        .filter(status=DoctorApplication.STATUS_PENDING)
+        .order_by("created_at")
+    )
+    legacy_profiles = (
         DoctorProfile.objects.select_related("user", "department")
         .filter(status=DoctorProfile.STATUS_PENDING)
         .order_by("user__date_joined")
     )
     context = {
         "active_page": "pending_doctors",
-        "pending_doctors": pending_doctors,
-        "total_pending": pending_doctors.count(),
+        "applications": applications,
+        "pending_doctors": legacy_profiles,
+        "total_pending": applications.count() + legacy_profiles.count(),
     }
     return render(request, "admin_nishan/pending_doctors.html", context)
+
+
+@admin_required
+def approve_application(request, application_id):
+    application = get_object_or_404(DoctorApplication, pk=application_id)
+
+    if application.status == DoctorApplication.STATUS_APPROVED:
+        messages.info(request, f"{application.display_name} is already approved.")
+        return redirect("admin_nishan:pending_doctors")
+
+    if User.objects.filter(username__iexact=application.username).exists() or \
+            User.objects.filter(email__iexact=application.email).exists():
+        messages.error(
+            request,
+            f"Cannot approve {application.username}: that username or email is already taken."
+        )
+        return redirect("admin_nishan:pending_doctors")
+
+    try:
+        with transaction.atomic():
+            user = User(
+                username=application.username,
+                email=application.email,
+                first_name=application.first_name,
+                last_name=application.last_name,
+            )
+            # Reuse the hash captured at registration; the password is never known here.
+            user.password = application.password
+            user.save()
+
+            group, _ = Group.objects.get_or_create(name="Doctor")
+            user.groups.add(group)
+
+            DoctorProfile.objects.create(
+                user=user,
+                department=application.department or _ensure_default_department(),
+                specialization=application.specialization or "General Medicine",
+                qualification=application.qualification,
+                experience_years=application.experience_years,
+                license_number=application.license_number,
+                phone=application.phone,
+                consultation_fee=0,
+                bio="",
+                status=DoctorProfile.STATUS_APPROVED,
+            )
+
+            application.status = DoctorApplication.STATUS_APPROVED
+            application.reviewed_at = timezone.now()
+            application.save(update_fields=["status", "reviewed_at"])
+    except IntegrityError as exc:
+        messages.error(request, f"Could not approve {application.username}: {exc}")
+        return redirect("admin_nishan:pending_doctors")
+
+    notify(
+        user,
+        "Account approved",
+        "Your doctor account has been approved. You can now log in with the "
+        "credentials you registered with.",
+        category=Notification.CATEGORY_GENERAL,
+        action_url="/login/",
+    )
+
+    messages.success(request, f"Dr. {application.display_name} approved and account created.")
+    return redirect("admin_nishan:pending_doctors")
+
+
+@admin_required
+def reject_application(request, application_id):
+    application = get_object_or_404(DoctorApplication, pk=application_id)
+    application.status = DoctorApplication.STATUS_REJECTED
+    application.reviewed_at = timezone.now()
+    application.save(update_fields=["status", "reviewed_at"])
+    messages.warning(request, f"Application from {application.display_name} rejected.")
+    return redirect("admin_nishan:pending_doctors")
 
 
 @admin_required

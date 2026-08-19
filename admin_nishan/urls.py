@@ -50,6 +50,8 @@ path(
     name="delete_doctor",
 ),
     path("pending-doctors/", views.pending_doctors, name="pending_doctors"),
+    path("applications/approve/<int:application_id>/", views.approve_application, name="approve_application"),
+    path("applications/reject/<int:application_id>/", views.reject_application, name="reject_application"),
     path("doctors/approve/<int:doctor_id>/", views.approve_doctor, name="approve_doctor"),
     path("doctors/reject/<int:doctor_id>/", views.reject_doctor, name="reject_doctor"),
     path("appointments/", views.admin_appointments, name="admin_appointments"),

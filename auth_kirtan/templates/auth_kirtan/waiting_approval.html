@@ -1,18 +1,33 @@
 {% extends 'base.html' %}
 
-{% block title %}Waiting for Approval | HM System{% endblock %}
+{% block title %}{% if rejected %}Application Rejected{% else %}Waiting for Approval{% endif %} | HM System{% endblock %}
 
 {% block content %}
 <main class="min-h-screen flex items-center justify-center pt-xxl pb-xxl px-md">
     <div class="w-full max-w-[440px] bg-surface-container-lowest rounded-lg login-card-shadow p-xl md:p-xxl flex flex-col items-center text-center">
+        {% if rejected %}
+        <div class="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-lg">
+            <span class="material-symbols-outlined text-red-600 text-4xl">block</span>
+        </div>
+        <h1 class="font-headline-md md:font-headline-lg text-headline-md md:text-headline-lg text-on-surface mb-xs">Application Rejected</h1>
+        <p class="font-body-md text-body-md text-on-surface-variant mb-xl">
+            Your doctor registration was not approved, so no account was created.
+            Please contact the hospital administrator if you believe this is a mistake.
+        </p>
+        {% else %}
         <div class="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mb-lg">
             <span class="material-symbols-outlined text-amber-600 text-4xl">pending</span>
         </div>
         <h1 class="font-headline-md md:font-headline-lg text-headline-md md:text-headline-lg text-on-surface mb-xs">Waiting for Approval</h1>
-        <p class="font-body-md text-body-md text-on-surface-variant mb-xl">Your doctor account has been created and is pending admin approval. You will be able to access the dashboard once an administrator reviews and approves your account.</p>
+        <p class="font-body-md text-body-md text-on-surface-variant mb-xl">
+            Your doctor registration is pending admin approval. Your login account is
+            created only once an administrator approves your application &mdash; you
+            will be able to sign in after that.
+        </p>
+        {% endif %}
         <a href="/login/" class="bg-primary hover:bg-primary-container text-white px-xl py-md rounded-lg font-label-md text-label-md shadow-md hover:shadow-lg transition-all duration-200 flex items-center justify-center gap-sm active:scale-[0.98]">
-            Back to Login
             <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            Back to Login
         </a>
     </div>
 </main>

@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+from django.core.exceptions import ImproperlyConfigured
+
 try:
     import dj_database_url
 except ImportError:
@@ -12,11 +14,42 @@ import cloudinary.api
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('SECRET_KEY', '[REDACTED SECRET_KEY]')
+# Load .env for local development. On Render/production the real environment
+# variables already exist and take precedence (override=False).
+try:
+    from dotenv import load_dotenv
+    load_dotenv(BASE_DIR / '.env', override=False)
+except ImportError:
+    pass
 
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*']
+
+def env(name, default=None, required_in_production=False):
+    """Read a setting from the environment.
+
+    Secrets must never have a hardcoded fallback: a committed default silently
+    becomes the production value and leaks through version control. In DEBUG we
+    tolerate a missing value; with DEBUG=False we fail loudly at startup.
+    """
+    value = os.environ.get(name, '')
+    if value:
+        return value
+    if required_in_production and not DEBUG:
+        raise ImproperlyConfigured(
+            f"Missing required environment variable: {name}. "
+            f"Set it in your hosting provider's environment (see .env.example)."
+        )
+    return default
+
+
+SECRET_KEY = env('SECRET_KEY', required_in_production=True)
+if not SECRET_KEY:
+    # DEBUG-only ephemeral key; rotates each restart, never committed.
+    from django.core.management.utils import get_random_secret_key
+    SECRET_KEY = get_random_secret_key()
+
+ALLOWED_HOSTS = [h.strip() for h in env('ALLOWED_HOSTS', '*').split(',') if h.strip()]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -91,7 +124,10 @@ else:
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {'min_length': 8},
+    },
     {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
@@ -113,23 +149,27 @@ LOGOUT_REDIRECT_URL = '/login/'
 
 # ============ EMAIL CONFIG (Mailgun via django-anymail) ============
 EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', '[REDACTED MAILGUN SMTP USER]')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', '')
 ANYMAIL = {
-    'MAILGUN_API_KEY': os.environ.get('MAILGUN_API_KEY', '[REDACTED MAILGUN API KEY]'),
-    'MAILGUN_SENDER_DOMAIN': os.environ.get('MAILGUN_SENDER_DOMAIN', '[REDACTED MAILGUN DOMAIN]'),
+    'MAILGUN_API_KEY': env('MAILGUN_API_KEY', '', required_in_production=True),
+    'MAILGUN_SENDER_DOMAIN': env('MAILGUN_SENDER_DOMAIN', ''),
 }
 
 # ============ CLOUDINARY CONFIGURATION ============
+CLOUDINARY_CLOUD_NAME = env('CLOUDINARY_CLOUD_NAME', '', required_in_production=True)
+CLOUDINARY_API_KEY = env('CLOUDINARY_API_KEY', '', required_in_production=True)
+CLOUDINARY_API_SECRET = env('CLOUDINARY_API_SECRET', '', required_in_production=True)
+
 cloudinary.config(
-    cloud_name="zozspvpq",
-    api_key="175215214824226",
-    api_secret="hXyaU0UMOtKJkWKOe8thURuP1P0",
+    cloud_name=CLOUDINARY_CLOUD_NAME,
+    api_key=CLOUDINARY_API_KEY,
+    api_secret=CLOUDINARY_API_SECRET,
 )
 
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'zozspvpq',
-    'API_KEY': '175215214824226',
-    'API_SECRET': 'hXyaU0UMOtKJkWKOe8thURuP1P0',
+    'CLOUD_NAME': CLOUDINARY_CLOUD_NAME,
+    'API_KEY': CLOUDINARY_API_KEY,
+    'API_SECRET': CLOUDINARY_API_SECRET,
 }
 
 # ============ STORAGE BACKEND ============
@@ -148,14 +188,17 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
-# eSewa ePay v2 (sandbox)
-ESEWA_PRODUCT_CODE = os.environ.get('ESEWA_PRODUCT_CODE', 'EPAYTEST')
-ESEWA_SECRET_KEY = os.environ.get('ESEWA_SECRET_KEY', '8gBm/:&EnhH.1/q')
-ESEWA_FORM_URL = os.environ.get('ESEWA_FORM_URL', 'https://rc-epay.esewa.com.np/api/epay/main/v2/form')
-ESEWA_STATUS_URL = os.environ.get('ESEWA_STATUS_URL', 'https://rc-epay.esewa.com.np/api/epay/transaction/status/')
-SITE_BASE_URL = os.environ.get('SITE_BASE_URL', 'http://127.0.0.1:8000')
+# eSewa ePay v2. EPAYTEST and the sandbox URLs are eSewa's public test values,
+# so they are safe as non-secret defaults; the secret key is not.
+ESEWA_PRODUCT_CODE = env('ESEWA_PRODUCT_CODE', 'EPAYTEST')
+ESEWA_SECRET_KEY = env('ESEWA_SECRET_KEY', '', required_in_production=True)
+ESEWA_FORM_URL = env('ESEWA_FORM_URL', 'https://rc-epay.esewa.com.np/api/epay/main/v2/form')
+ESEWA_STATUS_URL = env('ESEWA_STATUS_URL', 'https://rc-epay.esewa.com.np/api/epay/transaction/status/')
 
-# Khalti (sandbox) - add your test key from dev.khalti.com when ready
-KHALTI_SECRET_KEY = os.environ.get('KHALTI_SECRET_KEY', '05bf95cc57244045b8df5fad06748dab')
-KHALTI_INITIATE_URL = 'https://dev.khalti.com/api/v2/epayment/initiate/'
-KHALTI_LOOKUP_URL = 'https://dev.khalti.com/api/v2/epayment/lookup/'
+# Payment gateways redirect back to this host, so it must be the public URL in production.
+SITE_BASE_URL = env('SITE_BASE_URL', 'http://127.0.0.1:8000')
+
+# Khalti - get a test key from dev.khalti.com
+KHALTI_SECRET_KEY = env('KHALTI_SECRET_KEY', '', required_in_production=True)
+KHALTI_INITIATE_URL = env('KHALTI_INITIATE_URL', 'https://dev.khalti.com/api/v2/epayment/initiate/')
+KHALTI_LOOKUP_URL = env('KHALTI_LOOKUP_URL', 'https://dev.khalti.com/api/v2/epayment/lookup/')

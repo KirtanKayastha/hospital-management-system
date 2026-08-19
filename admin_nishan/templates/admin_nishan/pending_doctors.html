@@ -28,6 +28,50 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-outline-variant">
+                {% for app in applications %}
+                <tr class="hover:bg-surface-container-low transition-colors">
+                    <td class="px-lg py-lg">
+                        <div class="flex items-center gap-md">
+                            <div class="w-10 h-10 rounded-full bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center justify-center font-bold">
+                                {{ app.initials }}
+                            </div>
+                            <div>
+                                <p class="font-label-md text-label-md text-on-surface">{{ app.display_name }}</p>
+                                <p class="text-label-sm text-on-surface-variant">No account yet &middot; awaiting approval</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">{{ app.email }}</td>
+                    <td class="px-lg py-lg">
+                        <span class="px-md py-xs rounded-full bg-primary-fixed text-on-primary-fixed-variant font-label-sm text-label-sm">{{ app.specialization|default:"General" }}</span>
+                    </td>
+                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">{{ app.license_number|default:"—" }}</td>
+                    <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">{{ app.created_at|date:"M d, Y" }}</td>
+                    <td class="px-lg py-lg">
+                        <div class="flex items-center gap-sm">
+                            <a href="{% url 'admin_nishan:approve_application' app.id %}"
+                               class="action-btn bg-secondary/10 text-secondary hover:bg-secondary/20 modal-trigger"
+                               data-modal-title="Approve Doctor"
+                               data-modal-message="Approve {{ app.display_name }}? This creates their login account and grants access to the doctor dashboard."
+                               data-modal-url="{% url 'admin_nishan:approve_application' app.id %}"
+                               title="Approve">
+                                <span class="material-symbols-outlined text-[18px]">check</span>
+                                <span class="hidden sm:inline">Approve</span>
+                            </a>
+                            <a href="{% url 'admin_nishan:reject_application' app.id %}"
+                               class="action-btn bg-error-container text-error hover:bg-error-container/80 modal-trigger"
+                               data-modal-title="Reject Application"
+                               data-modal-message="Reject {{ app.display_name }}? No account will be created and they will not be able to log in."
+                               data-modal-url="{% url 'admin_nishan:reject_application' app.id %}"
+                               title="Reject">
+                                <span class="material-symbols-outlined text-[18px]">close</span>
+                                <span class="hidden sm:inline">Reject</span>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+
                 {% for doctor in pending_doctors %}
                 <tr class="hover:bg-surface-container-low transition-colors">
                     <td class="px-lg py-lg">
@@ -77,9 +121,11 @@
                 {% empty %}
                 <tr class="hover:bg-surface-container-low">
                     <td colspan="6" class="px-lg py-xl text-center">
+                        {% if not applications %}
                         <span class="material-symbols-outlined text-4xl text-on-surface-variant">fact_check</span>
                         <p class="font-body-md text-on-surface mt-md">No pending doctor approvals</p>
                         <p class="font-body-sm text-on-surface-variant">All registered doctors have already been reviewed.</p>
+                        {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
