@@ -112,21 +112,23 @@
         </a>
 
         {% if invoice.status != 'Paid' %}
-        <a href="{% url 'admin_nishan:mark_paid' invoice.id %}"
-           class="p-2 bg-secondary text-on-secondary rounded-lg hover:bg-secondary/90"
-           title="Mark Paid">
-            <span class="material-symbols-outlined text-xl">payments</span>
-        </a>
+        <form method="post" action="{% url 'admin_nishan:mark_paid' invoice.id %}" class="inline">
+            {% csrf_token %}
+            <button type="submit" class="p-2 bg-secondary text-on-secondary rounded-lg hover:bg-secondary/90 cursor-pointer"
+                title="Mark Paid">
+                <span class="material-symbols-outlined text-xl">payments</span>
+            </button>
+        </form>
         {% endif %}
 
-        <a href="{% url 'admin_nishan:delete_invoice' invoice.id %}"
-           class="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 modal-trigger"
+        <button type="button"
+           class="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700 modal-trigger cursor-pointer"
            data-modal-title="Delete Invoice"
            data-modal-message="Are you sure you want to delete invoice {{ invoice.invoice_number }}? This action cannot be undone."
            data-modal-url="{% url 'admin_nishan:delete_invoice' invoice.id %}"
            title="Delete">
             <span class="material-symbols-outlined text-xl">delete</span>
-        </a>
+        </button>
 
         <a href="{% url 'admin_nishan:print_invoice' invoice.id %}"
            class="p-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
@@ -164,9 +166,10 @@
 function openAdminModal(title, message, url, actionType) {
     document.getElementById('modal-title').textContent = title;
     document.getElementById('modal-body').innerHTML = '<p id="modal-message" class="font-body-md text-body-md text-on-surface-variant mb-6">' + message + '</p>';
+    const form = document.getElementById('modal-action-form');
     const btn = document.getElementById('modal-action-btn');
-    btn.href = url;
-    btn.className = 'px-4 py-2 min-h-[44px] rounded-lg transition-colors inline-flex items-center justify-center ' + (actionType === 'danger' ? 'bg-error text-on-error hover:bg-error/90' : 'bg-primary text-white hover:bg-primary/90');
+    form.action = url;
+    btn.className = 'px-4 py-2 min-h-[44px] rounded-lg transition-colors inline-flex items-center justify-center cursor-pointer ' + (actionType === 'danger' ? 'bg-error text-on-error hover:bg-error/90' : 'bg-primary text-white hover:bg-primary/90');
     document.getElementById('modal-footer').style.display = 'flex';
     document.getElementById('admin-modal').classList.add('active');
 }

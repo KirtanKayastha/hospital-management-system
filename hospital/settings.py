@@ -10,8 +10,8 @@ except ImportError:
     dj_database_url = None
 
 import cloudinary
-import cloudinary.uploader
 import cloudinary.api
+import cloudinary.uploader
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -76,7 +76,10 @@ if not SECRET_KEY:
     from django.core.management.utils import get_random_secret_key
     SECRET_KEY = get_random_secret_key()
 
-ALLOWED_HOSTS = [h.strip() for h in env('ALLOWED_HOSTS', '*').split(',') if h.strip()]
+# Never fall back to "*": a wildcard accepts Host-header poisoning. The Render
+# domain is included so production works even when the env var is left unset.
+DEFAULT_ALLOWED_HOSTS = "hospital-management-system-ok7h.onrender.com,localhost,127.0.0.1"
+ALLOWED_HOSTS = [h.strip() for h in env('ALLOWED_HOSTS', DEFAULT_ALLOWED_HOSTS).split(',') if h.strip()]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -128,18 +131,10 @@ WSGI_APPLICATION = 'hospital.wsgi.application'
 
 DATABASE_URL = os.environ.get('DATABASE_URL')
 
-print(f"[DB CHECK] DATABASE_URL env var set: {'Yes' if DATABASE_URL else 'No'}")
-if DATABASE_URL:
-    db_prefix = DATABASE_URL.split('://')[0] if '://' in DATABASE_URL else 'unknown'
-    print(f"[DB CHECK] DATABASE_URL starts with: {db_prefix}")
-
 if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True),
     }
-    print(f"[DB CHECK] Using database engine: {DATABASES['default']['ENGINE']}")
-    print(f"[DB CHECK] Using database name: {DATABASES['default'].get('NAME', 'unknown')}")
-    print(f"[DB CHECK] Using database host: {DATABASES['default'].get('HOST', 'unknown')}")
 else:
     DATABASES = {
         'default': {
@@ -147,7 +142,6 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
-    print(f"[DB CHECK] DATABASE_URL not set. Using SQLite for local development.")
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -213,6 +207,20 @@ STORAGES = {
 # Keep these for backward compatibility
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# ============ PRODUCTION SECURITY HARDENING ============
+# Applied only when DEBUG=False so local development keeps working over http://.
+if not DEBUG:
+    # Render terminates TLS at its edge and forwards via HTTP, so trust the
+    # proxy header when deciding the request was secure.
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
 
 
 # eSewa ePay v2. EPAYTEST and the sandbox URLs are eSewa's public test values,

@@ -1,11 +1,11 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html class="light" lang="en">
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
     <title>{% block title %}Patient Portal{% endblock %} | HM System</title>
 
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="/static/js/tailwindcdn.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
@@ -203,6 +203,11 @@
           {% if active_page == 'reminders' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
     <span class="material-symbols-outlined">medication</span>Medicine Reminders
 </a>
+<a href="{% url 'patient_roshan:lab_reports' %}"
+   class="flex items-center gap-md px-md py-sm rounded-lg font-label-md text-label-md transition-colors
+          {% if active_page == 'lab_reports' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}">
+    <span class="material-symbols-outlined">science</span>Lab Reports
+</a>
 
             <!-- ACCOUNT -->
             <p class="px-md pt-md pb-xs font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Account</p>
@@ -254,10 +259,12 @@
                     <p class="font-body-sm text-body-sm text-on-surface-variant truncate">Patient ID: #HM-{{ request.user.id }}</p>
                 </div>
             </div>
-            <a href="{% url 'auth_kirtan:logout' %}" class="flex items-center gap-md w-full px-md py-sm text-error font-label-md text-label-md hover:bg-error-container/10 rounded-lg transition-all mt-sm">
-
-                <span class="material-symbols-outlined">logout</span>Logout
-            </a>
+            <form method="post" action="{% url 'auth_kirtan:logout' %}" class="mt-sm">
+                {% csrf_token %}
+                <button type="submit" class="flex items-center gap-md w-full px-md py-sm text-error font-label-md text-label-md hover:bg-error-container/10 rounded-lg transition-all cursor-pointer">
+                    <span class="material-symbols-outlined">logout</span>Logout
+                </button>
+            </form>
         </div>
     </aside>
 

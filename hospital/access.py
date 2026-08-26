@@ -7,7 +7,6 @@ from django.shortcuts import redirect
 
 from doctor_siddhartha.models import DoctorProfile
 
-
 ROLE_ADMIN = "admin"
 ROLE_DOCTOR = "doctor"
 ROLE_PATIENT = "patient"

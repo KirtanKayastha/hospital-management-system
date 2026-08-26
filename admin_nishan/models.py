@@ -1,10 +1,9 @@
+from decimal import Decimal, InvalidOperation
+
 from django.conf import settings
 from django.db import models
 from django.db.models import Sum
 from django.utils import timezone
-from decimal import Decimal, InvalidOperation
-from patient_roshan.models import PatientProfile
-
 
 
 class Department(models.Model):
@@ -314,7 +313,7 @@ class InvoiceItem(models.Model):
         try:
             self.unit_price = Decimal(str(self.unit_price or "0"))
         except (InvalidOperation, TypeError, ValueError):
-            self.unit_price = Decimal("0")
+            self.unit_price = Decimal(0)
         self.total = Decimal(self.quantity) * self.unit_price
         super().save(*args, **kwargs)
         if self.invoice_id:
@@ -375,14 +374,14 @@ class BillingInvoice(models.Model):
         try:
             return (Decimal(str(self.tax_rate or "0")) * 100).quantize(Decimal("0.01"))
         except (InvalidOperation, TypeError, ValueError):
-            return Decimal("0")
+            return Decimal(0)
 
     def recalculate_totals(self):
         try:
             rate = Decimal(str(self.tax_rate or "0"))
         except (InvalidOperation, TypeError, ValueError):
-            rate = Decimal("0")
-        subtotal = self.items.aggregate(total=Sum('total'))['total'] or Decimal('0')
+            rate = Decimal(0)
+        subtotal = self.items.aggregate(total=Sum('total'))['total'] or Decimal(0)
         self.subtotal = subtotal
         self.tax_amount = (subtotal * rate).quantize(Decimal("0.01"))
         self.grand_total = self.subtotal + self.tax_amount

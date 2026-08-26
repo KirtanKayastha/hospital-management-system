@@ -1,0 +1,99 @@
+{% extends 'patient_roshan/base.html' %}
+{% block title %}Lab Reports{% endblock %}
+
+{% block content %}
+<div class="space-y-lg">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-md">
+        <div>
+            <h1 class="font-headline-md md:font-headline-lg text-headline-md md:text-headline-lg text-on-surface">Lab Reports</h1>
+            <p class="text-on-surface-variant font-body-md mt-xs">Results ordered by your doctors, as soon as they are filed.</p>
+        </div>
+    </div>
+
+    {% if reports %}
+    <section class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant overflow-hidden">
+        <!-- Desktop table -->
+        <div class="hidden md:block overflow-x-auto">
+            <table class="hm-table w-full text-left min-w-[760px]">
+                <thead>
+                    <tr class="bg-surface-container border-b border-outline-variant">
+                        <th class="px-lg py-md font-label-md text-on-surface-variant">Test</th>
+                        <th class="px-lg py-md font-label-md text-on-surface-variant">Doctor</th>
+                        <th class="px-lg py-md font-label-md text-on-surface-variant">Status</th>
+                        <th class="px-lg py-md font-label-md text-on-surface-variant">Ordered On</th>
+                        <th class="px-lg py-md font-label-md text-on-surface-variant">Result</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-outline-variant">
+                    {% for report in reports %}
+                    <tr class="hover:bg-surface-container-low transition-colors">
+                        <td class="px-lg py-md">
+                            <p class="font-body-sm text-on-surface font-medium">{{ report.test_name }}</p>
+                            <p class="text-label-sm text-on-surface-variant">{{ report.lab_name }}</p>
+                        </td>
+                        <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ report.doctor.get_full_name|default:"—" }}</td>
+                        <td class="px-lg py-md">
+                            {% if report.status == 'Ready' %}
+                                <span class="hm-badge hm-badge-success">Ready</span>
+                            {% elif report.status == 'Pending' %}
+                                <span class="hm-badge hm-badge-pending">Pending</span>
+                            {% elif report.status == 'In Review' %}
+                                <span class="hm-badge hm-badge-info">In Review</span>
+                            {% else %}
+                                <span class="hm-badge hm-badge-neutral">{{ report.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-lg py-md font-body-sm text-on-surface-variant">{{ report.ordered_date|date:"M d, Y" }}</td>
+                        <td class="px-lg py-md font-body-sm">
+                            {% if report.report_file %}
+                                <a href="{{ report.report_file.url }}" target="_blank" class="text-primary hover:underline font-medium">View Report</a>
+                            {% else %}
+                                <span class="text-on-surface-variant">&mdash;</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile cards -->
+        <div class="md:hidden divide-y divide-outline-variant">
+            {% for report in reports %}
+            <div class="p-md space-y-sm">
+                <div class="flex items-start justify-between gap-sm">
+                    <div>
+                        <p class="font-body-sm text-on-surface font-medium">{{ report.test_name }}</p>
+                        <p class="text-label-sm text-on-surface-variant">{{ report.lab_name }} &middot; {{ report.ordered_date|date:"M d, Y" }}</p>
+                    </div>
+                    {% if report.status == 'Ready' %}
+                        <span class="hm-badge hm-badge-success shrink-0">Ready</span>
+                    {% elif report.status == 'Pending' %}
+                        <span class="hm-badge hm-badge-pending shrink-0">Pending</span>
+                    {% elif report.status == 'In Review' %}
+                        <span class="hm-badge hm-badge-info shrink-0">In Review</span>
+                    {% else %}
+                        <span class="hm-badge hm-badge-neutral shrink-0">{{ report.status }}</span>
+                    {% endif %}
+                </div>
+                {% if report.summary %}
+                <p class="font-body-sm text-on-surface-variant">{{ report.summary|truncatechars:140 }}</p>
+                {% endif %}
+                {% if report.report_file %}
+                <a href="{{ report.report_file.url }}" target="_blank" class="inline-flex items-center gap-xs text-primary font-label-sm hover:underline">
+                    <span class="material-symbols-outlined text-[18px]">download</span>View Report
+                </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% else %}
+    <div class="bg-surface-container-lowest rounded-xl border border-dashed border-outline-variant p-xl text-center">
+        <span class="material-symbols-outlined text-4xl text-on-surface-variant">science</span>
+        <p class="font-body-sm text-on-surface-variant mt-sm">No lab reports yet.</p>
+        <p class="text-label-sm text-on-surface-variant mt-xs">Reports your doctor uploads will appear here.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,12 +1,13 @@
-from datetime import date, datetime, timedelta
-from decimal import Decimal
 import logging
+from datetime import datetime, timedelta
+from decimal import Decimal
 
 from django.contrib import messages
 from django.db import DatabaseError, IntegrityError, transaction
-from django.db.models import Count, Max, Q
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.views.decorators.http import require_POST
 
 from admin_nishan.models import (
     Appointment,
@@ -14,6 +15,7 @@ from admin_nishan.models import (
     Department,
     DoctorAvailability,
     InvoiceItem,
+    LabReport,
     MedicalRecord,
     Notification,
     Prescription,
@@ -23,6 +25,7 @@ from hospital.access import doctor_required
 from hospital.notifications import notify, notify_appointment
 from hospital.reminders import build_reminders_for_prescription
 from patient_roshan.models import PatientProfile
+
 from .models import DoctorProfile
 
 logger = logging.getLogger(__name__)
@@ -108,6 +111,7 @@ def _recent_patients(doctor_user):
 
 
 @doctor_required
+@require_POST
 def approve_appointment(request, appointment_id):
     appointment = get_object_or_404(Appointment, pk=appointment_id, doctor=request.user)
     if appointment.status != Appointment.STATUS_PENDING:
@@ -132,8 +136,8 @@ def approve_appointment(request, appointment_id):
                     "invoice_number": _unique_appointment_invoice_number(appointment),
                     "amount": fee,
                     "subtotal": fee,
-                    "tax_rate": Decimal("0"),
-                    "tax_amount": Decimal("0"),
+                    "tax_rate": Decimal(0),
+                    "tax_amount": Decimal(0),
                     "grand_total": fee,
                     "status": BillingInvoice.STATUS_UNPAID,
                     "issued_on": timezone.localdate(),
@@ -187,6 +191,7 @@ def approve_appointment(request, appointment_id):
 
 
 @doctor_required
+@require_POST
 def reject_appointment(request, appointment_id):
     appointment = get_object_or_404(Appointment, pk=appointment_id, doctor=request.user)
     if appointment.status != Appointment.STATUS_PENDING:

@@ -1,11 +1,11 @@
-﻿{% load static %}<!DOCTYPE html>
+{% load static %}<!DOCTYPE html>
 <html class="light" lang="en">
 <head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>{% block title %}Doctor Portal{% endblock %} | HM System</title>
 
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="/static/js/tailwindcdn.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
 
@@ -213,16 +213,23 @@
             <span class="material-symbols-outlined text-[22px]"{% if un == 'medical_records' %} style="font-variation-settings: 'FILL' 1;"{% endif %}>medical_services</span>
             Medical Records
         </a>
+        <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-colors duration-150 {% if un == 'lab_reports' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}" href="{% url 'doctor_siddhartha:lab_reports' %}">
+            <span class="material-symbols-outlined text-[22px]"{% if un == 'lab_reports' %} style="font-variation-settings: 'FILL' 1;"{% endif %}>science</span>
+            Lab Reports
+        </a>
         <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md transition-colors duration-150 {% if un == 'edit_profile' %}bg-surface-container-low text-primary font-bold border-r-4 border-primary{% else %}text-on-surface-variant hover:bg-surface-container-low{% endif %}" href="{% url 'doctor_siddhartha:edit_profile' %}">
             <span class="material-symbols-outlined text-[22px]"{% if un == 'edit_profile' %} style="font-variation-settings: 'FILL' 1;"{% endif %}>person</span>
             Profile
         </a>
     </nav>
 
-    <a class="flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-error hover:bg-error-container/40 transition-colors duration-150 shrink-0" href="{% url 'auth_kirtan:logout' %}">
-        <span class="material-symbols-outlined text-[22px]">logout</span>
-        Logout
-    </a>
+    <form method="post" action="{% url 'auth_kirtan:logout' %}" class="shrink-0">
+        {% csrf_token %}
+        <button type="submit" class="w-full flex items-center gap-md p-md rounded-lg font-label-md text-label-md text-error hover:bg-error-container/40 transition-colors duration-150 cursor-pointer">
+            <span class="material-symbols-outlined text-[22px]">logout</span>
+            Logout
+        </button>
+    </form>
 </div>
 </aside>
 

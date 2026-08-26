@@ -1,13 +1,14 @@
 from django.contrib import messages
-from django.contrib.messages import get_messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group, User
 from django.contrib.auth.password_validation import validate_password
+from django.contrib.messages import get_messages
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.shortcuts import redirect, render
+from django.views.decorators.http import require_POST
 
-from hospital.access import ensure_patient_profile, get_user_role
 from doctor_siddhartha.models import DoctorApplication
+from hospital.access import ensure_patient_profile, get_user_role
 
 
 def _ensure_default_department():
@@ -183,16 +184,7 @@ def register_view(request):
     return render(request, 'auth_kirtan/register.html')
 
 
-def forgot_password_view(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        if email and User.objects.filter(email=email).exists():
-            messages.success(request, 'If the email exists, password reset instructions have been prepared.')
-        else:
-            messages.success(request, 'If the email exists, password reset instructions have been prepared.')
-    return render(request, 'auth_kirtan/forgot_password.html')
-
-
+@require_POST
 def logout_view(request):
     storage = get_messages(request)
     list(storage)

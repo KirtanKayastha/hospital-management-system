@@ -1,26 +1,36 @@
 import base64
+import calendar
 import hashlib
 import hmac
 import json
 import uuid
-from django.conf import settings as django_settings
-from django.views.decorators.csrf import csrf_exempt
-import calendar
-from datetime import date, datetime, time, timedelta
-from types import SimpleNamespace
+from datetime import date, datetime, timedelta
 
+from django.conf import settings as django_settings
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
-from admin_nishan.models import Appointment, BillingInvoice, Department, DoctorAvailability, LabReport, MedicalRecord, MedicineReminder, Notification, Prescription
+from admin_nishan.models import (
+    Appointment,
+    BillingInvoice,
+    Department,
+    DoctorAvailability,
+    LabReport,
+    MedicalRecord,
+    MedicineReminder,
+    Notification,
+    Prescription,
+)
 from doctor_siddhartha.models import DoctorProfile
 from hospital.access import ensure_patient_profile, patient_required
-from .models import PatientProfile, PaymentTransaction
 
+from .models import PaymentTransaction
 
 WEEKDAY_LABELS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
@@ -306,7 +316,7 @@ def book_appointment(request):
                 title="New appointment request",
                 message=f"{appointment.patient_name} requested an appointment on {appointment.display_date} at {appointment.display_time}.",
                 category=Notification.CATEGORY_APPOINTMENT,
-                action_url=f"/doctor/schedule/",
+                action_url="/doctor/schedule/",
             )
             return redirect("/patient/appointments/?booked=1")
 
@@ -448,8 +458,12 @@ def my_appointments(request):
 
 
 @patient_required
+@require_POST
 def cancel_appointment(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id, patient=request.user)
+    if appointment.status != Appointment.STATUS_PENDING:
+        messages.error(request, "Only pending appointments can be cancelled.")
+        return redirect("patient_roshan:my_appointments")
     appointment.status = Appointment.STATUS_CANCELLED
     appointment.save(update_fields=["status", "updated_at"])
     Notification.objects.create(
@@ -507,6 +521,16 @@ def medical_records(request):
 # ─── LAB REPORTS ─────────────────────────────────────────────────────────────
 
 
+@patient_required
+def lab_reports(request):
+    profile = _patient_profile(request.user)
+    reports = LabReport.objects.filter(patient=request.user).select_related("doctor").order_by("-ordered_date", "-created_at")
+    context = {
+        "active_page": "lab_reports",
+        "patient": profile,
+        "reports": reports,
+    }
+    return render(request, "patient_roshan/lab_reports.html", context)
 
 
 # ─── PROFILE ─────────────────────────────────────────────────────────────────
@@ -1117,7 +1141,7 @@ def khalti_verify(request):
         paid_paisa = int(data.get('total_amount', 0))
     except (TypeError, ValueError):
         paid_paisa = 0
-    expected_paisa = int(round(float(invoice.grand_total) * 100))
+    expected_paisa = round(float(invoice.grand_total) * 100)
 
     if abs(paid_paisa - expected_paisa) > 1:
         if txn:

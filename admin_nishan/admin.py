@@ -1,15 +1,8 @@
 from django.contrib import admin
+
 from .models import (
-    Appointment,
     BillingInvoice,
-    Department,
-    DoctorAvailability,
     LabReport,
-    MedicalRecord,
-    MedicineReminder,
-    Notification,
-    Prescription,
-    PrescriptionItem,
 )
 
 

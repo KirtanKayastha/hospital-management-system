@@ -75,7 +75,10 @@
             <div class="space-y-sm">
                 {% if appointment.status == 'Pending' or appointment.status == 'Confirmed' %}
                 <a href="{% url 'patient_roshan:reschedule_appointment' appointment.id %}" class="w-full inline-flex justify-center items-center gap-sm px-md py-sm rounded-lg bg-primary text-white font-label-md hover:opacity-90 transition-opacity">Reschedule</a>
-                <a href="{% url 'patient_roshan:cancel_appointment' appointment.id %}" class="w-full inline-flex justify-center items-center gap-sm px-md py-sm rounded-lg border border-error text-error font-label-md hover:bg-error hover:text-white transition-colors">Cancel</a>
+                <form method="post" action="{% url 'patient_roshan:cancel_appointment' appointment.id %}" onsubmit="return confirm('Cancel this appointment? This cannot be undone.');">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full inline-flex justify-center items-center gap-sm px-md py-sm rounded-lg border border-error text-error font-label-md hover:bg-error hover:text-white transition-colors cursor-pointer">Cancel</button>
+                </form>
                 {% endif %}
                 <a href="{% url 'patient_roshan:my_appointments' %}" class="w-full inline-flex justify-center items-center gap-sm px-md py-sm rounded-lg border border-outline-variant text-on-surface font-label-md hover:bg-surface-container transition-colors">Back to list</a>
             </div>

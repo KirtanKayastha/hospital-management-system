@@ -49,24 +49,24 @@
                     <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">{{ app.created_at|date:"M d, Y" }}</td>
                     <td class="px-lg py-lg">
                         <div class="flex items-center gap-sm">
-                            <a href="{% url 'admin_nishan:approve_application' app.id %}"
-                               class="action-btn bg-secondary/10 text-secondary hover:bg-secondary/20 modal-trigger"
+                            <button type="button"
+                               class="action-btn bg-secondary/10 text-secondary hover:bg-secondary/20 modal-trigger cursor-pointer"
                                data-modal-title="Approve Doctor"
                                data-modal-message="Approve {{ app.display_name }}? This creates their login account and grants access to the doctor dashboard."
                                data-modal-url="{% url 'admin_nishan:approve_application' app.id %}"
                                title="Approve">
                                 <span class="material-symbols-outlined text-[18px]">check</span>
                                 <span class="hidden sm:inline">Approve</span>
-                            </a>
-                            <a href="{% url 'admin_nishan:reject_application' app.id %}"
-                               class="action-btn bg-error-container text-error hover:bg-error-container/80 modal-trigger"
+                            </button>
+                            <button type="button"
+                               class="action-btn bg-error-container text-error hover:bg-error-container/80 modal-trigger cursor-pointer"
                                data-modal-title="Reject Application"
                                data-modal-message="Reject {{ app.display_name }}? No account will be created and they will not be able to log in."
                                data-modal-url="{% url 'admin_nishan:reject_application' app.id %}"
                                title="Reject">
                                 <span class="material-symbols-outlined text-[18px]">close</span>
                                 <span class="hidden sm:inline">Reject</span>
-                            </a>
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -97,24 +97,24 @@
                     <td class="px-lg py-lg font-body-sm text-body-sm text-on-surface-variant">{{ doctor.user.date_joined|date:"M d, Y" }}</td>
                     <td class="px-lg py-lg">
                         <div class="flex items-center gap-sm">
-                            <a href="{% url 'admin_nishan:approve_doctor' doctor.id %}" 
-                               class="action-btn bg-secondary/10 text-secondary hover:bg-secondary/20 modal-trigger" 
-                               data-modal-title="Approve Doctor" 
+                            <button type="button"
+                               class="action-btn bg-secondary/10 text-secondary hover:bg-secondary/20 modal-trigger cursor-pointer"
+                               data-modal-title="Approve Doctor"
                                data-modal-message="Are you sure you want to approve Dr. {{ doctor.display_name }}? They will gain access to the doctor dashboard."
                                data-modal-url="{% url 'admin_nishan:approve_doctor' doctor.id %}"
                                title="Approve">
                                 <span class="material-symbols-outlined text-[18px]">check</span>
                                 <span class="hidden sm:inline">Approve</span>
-                            </a>
-                            <a href="{% url 'admin_nishan:reject_doctor' doctor.id %}" 
-                               class="action-btn bg-error-container text-error hover:bg-error-container/80 modal-trigger" 
-                               data-modal-title="Reject Doctor" 
+                            </button>
+                            <button type="button"
+                               class="action-btn bg-error-container text-error hover:bg-error-container/80 modal-trigger cursor-pointer"
+                               data-modal-title="Reject Doctor"
                                data-modal-message="Are you sure you want to reject Dr. {{ doctor.display_name }}? They will be notified of the rejection."
                                data-modal-url="{% url 'admin_nishan:reject_doctor' doctor.id %}"
                                title="Reject">
                                 <span class="material-symbols-outlined text-[18px]">close</span>
                                 <span class="hidden sm:inline">Reject</span>
-                            </a>
+                            </button>
                         </div>
                     </td>
                 </tr>
@@ -140,9 +140,10 @@
 function openAdminModal(title, message, url, actionType) {
     document.getElementById('modal-title').textContent = title;
     document.getElementById('modal-body').innerHTML = '<p id="modal-message" class="font-body-md text-body-md text-on-surface-variant mb-6">' + message + '</p>';
+    const form = document.getElementById('modal-action-form');
     const btn = document.getElementById('modal-action-btn');
-    btn.href = url;
-    btn.className = 'px-4 py-2 min-h-[44px] rounded-lg transition-colors inline-flex items-center justify-center ' + (actionType === 'danger' ? 'bg-error text-on-error hover:bg-error/90' : 'bg-primary text-white hover:bg-primary/90');
+    form.action = url;
+    btn.className = 'px-4 py-2 min-h-[44px] rounded-lg transition-colors inline-flex items-center justify-center cursor-pointer ' + (actionType === 'danger' ? 'bg-error text-on-error hover:bg-error/90' : 'bg-primary text-white hover:bg-primary/90');
     document.getElementById('modal-footer').style.display = 'flex';
     document.getElementById('admin-modal').classList.add('active');
 }

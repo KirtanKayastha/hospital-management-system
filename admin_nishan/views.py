@@ -2,6 +2,7 @@ from datetime import timedelta
 from decimal import Decimal, InvalidOperation
 
 from django.contrib import messages
+from django.contrib.auth.forms import SetPasswordForm
 from django.contrib.auth.models import Group, User
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
@@ -9,9 +10,7 @@ from django.db.models import Count, Q, Sum
 from django.db.models.functions import TruncDate
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from django.contrib.auth.forms import SetPasswordForm
-
-from .forms import PatientForm, DoctorForm
+from django.views.decorators.http import require_POST
 
 from admin_nishan.models import (
     Appointment,
@@ -26,6 +25,8 @@ from doctor_siddhartha.models import DoctorApplication, DoctorProfile
 from hospital.access import admin_required
 from hospital.notifications import notify
 from patient_roshan.models import PatientProfile
+
+from .forms import DoctorForm, PatientForm
 
 
 def _ensure_default_department():
@@ -215,6 +216,7 @@ def pending_doctors(request):
 
 
 @admin_required
+@require_POST
 def approve_application(request, application_id):
     application = get_object_or_404(DoctorApplication, pk=application_id)
 
@@ -279,6 +281,7 @@ def approve_application(request, application_id):
 
 
 @admin_required
+@require_POST
 def reject_application(request, application_id):
     application = get_object_or_404(DoctorApplication, pk=application_id)
     application.status = DoctorApplication.STATUS_REJECTED
@@ -289,6 +292,7 @@ def reject_application(request, application_id):
 
 
 @admin_required
+@require_POST
 def approve_doctor(request, doctor_id):
     profile = get_object_or_404(DoctorProfile, pk=doctor_id)
     profile.status = DoctorProfile.STATUS_APPROVED
@@ -298,6 +302,7 @@ def approve_doctor(request, doctor_id):
 
 
 @admin_required
+@require_POST
 def reject_doctor(request, doctor_id):
     profile = get_object_or_404(DoctorProfile, pk=doctor_id)
     profile.status = DoctorProfile.STATUS_REJECTED
@@ -471,6 +476,7 @@ def change_doctor_password(request, doctor_id):
 
 
 @admin_required
+@require_POST
 def enable_doctor(request, doctor_id):
     doctor = get_object_or_404(DoctorProfile, pk=doctor_id)
 
@@ -482,6 +488,7 @@ def enable_doctor(request, doctor_id):
 
 
 @admin_required
+@require_POST
 def disable_doctor(request, doctor_id):
     doctor = get_object_or_404(DoctorProfile, pk=doctor_id)
 
@@ -493,6 +500,7 @@ def disable_doctor(request, doctor_id):
 
 
 @admin_required
+@require_POST
 def delete_doctor(request, doctor_id):
     doctor = get_object_or_404(DoctorProfile, pk=doctor_id)
 
@@ -532,6 +540,7 @@ def change_patient_password(request, patient_id):
 
 
 @admin_required
+@require_POST
 def enable_patient(request, patient_id):
     patient = get_object_or_404(PatientProfile, pk=patient_id)
 
@@ -543,6 +552,7 @@ def enable_patient(request, patient_id):
 
 
 @admin_required
+@require_POST
 def disable_patient(request, patient_id):
     patient = get_object_or_404(PatientProfile, pk=patient_id)
 
@@ -558,6 +568,7 @@ def disable_patient(request, patient_id):
 
 
 @admin_required
+@require_POST
 def delete_patient(request, patient_id):
     patient = get_object_or_404(PatientProfile, pk=patient_id)
 
@@ -678,7 +689,7 @@ def _parse_tax_rate(raw, fallback=Decimal("0.13")):
     if raw in (None, ""):
         return fallback
     try:
-        return (Decimal(str(raw)) / Decimal("100")).quantize(Decimal("0.0001"))
+        return (Decimal(str(raw)) / Decimal(100)).quantize(Decimal("0.0001"))
     except (InvalidOperation, TypeError, ValueError):
         return fallback
 
@@ -830,6 +841,7 @@ def edit_invoice(request, invoice_id):
 
 
 @admin_required
+@require_POST
 def mark_paid(request, invoice_id):
     invoice = get_object_or_404(BillingInvoice, id=invoice_id)
     invoice.status = BillingInvoice.STATUS_PAID
@@ -850,6 +862,7 @@ def invoice_detail(request, invoice_id):
 
 
 @admin_required
+@require_POST
 def delete_invoice(request, invoice_id):
     invoice = get_object_or_404(BillingInvoice, id=invoice_id)
     invoice.delete()

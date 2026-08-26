@@ -63,14 +63,20 @@
             <p class="text-body-sm text-on-surface-variant mt-xs">{{ appointment.reason|truncatechars:80 }}</p>
         </div>
         <div class="flex items-center gap-sm shrink-0">
-            <a href="{% url 'doctor_siddhartha:approve_appointment' appointment.id %}" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-xs px-md py-sm rounded-lg bg-secondary text-on-secondary font-label-md text-label-sm hover:opacity-90 transition-opacity">
-                <span class="material-symbols-outlined text-[18px]">check</span>
-                Approve
-            </a>
-            <a href="{% url 'doctor_siddhartha:reject_appointment' appointment.id %}" class="flex-1 sm:flex-none inline-flex items-center justify-center gap-xs px-md py-sm rounded-lg bg-error text-on-error font-label-md text-label-sm hover:opacity-90 transition-opacity">
-                <span class="material-symbols-outlined text-[18px]">close</span>
-                Reject
-            </a>
+            <form method="post" action="{% url 'doctor_siddhartha:approve_appointment' appointment.id %}" class="flex-1 sm:flex-none">
+                {% csrf_token %}
+                <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-xs px-md py-sm rounded-lg bg-secondary text-on-secondary font-label-md text-label-sm hover:opacity-90 transition-opacity cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]">check</span>
+                    Approve
+                </button>
+            </form>
+            <form method="post" action="{% url 'doctor_siddhartha:reject_appointment' appointment.id %}" onsubmit="return confirm('Reject this appointment? The patient will be notified.');" class="flex-1 sm:flex-none">
+                {% csrf_token %}
+                <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-xs px-md py-sm rounded-lg bg-error text-on-error font-label-md text-label-sm hover:opacity-90 transition-opacity cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]">close</span>
+                    Reject
+                </button>
+            </form>
         </div>
     </div>
     {% endfor %}

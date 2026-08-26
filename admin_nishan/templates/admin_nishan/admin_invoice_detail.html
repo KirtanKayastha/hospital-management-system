@@ -14,10 +14,15 @@
             </p>
         </div>
         <div class="flex items-center gap-sm">
-            <a href="{% url 'admin_nishan:mark_paid' invoice.id %}" class="px-4 py-2 min-h-[44px] bg-secondary text-on-secondary rounded-lg hover:bg-secondary/90 transition-colors inline-flex items-center gap-2">
-                <span class="material-symbols-outlined text-[18px]">payments</span>
-                Mark Paid
-            </a>
+            {% if invoice.status != 'Paid' %}
+            <form method="post" action="{% url 'admin_nishan:mark_paid' invoice.id %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="px-4 py-2 min-h-[44px] bg-secondary text-on-secondary rounded-lg hover:bg-secondary/90 transition-colors inline-flex items-center gap-2 cursor-pointer">
+                    <span class="material-symbols-outlined text-[18px]">payments</span>
+                    Mark Paid
+                </button>
+            </form>
+            {% endif %}
             <a href="{% url 'admin_nishan:print_invoice' invoice.id %}" target="_blank" class="px-4 py-2 min-h-[44px] bg-surface-container-low border border-outline-variant text-on-surface-variant rounded-lg hover:bg-surface-container-high transition-colors inline-flex items-center gap-2">
                 <span class="material-symbols-outlined text-[18px]">print</span>
                 Print

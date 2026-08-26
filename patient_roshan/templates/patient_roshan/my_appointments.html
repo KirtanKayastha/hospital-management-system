@@ -98,9 +98,12 @@
                             <a href="{% url 'patient_roshan:reschedule_appointment' appt.id %}" class="p-sm rounded-lg hover:bg-secondary-container/20 text-secondary transition-colors" title="Reschedule">
                                 <span class="material-symbols-outlined text-md">event_repeat</span>
                             </a>
-                            <a href="{% url 'patient_roshan:cancel_appointment' appt.id %}" class="p-sm rounded-lg hover:bg-error-container/20 text-error transition-colors" title="Cancel">
-                                <span class="material-symbols-outlined text-md">cancel</span>
-                            </a>
+                            <form method="post" action="{% url 'patient_roshan:cancel_appointment' appt.id %}" onsubmit="return confirm('Cancel this appointment? This cannot be undone.');" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="p-sm rounded-lg hover:bg-error-container/20 text-error transition-colors cursor-pointer" title="Cancel">
+                                    <span class="material-symbols-outlined text-md">cancel</span>
+                                </button>
+                            </form>
                         </div>
                         {% elif appt.status == 'Completed' %}
                         <button class="px-md py-xs border border-outline-variant rounded-lg font-label-sm hover:bg-surface-container text-on-surface-variant transition-colors">View Report</button>

@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Admin Panel{% endblock %} - MediCare Admin</title>
 
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="/static/js/tailwindcdn.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet">
 
@@ -224,10 +224,13 @@
                         <p class="text-label-sm text-on-surface-variant truncate">Administrator</p>
                     </div>
                 </div>
-                <a href="{% url 'auth_kirtan:logout' %}" class="flex items-center justify-center gap-md px-md py-3 rounded-xl text-error border border-error-container bg-error-container/20 hover:bg-error-container sidebar-transition font-label-md text-label-md">
-                    <span class="material-symbols-outlined">logout</span>
-                    <span>Logout</span>
-                </a>
+                <form method="post" action="{% url 'auth_kirtan:logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full flex items-center justify-center gap-md px-md py-3 rounded-xl text-error border border-error-container bg-error-container/20 hover:bg-error-container sidebar-transition font-label-md text-label-md cursor-pointer">
+                        <span class="material-symbols-outlined">logout</span>
+                        <span>Logout</span>
+                    </button>
+                </form>
             </div>
         </aside>
 
@@ -245,10 +248,13 @@
                             <h2 class="font-headline-sm text-headline-sm text-on-surface truncate">{% block page_title %}Dashboard{% endblock %}</h2>
                         </div>
                     </div>
-                    <a href="{% url 'auth_kirtan:logout' %}" class="lg:hidden shrink-0 inline-flex items-center gap-sm px-md py-2 min-h-[44px] rounded-xl bg-surface-container-lowest border border-outline-variant text-on-surface-variant">
-                        <span class="material-symbols-outlined">logout</span>
-                        <span class="text-label-md font-label-md hidden sm:inline">Logout</span>
-                    </a>
+                    <form method="post" action="{% url 'auth_kirtan:logout' %}" class="lg:hidden shrink-0">
+                        {% csrf_token %}
+                        <button type="submit" class="inline-flex items-center gap-sm px-md py-2 min-h-[44px] rounded-xl bg-surface-container-lowest border border-outline-variant text-on-surface-variant cursor-pointer">
+                            <span class="material-symbols-outlined">logout</span>
+                            <span class="text-label-md font-label-md hidden sm:inline">Logout</span>
+                        </button>
+                    </form>
                 </div>
             </div>
 
@@ -304,7 +310,12 @@
             </div>
             <div id="modal-footer" class="flex justify-end gap-3">
                 <button type="button" onclick="closeAdminModal()" class="px-4 py-2 min-h-[44px] rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-low transition-colors">Cancel</button>
-                <a id="modal-action-btn" href="#" class="px-4 py-2 min-h-[44px] rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors inline-flex items-center justify-center">Confirm</a>
+                <!-- State-changing actions must POST so they carry the CSRF token
+                     and cannot be triggered by a crafted link or <img> tag. -->
+                <form id="modal-action-form" method="post" action="#">
+                    {% csrf_token %}
+                    <button type="submit" id="modal-action-btn" class="px-4 py-2 min-h-[44px] rounded-lg bg-primary text-white hover:bg-primary/90 transition-colors inline-flex items-center justify-center cursor-pointer">Confirm</button>
+                </form>
             </div>
         </div>
     </div>

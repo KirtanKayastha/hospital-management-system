@@ -6,7 +6,7 @@
     <title>{% block title %}HM System{% endblock %}</title>
     
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="/static/js/tailwindcdn.js"></script>
     
     <!-- ✅ FULL STITCH TAILWIND CONFIG - KEEPING EVERYTHING -->
     <script id="tailwind-config">
@@ -180,8 +180,8 @@
 
             <div class="hidden md:flex items-center gap-xl">
                 <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="/">Home</a>
-                <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">About Us</a>
-                <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="#">Services</a>
+                <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="/about/">About Us</a>
+                <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="/#services">Services</a>
                 <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-colors duration-200" href="/support/">Contact</a>
             </div>
 
@@ -191,7 +191,10 @@
            <span class="hidden lg:inline font-label-md text-label-md text-on-surface-variant">
             Welcome, {{ user.username }}!
            </span>
-              <a class="bg-error text-white px-md py-sm min-h-[44px] inline-flex items-center rounded-lg font-label-md text-label-md hover:opacity-80 transition-all duration-200" href="/logout/">Logout</a>
+              <form method="post" action="/logout/" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="bg-error text-white px-md py-sm min-h-[44px] inline-flex items-center rounded-lg font-label-md text-label-md hover:opacity-80 transition-all duration-200 cursor-pointer">Logout</button>
+              </form>
                {% else %}
                    <!-- Show when logged out -->
                   <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary transition-all duration-200" href="/login/">Login</a>
@@ -206,13 +209,16 @@
 
         <div id="mobile-menu" class="hidden md:hidden border-t border-outline-variant bg-surface-container-lowest px-md py-md flex flex-col gap-xs">
             <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary px-md py-sm min-h-[44px] flex items-center rounded-lg hover:bg-surface-container-low transition-colors" href="/">Home</a>
-            <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary px-md py-sm min-h-[44px] flex items-center rounded-lg hover:bg-surface-container-low transition-colors" href="#">About Us</a>
-            <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary px-md py-sm min-h-[44px] flex items-center rounded-lg hover:bg-surface-container-low transition-colors" href="#">Services</a>
+            <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary px-md py-sm min-h-[44px] flex items-center rounded-lg hover:bg-surface-container-low transition-colors" href="/about/">About Us</a>
+            <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary px-md py-sm min-h-[44px] flex items-center rounded-lg hover:bg-surface-container-low transition-colors" href="/#services">Services</a>
             <a class="font-label-md text-label-md text-on-surface-variant hover:text-primary px-md py-sm min-h-[44px] flex items-center rounded-lg hover:bg-surface-container-low transition-colors" href="/support/">Contact</a>
             <div class="border-t border-outline-variant mt-xs pt-md flex flex-col gap-sm">
                 {% if user.is_authenticated %}
                 <span class="font-label-md text-label-md text-on-surface-variant px-md">Welcome, {{ user.username }}!</span>
-                <a class="bg-error text-white px-md py-sm min-h-[44px] flex items-center justify-center rounded-lg font-label-md text-label-md hover:opacity-80 transition-all duration-200" href="/logout/">Logout</a>
+                <form method="post" action="/logout/">
+                  {% csrf_token %}
+                  <button type="submit" class="bg-error text-white px-md py-sm min-h-[44px] w-full flex items-center justify-center rounded-lg font-label-md text-label-md hover:opacity-80 transition-all duration-200 cursor-pointer">Logout</button>
+                </form>
                 {% else %}
                 <a class="border border-outline-variant text-on-surface-variant px-md py-sm min-h-[44px] flex items-center justify-center rounded-lg font-label-md text-label-md hover:bg-surface-container-low transition-all duration-200" href="/login/">Login</a>
                 <a class="bg-primary text-white px-md py-sm min-h-[44px] flex items-center justify-center rounded-lg font-label-md text-label-md hover:bg-primary-container transition-all duration-200" href="/register/">Register</a>

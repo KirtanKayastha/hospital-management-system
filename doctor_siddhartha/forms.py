@@ -1,6 +1,7 @@
 from django import forms
 from django.forms import inlineformset_factory
-from .models import Prescription, PrescriptionItem, Availability
+
+from .models import Availability, Prescription, PrescriptionItem
 
 
 class PrescriptionForm(forms.ModelForm):
