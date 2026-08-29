@@ -92,7 +92,6 @@ INSTALLED_APPS = [
     'patient_roshan',
     'doctor_siddhartha',
     'admin_nishan',
-    'anymail',
     'cloudinary',
     'cloudinary_storage',
 ]
@@ -168,13 +167,15 @@ LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/patient/'
 LOGOUT_REDIRECT_URL = '/login/'
 
-# ============ EMAIL CONFIG (Mailgun via django-anymail) ============
-EMAIL_BACKEND = 'anymail.backends.mailgun.EmailBackend'
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', '')
-ANYMAIL = {
-    'MAILGUN_API_KEY': env('MAILGUN_API_KEY', '', required_in_production=True),
-    'MAILGUN_SENDER_DOMAIN': env('MAILGUN_SENDER_DOMAIN', ''),
-}
+# ============ EMAIL CONFIG (Mailgun SMTP) ============
+EMAIL_BACKEND = env('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+EMAIL_HOST = env('EMAIL_HOST', 'smtp.mailgun.org')
+EMAIL_PORT = int(env('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = _as_bool(env('EMAIL_USE_TLS', 'True'))
+EMAIL_USE_SSL = _as_bool(env('EMAIL_USE_SSL', 'False'))
+EMAIL_HOST_USER = env('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
 
 # ============ CLOUDINARY CONFIGURATION ============
 CLOUDINARY_CLOUD_NAME = env('CLOUDINARY_CLOUD_NAME', '', required_in_production=True)
@@ -247,7 +248,8 @@ if _MISSING_ENV:
         'CLOUDINARY_CLOUD_NAME': 'image/media uploads',
         'CLOUDINARY_API_KEY': 'image/media uploads',
         'CLOUDINARY_API_SECRET': 'image/media uploads',
-        'MAILGUN_API_KEY': 'outgoing email (password reset)',
+        'EMAIL_HOST_USER': 'outgoing email (password reset)',
+        'EMAIL_HOST_PASSWORD': 'outgoing email (password reset)',
         'ESEWA_SECRET_KEY': 'eSewa payments',
         'KHALTI_SECRET_KEY': 'Khalti payments',
     }
