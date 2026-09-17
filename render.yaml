@@ -4,6 +4,7 @@ services:
     plan: free
     build:
       command: bash build.sh
+    startCommand: python manage.py migrate --no-input && python create_admin.py && gunicorn hospital.wsgi:application
     env: python
     envVars:
       - key: ADMIN_USERNAME
