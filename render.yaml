@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: hospital-management-system
+    plan: free
+    build:
+      command: bash build.sh
+    env: python
